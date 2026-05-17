@@ -39,10 +39,10 @@ export default function Home() {
       <div className="border-b border-white/10 bg-zinc-900/40 px-6 py-3 flex flex-wrap gap-6 text-sm shrink-0">
         {[
           { label: "Cheapest Input",        value: `$${minInput.toFixed(4)}/M`,    color: "text-emerald-400" },
-          { label: "Most Expensive Input",  value: `$${maxInput.toFixed(2)}/M`,   color: "text-rose-400"    },
-          { label: "Median Input",          value: `$${medianInput.toFixed(2)}/M`, color: "text-zinc-300"    },
-          { label: "Avg Input (p99)",       value: `$${avgInput.toFixed(2)}/M`,   color: "text-zinc-300"    },
-          { label: "Avg Output (p99)",      value: `$${avgOutput.toFixed(2)}/M`,  color: "text-zinc-300"    },
+          { label: "Most Expensive Input",  value: `$${maxInput.toFixed(2)}/M`,   color: "text-emerald-400" },
+          { label: "Median Input",          value: `$${medianInput.toFixed(2)}/M`, color: "text-emerald-400" },
+          { label: "Avg Input (p99)",       value: `$${avgInput.toFixed(2)}/M`,   color: "text-emerald-400" },
+          { label: "Avg Output (p99)",      value: `$${avgOutput.toFixed(2)}/M`,  color: "text-emerald-400" },
         ].map((stat) => (
           <div key={stat.label} className="flex flex-col">
             <span className="text-[10px] uppercase tracking-wider text-zinc-500">{stat.label}</span>
