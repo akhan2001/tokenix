@@ -21,12 +21,18 @@ export default function Home() {
   const avgOutput   = trimmed.length ? trimmed.reduce((s, r) => s + r.output_per_million_usd, 0) / trimmed.length : 0;
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white flex flex-col">
+    <div
+      className="min-h-screen text-white flex flex-col"
+      style={{ background: "radial-gradient(ellipse 90% 35% at 50% 0%, #05260F 0%, #000000 55%)" }}
+    >
       {/* Header */}
-      <header className="border-b border-white/10 bg-zinc-950 px-6 py-3 flex items-center gap-4 shrink-0">
+      <header
+        className="px-6 py-3 flex items-center gap-4 shrink-0"
+        style={{ borderBottom: "1px solid #05260F", background: "#000000" }}
+      >
         <h1
           className="text-3xl font-bold tracking-tight"
-          style={{ fontFamily: "var(--font-bricolage), sans-serif" }}
+          style={{ fontFamily: "var(--font-bricolage), sans-serif", color: "#00FF41" }}
         >
           TOKENIX
         </h1>
@@ -36,17 +42,24 @@ export default function Home() {
       <Ticker items={ticker} />
 
       {/* Stats row */}
-      <div className="border-b border-white/10 bg-zinc-900/40 px-6 py-3 flex flex-wrap gap-6 text-sm shrink-0">
+      <div
+        className="px-6 py-3 flex flex-wrap gap-6 text-sm shrink-0"
+        style={{ borderBottom: "1px solid #05260F", background: "rgba(5,38,15,0.35)" }}
+      >
         {[
-          { label: "Cheapest Input",        value: `$${minInput.toFixed(4)}/M`,    color: "text-emerald-400" },
-          { label: "Most Expensive Input",  value: `$${maxInput.toFixed(2)}/M`,   color: "text-emerald-400" },
-          { label: "Median Input",          value: `$${medianInput.toFixed(2)}/M`, color: "text-emerald-400" },
-          { label: "Avg Input (p99)",       value: `$${avgInput.toFixed(2)}/M`,   color: "text-emerald-400" },
-          { label: "Avg Output (p99)",      value: `$${avgOutput.toFixed(2)}/M`,  color: "text-emerald-400" },
+          { label: "Cheapest Input",       value: `$${minInput.toFixed(4)}/M`    },
+          { label: "Most Expensive Input", value: `$${maxInput.toFixed(2)}/M`    },
+          { label: "Median Input",         value: `$${medianInput.toFixed(2)}/M` },
+          { label: "Avg Input (p99)",      value: `$${avgInput.toFixed(2)}/M`    },
+          { label: "Avg Output (p99)",     value: `$${avgOutput.toFixed(2)}/M`   },
         ].map((stat) => (
           <div key={stat.label} className="flex flex-col">
-            <span className="text-[10px] uppercase tracking-wider text-zinc-500">{stat.label}</span>
-            <span className={`font-mono font-medium text-sm ${stat.color}`}>{stat.value}</span>
+            <span className="text-[10px] uppercase tracking-wider" style={{ color: "#7A7A7A" }}>
+              {stat.label}
+            </span>
+            <span className="font-mono font-medium text-sm" style={{ color: "#00A32A" }}>
+              {stat.value}
+            </span>
           </div>
         ))}
       </div>
@@ -56,7 +69,10 @@ export default function Home() {
         <PriceTable rows={rows} providers={providers} />
       </main>
 
-      <footer className="border-t border-white/10 px-6 py-3 text-xs text-zinc-600 text-right">
+      <footer
+        className="px-6 py-3 text-xs text-right"
+        style={{ borderTop: "1px solid #05260F", color: "#7A7A7A" }}
+      >
         Prices in USD per million tokens
       </footer>
     </div>
