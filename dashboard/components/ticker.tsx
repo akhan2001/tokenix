@@ -22,7 +22,7 @@ function TickerCard({ item }: { item: TickerItem }) {
       style={{ borderRight: "1px solid #05260F" }}
     >
       <div className="flex flex-col">
-        <span className="text-xs font-semibold whitespace-nowrap leading-tight" style={{ color: "#E0E0E0" }}>
+        <span className="text-xs font-semibold whitespace-nowrap leading-tight" style={{ color: "#00FF41" }}>
           {label}
         </span>
         <span className="text-[10px] uppercase tracking-wider" style={{ color: "#7A7A7A" }}>

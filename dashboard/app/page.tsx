@@ -25,6 +25,9 @@ export default function Home() {
       className="min-h-screen text-white flex flex-col"
       style={{ background: "radial-gradient(ellipse 90% 35% at 50% 0%, #05260F 0%, #000000 55%)" }}
     >
+      {/* Ticker */}
+      <Ticker items={ticker} />
+
       {/* Header */}
       <header
         className="px-6 py-3 flex items-center gap-4 shrink-0"
@@ -37,9 +40,6 @@ export default function Home() {
           TOKENIX
         </h1>
       </header>
-
-      {/* Ticker */}
-      <Ticker items={ticker} />
 
       {/* Stats row */}
       <div
