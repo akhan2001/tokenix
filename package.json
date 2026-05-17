@@ -2,7 +2,7 @@
   "name": "tokenix",
   "private": true,
   "scripts": {
-    "build": "cd dashboard && npm install && npm run build",
+    "build": "cd dashboard && npm install --include=dev && npm run build",
     "dev": "cd dashboard && npm run dev",
     "start": "cd dashboard && npm run start"
   },
