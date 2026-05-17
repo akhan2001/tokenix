@@ -19,21 +19,21 @@ function TickerCard({ item }: { item: TickerItem }) {
   return (
     <div
       className="flex items-center gap-3 px-5 shrink-0"
-      style={{ borderRight: "1px solid #05260F" }}
+      style={{ borderRight: "1px solid rgba(0,60,20,0.4)" }}
     >
       <div className="flex flex-col">
         <span className="text-xs font-semibold whitespace-nowrap leading-tight" style={{ color: "#00FF41" }}>
           {label}
         </span>
-        <span className="text-[10px] uppercase tracking-wider" style={{ color: "#7A7A7A" }}>
+        <span className="text-[10px] uppercase tracking-wider" style={{ color: "rgba(0,80,25,0.85)" }}>
           {item.provider}
         </span>
       </div>
       <div className="flex flex-col items-end">
-        <span className="text-xs font-mono whitespace-nowrap" style={{ color: "#00A32A" }}>
+        <span className="text-xs font-mono whitespace-nowrap" style={{ color: "rgba(0,80,25,0.85)" }}>
           IN&nbsp;${item.input_per_million_usd.toFixed(2)}
         </span>
-        <span className="text-xs font-mono whitespace-nowrap" style={{ color: "#00FF41" }}>
+        <span className="text-xs font-mono whitespace-nowrap" style={{ color: "rgba(0,80,25,0.85)" }}>
           OUT&nbsp;${item.output_per_million_usd.toFixed(2)}
         </span>
       </div>
@@ -48,16 +48,16 @@ export function Ticker({ items }: { items: TickerItem[] }) {
   return (
     <div
       className="w-full overflow-hidden h-12 flex items-center"
-      style={{ background: "#000000", borderBottom: "1px solid #05260F" }}
+      style={{ background: "#00A32A", borderBottom: "1px solid #05260F" }}
     >
       <div className="flex items-center h-full overflow-hidden relative w-full">
         <div
           className="absolute left-0 top-0 h-full w-10 z-10 pointer-events-none"
-          style={{ background: "linear-gradient(to right, #000000, transparent)" }}
+          style={{ background: "linear-gradient(to right, #00A32A, transparent)" }}
         />
         <div
           className="absolute right-0 top-0 h-full w-10 z-10 pointer-events-none"
-          style={{ background: "linear-gradient(to left, #000000, transparent)" }}
+          style={{ background: "linear-gradient(to left, #00A32A, transparent)" }}
         />
         <div
           ref={trackRef}
