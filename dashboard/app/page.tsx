@@ -30,25 +30,7 @@ export default function Home() {
     <div className="min-h-screen bg-zinc-950 text-white flex flex-col">
       {/* Header */}
       <header className="border-b border-white/10 bg-zinc-950 px-6 py-3 flex items-center gap-4 shrink-0">
-        <span className="text-lg font-bold tracking-tight">TOKENIX</span>
-        <div className="h-4 w-px bg-zinc-700" />
-        <div className="flex gap-4 text-xs text-zinc-500">
-          <span>{totalModels.toLocaleString()} models</span>
-          <span>{totalProviders} providers</span>
-          {timestamp && (
-            <span>
-              Updated{" "}
-              <span className="text-zinc-400">
-                {new Date(timestamp).toUTCString().replace(" GMT", " UTC")}
-              </span>
-            </span>
-          )}
-        </div>
-        <div className="ml-auto">
-          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 uppercase tracking-wider">
-            Live
-          </span>
-        </div>
+        <h1 className="text-3xl font-bold tracking-tight font-sans">TOKENIX</h1>
       </header>
 
       {/* Ticker */}
@@ -62,7 +44,7 @@ export default function Home() {
           { label: "Median Input",          value: `$${medianInput.toFixed(2)}/M`, color: "text-zinc-300"    },
           { label: "Avg Input (p99)",       value: `$${avgInput.toFixed(2)}/M`,   color: "text-zinc-300"    },
           { label: "Avg Output (p99)",      value: `$${avgOutput.toFixed(2)}/M`,  color: "text-zinc-300"    },
-          { label: "Sources",               value: sources.join(", "),             color: "text-zinc-400"    },
+          // { label: "Sources",               value: sources.join(", "),             color: "text-zinc-400"    },
         ].map((stat) => (
           <div key={stat.label} className="flex flex-col">
             <span className="text-[10px] uppercase tracking-wider text-zinc-500">{stat.label}</span>
@@ -73,11 +55,10 @@ export default function Home() {
 
       {/* Table */}
       <main className="flex-1 px-6 py-6">
-        <PriceTable rows={rows} sources={sources} providers={providers} />
+        <PriceTable rows={rows} providers={providers} />
       </main>
 
-      <footer className="border-t border-white/10 px-6 py-3 text-xs text-zinc-600 flex justify-between">
-        <span>Sources: OpenRouter · LiteLLM DB · DeepInfra · NovitaAI · Groq · Perplexity · Fireworks</span>
+      <footer className="border-t border-white/10 px-6 py-3 text-xs text-zinc-600 text-right">
         <span>Prices in USD per million tokens</span>
       </footer>
     </div>
