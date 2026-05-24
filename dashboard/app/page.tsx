@@ -39,7 +39,7 @@ export default function Home() {
         <PriceTable rows={rows} providers={providers} />
       </main>
       <footer
-        className="flex items-center justify-between flex-wrap gap-4 px-6 py-4"
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-6 py-4"
         style={{ borderTop: "1px solid #05260F" }}
       >
         <div className="flex items-center gap-4">

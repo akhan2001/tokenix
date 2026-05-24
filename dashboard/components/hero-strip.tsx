@@ -31,24 +31,16 @@ export function HeroStrip({ minInput, maxInput, medianInput, avgOutput, provider
         background: "linear-gradient(180deg, rgba(5,38,15,0.45) 0%, rgba(5,38,15,0.25) 100%)",
       }}
     >
-      <div style={{ display: "flex", alignItems: "stretch", minHeight: 100 }}>
-        {items.map((item, idx) => (
-          <div
-            key={item.label}
-            style={{
-              borderRight: idx < items.length - 1 ? "1px solid #05260F" : undefined,
-              padding: "16px 28px",
-              flex: "1 1 0",
-              minWidth: 0,
-              display: "flex",
-              flexDirection: "column",
-              gap: 4,
-            }}
-          >
+      <div className="hero-grid">
+        {items.map((item) => (
+          <div key={item.label} className="hero-item">
             <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", color: "#7A7A7A" }}>
               {item.label}
             </span>
-            <div style={{ fontFamily: "var(--font-jetbrains), ui-monospace, monospace", fontSize: 26, fontWeight: 600, color: item.tone, letterSpacing: "-0.01em", lineHeight: 1 }}>
+            <div
+              className="hero-value"
+              style={{ fontFamily: "var(--font-jetbrains), ui-monospace, monospace", fontWeight: 600, color: item.tone, letterSpacing: "-0.01em", lineHeight: 1 }}
+            >
               {item.value}
             </div>
             <div style={{ fontFamily: "var(--font-jetbrains), ui-monospace, monospace", fontSize: 10, color: "#7A7A7A" }}>

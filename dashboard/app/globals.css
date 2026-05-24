@@ -227,6 +227,66 @@
 /* Selection */
 ::selection { background: #00A32A; color: #000; }
 
+/* ── Hero strip responsive grid ─────────────────── */
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+@media (min-width: 768px) {
+  .hero-grid { grid-template-columns: repeat(5, 1fr); }
+}
+.hero-item {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-right: 1px solid #05260F;
+  border-bottom: 1px solid #05260F;
+}
+.hero-item:nth-child(2n) { border-right: none; }
+.hero-item:last-child { border-right: none; border-bottom: none; }
+.hero-value { font-size: 20px; }
+@media (min-width: 768px) {
+  .hero-item { padding: 16px 28px; border-bottom: none; border-right: 1px solid #05260F; }
+  .hero-item:nth-child(2n) { border-right: 1px solid #05260F; }
+  .hero-item:last-child { border-right: none; }
+  .hero-value { font-size: 26px; }
+}
+
+/* ── Screener layout ─────────────────────────────── */
+.screener-wrap { padding: 0 16px 24px; }
+@media (min-width: 768px) { .screener-wrap { padding: 0 24px 24px; } }
+
+.screener-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 0 12px;
+}
+@media (min-width: 768px) {
+  .screener-header { flex-direction: row; align-items: center; justify-content: space-between; padding: 20px 0 14px; }
+}
+
+.screener-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+@media (min-width: 640px) {
+  .screener-filters { flex-direction: row; align-items: center; width: auto; }
+}
+
+.screener-search { width: 100%; }
+@media (min-width: 640px) { .screener-search { width: 260px; } }
+
+.screener-select { width: 100%; height: 30px; background: #000; border: 1px solid #05260F; color: #E0E0E0; padding: 0 10px; font-size: 12px; }
+@media (min-width: 640px) { .screener-select { width: auto; } }
+
+/* ── Pagination numbers — hide on small screens ──── */
+.pg-numbers { display: none; }
+@media (min-width: 640px) { .pg-numbers { display: flex; align-items: center; gap: 4px; } }
+
 /* Header nav links */
 .nav-link {
   display: inline-flex;

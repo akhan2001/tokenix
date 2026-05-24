@@ -107,7 +107,7 @@ function Pagination({
         <PgBtn disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>← Prev</PgBtn>
 
         {totalPages > 1 && (
-          <div className="flex items-center gap-1">
+          <div className="pg-numbers">
             {pages.map((p, i) => {
               const prev = pages[i - 1];
               return (
@@ -231,9 +231,9 @@ export function PriceTable({ rows, providers }: { rows: PriceRow[]; providers: s
   const cellPad = "10px 14px";
 
   return (
-    <div className="flex flex-col" style={{ padding: "0 24px 24px" }}>
+    <div className="flex flex-col screener-wrap">
       {/* Heading + filter bar */}
-      <div className="flex items-center justify-between flex-wrap gap-4" style={{ padding: "20px 0 14px" }}>
+      <div className="screener-header">
         <div className="flex items-center gap-3">
           <h2 style={{ margin: 0, fontSize: 22, fontWeight: 600, fontFamily: "var(--font-bricolage), sans-serif", letterSpacing: "-0.015em", color: "#E0E0E0" }}>
             Screener
@@ -245,14 +245,14 @@ export function PriceTable({ rows, providers }: { rows: PriceRow[]; providers: s
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div style={{ position: "relative" }}>
+        <div className="screener-filters">
+          <div style={{ position: "relative" }} className="screener-search">
             <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "#7A7A7A", fontSize: 13 }}>⌕</span>
             <input
               placeholder="Search model or provider…"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              style={{ height: 30, background: "#000", border: "1px solid #05260F", color: "#E0E0E0", padding: "0 28px", fontSize: 12, width: 260, outline: "none" }}
+              style={{ height: 30, background: "#000", border: "1px solid #05260F", color: "#E0E0E0", padding: "0 28px", fontSize: 12, width: "100%", outline: "none" }}
               onFocus={(e) => (e.currentTarget.style.borderColor = "#00A32A")}
               onBlur={(e) => (e.currentTarget.style.borderColor = "#05260F")}
             />
@@ -266,7 +266,7 @@ export function PriceTable({ rows, providers }: { rows: PriceRow[]; providers: s
           <select
             value={providerFilter}
             onChange={(e) => { setProviderFilter(e.target.value); setPage(1); }}
-            style={{ height: 30, background: "#000", border: "1px solid #05260F", color: "#E0E0E0", padding: "0 10px", fontSize: 12 }}
+            className="screener-select"
           >
             <option value="all">all providers</option>
             {providers.map((p) => <option key={p} value={p}>{p}</option>)}
@@ -275,7 +275,7 @@ export function PriceTable({ rows, providers }: { rows: PriceRow[]; providers: s
           <select
             value={tierFilter}
             onChange={(e) => { setTierFilter(e.target.value); setPage(1); }}
-            style={{ height: 30, background: "#000", border: "1px solid #05260F", color: "#E0E0E0", padding: "0 10px", fontSize: 12 }}
+            className="screener-select"
           >
             <option value="all">all tiers</option>
             <option value="S">S — frontier</option>

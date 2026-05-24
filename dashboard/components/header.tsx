@@ -21,7 +21,8 @@ export function Header() {
         </span>
       </div>
 
-      <nav className="flex items-center">
+      {/* Hidden on mobile, visible md+ */}
+      <nav className="hidden md:flex items-center">
         {NAV.map((label, i) => (
           <a key={label} href="#" className={`nav-link${i === 0 ? " active" : ""}`}>
             {label}
