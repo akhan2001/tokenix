@@ -1,5 +1,7 @@
 import { loadPrices, tickerModels } from "@/lib/data";
+import { Header } from "@/components/header";
 import { Ticker } from "@/components/ticker";
+import { HeroStrip } from "@/components/hero-strip";
 import { PriceTable } from "@/components/price-table";
 
 export const dynamic = "force-dynamic";
@@ -17,63 +19,41 @@ export default function Home() {
   const minInput    = withInput.length ? sortedInp[0].input_per_million_usd : 0;
   const maxInput    = withInput.length ? sortedInp[sortedInp.length - 1].input_per_million_usd : 0;
   const medianInput = trimmed.length ? trimmed[Math.floor(trimmed.length / 2)].input_per_million_usd : 0;
-  const avgInput    = trimmed.length ? trimmed.reduce((s, r) => s + r.input_per_million_usd, 0) / trimmed.length : 0;
   const avgOutput   = trimmed.length ? trimmed.reduce((s, r) => s + r.output_per_million_usd, 0) / trimmed.length : 0;
 
+  const providerCount = new Set(rows.map((r) => r.provider).filter(Boolean)).size;
+
   return (
-    <div
-      className="min-h-screen text-white flex flex-col"
-      style={{ background: "radial-gradient(ellipse 90% 35% at 50% 0%, #05260F 0%, #000000 55%)" }}
-    >
-      {/* Ticker */}
+    <div className="scanlines min-h-screen flex flex-col" style={{ background: "#000000", color: "#E0E0E0" }}>
+      <Header />
       <Ticker items={ticker} />
-
-      {/* Header */}
-      <header
-        className="px-6 py-3 flex items-center gap-4 shrink-0"
-        style={{ borderBottom: "1px solid #05260F", background: "#000000" }}
-      >
-        <h1
-          className="text-3xl font-bold tracking-tight"
-          style={{ fontFamily: "var(--font-bricolage), sans-serif", color: "#00FF41" }}
-        >
-          TOKENIX
-        </h1>
-      </header>
-
-      {/* Stats row */}
-      <div
-        className="px-6 py-3 flex flex-wrap gap-6 text-sm shrink-0"
-        style={{ borderBottom: "1px solid #05260F", background: "rgba(5,38,15,0.35)" }}
-      >
-        {[
-          { label: "Cheapest Input",       value: `$${minInput.toFixed(4)}/M`    },
-          { label: "Most Expensive Input", value: `$${maxInput.toFixed(2)}/M`    },
-          { label: "Median Input",         value: `$${medianInput.toFixed(2)}/M` },
-          { label: "Avg Input (p99)",      value: `$${avgInput.toFixed(2)}/M`    },
-          { label: "Avg Output (p99)",     value: `$${avgOutput.toFixed(2)}/M`   },
-        ].map((stat) => (
-          <div key={stat.label} className="flex flex-col">
-            <span className="text-[10px] uppercase tracking-wider" style={{ color: "#7A7A7A" }}>
-              {stat.label}
-            </span>
-            <span className="font-mono font-medium text-sm" style={{ color: "#00A32A" }}>
-              {stat.value}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {/* Table */}
-      <main className="flex-1 px-6 py-6">
+      <HeroStrip
+        minInput={minInput}
+        maxInput={maxInput}
+        medianInput={medianInput}
+        avgOutput={avgOutput}
+        providerCount={providerCount}
+        totalModels={rows.length}
+      />
+      <main className="flex-1">
         <PriceTable rows={rows} providers={providers} />
       </main>
-
       <footer
-        className="px-6 py-3 text-xs text-right"
-        style={{ borderTop: "1px solid #05260F", color: "#7A7A7A" }}
+        className="flex items-center justify-between flex-wrap gap-4 px-6 py-4"
+        style={{ borderTop: "1px solid #05260F" }}
       >
-        Prices in USD per million tokens
+        <div className="flex items-center gap-4">
+          <span className="logo-mark">TX</span>
+          <span style={{ fontSize: 11, color: "#7A7A7A" }}>© 2025 TOKENIX</span>
+        </div>
+        <div className="flex items-center gap-4">
+          {["Methodology", "Status", "Terms"].map((link) => (
+            <a key={link} href="#" className="footer-link">{link}</a>
+          ))}
+          <span style={{ fontSize: 11, color: "#7A7A7A", borderLeft: "1px solid #05260F", paddingLeft: 16 }}>
+            Prices in USD per million tokens
+          </span>
+        </div>
       </footer>
     </div>
   );
