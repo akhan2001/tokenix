@@ -9,7 +9,8 @@
       "WebFetch(domain:api.anthropic.com)",
       "PowerShell(Get-ChildItem -Recurse \"C:\\\\Users\\\\mabdu\\\\.claude\\\\projects\\\\C--Users-mabdu-Work-gpu-trade\\\\a252e890-9cf9-4045-bebf-c4f1aea972b7\\\\tool-results\\\\design\" | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\Users\\\\mabdu\\\\.claude\\\\projects\\\\C--Users-mabdu-Work-gpu-trade\\\\a252e890-9cf9-4045-bebf-c4f1aea972b7\\\\tool-results\\\\design\\\\\", \"\"\\) })",
       "PowerShell(taskkill /PID 23788 /F)",
-      "PowerShell(cd C:\\\\Users\\\\mabdu\\\\Work\\\\gpu-trade\\\\dashboard; $env:PORT=\"3001\"; npx next dev 2>&1 | Select-Object -First 40)"
+      "PowerShell(cd C:\\\\Users\\\\mabdu\\\\Work\\\\gpu-trade\\\\dashboard; $env:PORT=\"3001\"; npx next dev 2>&1 | Select-Object -First 40)",
+      "Bash(npx tsc *)"
     ]
   }
 }

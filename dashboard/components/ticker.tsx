@@ -19,23 +19,52 @@ function TickerCard({ item }: { item: TickerItem }) {
   return (
     <div
       className="flex items-center gap-3 px-5 shrink-0"
-      style={{ borderRight: "1px solid rgba(0,60,20,0.4)" }}
+      style={{ borderRight: "1px solid var(--border)" }}
     >
       <div className="flex flex-col">
-        <span className="text-xs font-semibold whitespace-nowrap leading-tight" style={{ color: "#021a08" }}>
+        <span
+          style={{
+            fontSize: 11,
+            fontWeight: 500,
+            color: "var(--text)",
+            whiteSpace: "nowrap",
+            lineHeight: 1.3,
+            fontFamily: "var(--mono)",
+          }}
+        >
           {label}
         </span>
-        <span className="text-[10px] uppercase tracking-wider" style={{ color: "rgba(2,26,8,0.55)" }}>
+        <span
+          style={{
+            fontSize: 10,
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            color: "var(--text3)",
+            fontFamily: "var(--mono)",
+          }}
+        >
           {item.provider}
         </span>
       </div>
       <div className="flex flex-col items-end">
-        {/* IN — dark forest green */}
-        <span className="text-xs font-mono whitespace-nowrap" style={{ color: "#033d10" }}>
+        <span
+          style={{
+            fontSize: 11,
+            fontFamily: "var(--mono)",
+            whiteSpace: "nowrap",
+            color: "var(--accent)",
+          }}
+        >
           IN&nbsp;${item.input_per_million_usd.toFixed(2)}
         </span>
-        {/* OUT — near-black green, clearly distinct */}
-        <span className="text-xs font-mono whitespace-nowrap" style={{ color: "#011508" }}>
+        <span
+          style={{
+            fontSize: 11,
+            fontFamily: "var(--mono)",
+            whiteSpace: "nowrap",
+            color: "var(--text2)",
+          }}
+        >
           OUT&nbsp;${item.output_per_million_usd.toFixed(2)}
         </span>
       </div>
@@ -49,10 +78,14 @@ export function Ticker({ items }: { items: TickerItem[] }) {
 
   return (
     <div
-      className="w-full overflow-hidden h-12 flex items-center"
-      style={{ background: "#00A32A", borderBottom: "1px solid #05260F" }}
+      className="w-full overflow-hidden flex items-center"
+      style={{
+        height: 44,
+        background: "var(--s1)",
+        borderBottom: "1px solid var(--border)",
+      }}
     >
-      <div className="flex items-center h-full w-full">
+      <div className="flex items-center h-full w-full overflow-hidden">
         <div
           ref={trackRef}
           className="flex items-center h-full animate-ticker"
