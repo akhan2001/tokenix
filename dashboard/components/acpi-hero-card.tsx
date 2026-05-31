@@ -166,7 +166,7 @@ export function AcpiHeroCard() {
       </div>
 
       {/* Mini spark */}
-      <div
+      {/* <div
         style={{
           marginTop: 22,
           borderTop: "1px solid var(--border)",
@@ -188,7 +188,7 @@ export function AcpiHeroCard() {
           <span>May 29, 2026</span>
         </div>
         <MiniSpark />
-      </div>
+      </div> */}
     </div>
   );
 }
