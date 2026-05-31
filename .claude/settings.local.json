@@ -10,7 +10,11 @@
       "PowerShell(Get-ChildItem -Recurse \"C:\\\\Users\\\\mabdu\\\\.claude\\\\projects\\\\C--Users-mabdu-Work-gpu-trade\\\\a252e890-9cf9-4045-bebf-c4f1aea972b7\\\\tool-results\\\\design\" | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\Users\\\\mabdu\\\\.claude\\\\projects\\\\C--Users-mabdu-Work-gpu-trade\\\\a252e890-9cf9-4045-bebf-c4f1aea972b7\\\\tool-results\\\\design\\\\\", \"\"\\) })",
       "PowerShell(taskkill /PID 23788 /F)",
       "PowerShell(cd C:\\\\Users\\\\mabdu\\\\Work\\\\gpu-trade\\\\dashboard; $env:PORT=\"3001\"; npx next dev 2>&1 | Select-Object -First 40)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "PowerShell(Copy-Item C:\\\\Users\\\\mabdu\\\\Work\\\\gpu-trade\\\\apps\\\\index-engine\\\\data\\\\prices.csv C:\\\\Users\\\\mabdu\\\\Work\\\\gpu-trade\\\\apps\\\\web\\\\data\\\\prices.csv)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\mabdu\\\\Work\\\\gpu-trade\\\\apps\\\\web\" -Recurse -Depth 3 -Force | Where-Object { -not $_.PSIsContainer } | Select-Object FullName)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\mabdu\\\\Work\\\\gpu-trade\\\\apps\\\\web\\\\app\" -Recurse -Force | Where-Object { -not $_.PSIsContainer } | Select-Object FullName)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\mabdu\\\\Work\\\\gpu-trade\\\\apps\\\\web\\\\components\" -Recurse -Force | Where-Object { -not $_.PSIsContainer } | Select-Object Name)"
     ]
   }
 }
