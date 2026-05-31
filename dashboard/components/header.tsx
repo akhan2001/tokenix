@@ -1,34 +1,82 @@
-const NAV = ["Index", "Models", "Methodology", "Changelog"];
+interface HeaderProps {
+  /** Which nav item to highlight. "index" = homepage, "screener" = screener page. */
+  page?: "index" | "screener" | "methodology";
+}
 
-export function Header() {
+export function Header({ page = "index" }: HeaderProps) {
   return (
-    <header
-      className="sticky top-0 z-50 flex items-center justify-between px-6 shrink-0"
+    <nav
       style={{
-        height: 56,
-        background: "#000",
-        borderBottom: "1px solid #05260F",
-        boxShadow: "0 1px 0 #05260F, 0 8px 24px rgba(0,0,0,0.6)",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "18px 48px",
+        borderBottom: "1px solid var(--border)",
+        position: "sticky",
+        top: 0,
+        zIndex: 100,
+        background: "rgba(11,12,14,0.92)",
+        backdropFilter: "blur(16px)",
       }}
     >
-      <div className="flex items-center gap-3">
-        <span className="logo-mark">TX</span>
-        <span
-          className="text-xl font-semibold tracking-tight"
-          style={{ fontFamily: "var(--font-bricolage), sans-serif", color: "#00FF41" }}
-        >
-          TOKENIX
-        </span>
-      </div>
+      {/* Logo */}
+      <a
+        href="/"
+        style={{
+          fontFamily: "var(--serif)",
+          fontSize: 18,
+          fontWeight: 700,
+          letterSpacing: "0.04em",
+          color: "var(--text)",
+          textDecoration: "none",
+        }}
+      >
+        Token<span style={{ color: "var(--accent)" }}>ix</span>
+      </a>
 
-      {/* Hidden on mobile, visible md+ */}
-      <nav className="hidden md:flex items-center">
-        {NAV.map((label, i) => (
-          <a key={label} href="#" className={`nav-link${i === 0 ? " active" : ""}`}>
-            {label}
-          </a>
+      {/* Nav links — hidden on mobile */}
+      <ul
+        className="hidden md:flex"
+        style={{ listStyle: "none", margin: 0, padding: 0, gap: 30 }}
+      >
+        {(
+          [
+            { label: "Index",       href: "/",           key: "index" },
+            { label: "Screener",    href: "/screener",   key: "screener" },
+            { label: "Methodology", href: "/#methodology", key: "methodology" },
+          ] as const
+        ).map(({ label, href, key }) => (
+          <li key={key}>
+            <a
+              href={href}
+              className={`nav-link${page === key ? " active" : ""}`}
+            >
+              {label}
+            </a>
+          </li>
         ))}
-      </nav>
-    </header>
+      </ul>
+
+      {/* Right: status + CTA */}
+      <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+        <div
+          className="hidden md:flex"
+          style={{ alignItems: "center", gap: 8, fontSize: 11, color: "var(--text3)", letterSpacing: "0.04em", flexDirection: "row" }}
+        >
+          <span className="live-dot" />
+          Updated daily · May 2026
+        </div>
+        {page !== "screener" && (
+          <a href="/screener" className="nav-cta">
+            Live Screener <span className="arr">→</span>
+          </a>
+        )}
+        {page === "screener" && (
+          <a href="/" className="nav-cta">
+            ← Index
+          </a>
+        )}
+      </div>
+    </nav>
   );
 }

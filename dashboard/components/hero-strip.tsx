@@ -16,34 +16,49 @@ function fmtPrice(n: number): string {
 
 export function HeroStrip({ minInput, maxInput, medianInput, avgOutput, providerCount, totalModels }: HeroStripProps) {
   const items = [
-    { label: "CHEAPEST INPUT",   value: fmtPrice(minInput) + "/M",    sub: "lowest available",                             tone: "#3DDC84" },
-    { label: "MOST EXPENSIVE",   value: fmtPrice(maxInput) + "/M",    sub: "highest listed",                               tone: "#FF4D5E" },
-    { label: "MEDIAN INPUT",     value: fmtPrice(medianInput) + "/M", sub: `across ${totalModels.toLocaleString()} models`, tone: "#E0E0E0" },
-    { label: "AVG OUTPUT (P99)", value: fmtPrice(avgOutput) + "/M",   sub: "trimmed mean",                                 tone: "#E0E0E0" },
-    { label: "PROVIDERS",        value: String(providerCount),         sub: "tracked",                                      tone: "#E0E0E0" },
+    { label: "Cheapest Input",   value: fmtPrice(minInput) + "/M",    sub: "lowest available",                               tone: "var(--green)" },
+    { label: "Most Expensive",   value: fmtPrice(maxInput) + "/M",    sub: "highest listed",                                 tone: "var(--red)" },
+    { label: "Median Input",     value: fmtPrice(medianInput) + "/M", sub: `across ${totalModels.toLocaleString()} models`,  tone: "var(--text)" },
+    { label: "Avg Output (P99)", value: fmtPrice(avgOutput) + "/M",   sub: "trimmed mean",                                   tone: "var(--text)" },
+    { label: "Providers",        value: String(providerCount),         sub: "companies tracked",                              tone: "var(--accent)" },
   ];
 
   return (
-    <section
-      className="grid-bg"
-      style={{
-        borderBottom: "1px solid #05260F",
-        background: "linear-gradient(180deg, rgba(5,38,15,0.45) 0%, rgba(5,38,15,0.25) 100%)",
-      }}
-    >
+    <section style={{ borderBottom: "1px solid var(--border)", background: "var(--s1)" }}>
       <div className="hero-grid">
         {items.map((item) => (
           <div key={item.label} className="hero-item">
-            <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", color: "#7A7A7A" }}>
+            <span
+              style={{
+                fontSize: 9,
+                fontWeight: 400,
+                letterSpacing: "0.2em",
+                textTransform: "uppercase",
+                color: "var(--text3)",
+                fontFamily: "var(--mono)",
+              }}
+            >
               {item.label}
             </span>
             <div
               className="hero-value"
-              style={{ fontFamily: "var(--font-jetbrains), ui-monospace, monospace", fontWeight: 600, color: item.tone, letterSpacing: "-0.01em", lineHeight: 1 }}
+              style={{
+                fontFamily: "var(--serif)",
+                fontWeight: 500,
+                color: item.tone,
+                letterSpacing: "-0.01em",
+                lineHeight: 1,
+              }}
             >
               {item.value}
             </div>
-            <div style={{ fontFamily: "var(--font-jetbrains), ui-monospace, monospace", fontSize: 10, color: "#7A7A7A" }}>
+            <div
+              style={{
+                fontFamily: "var(--mono)",
+                fontSize: 11,
+                color: "var(--text3)",
+              }}
+            >
               {item.sub}
             </div>
           </div>

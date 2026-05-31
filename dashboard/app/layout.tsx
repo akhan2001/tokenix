@@ -1,23 +1,25 @@
 import type { Metadata } from "next";
-import { Inter, Bricolage_Grotesque, JetBrains_Mono } from "next/font/google";
+import { Playfair_Display, DM_Mono } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-const bricolage = Bricolage_Grotesque({
+const playfair = Playfair_Display({
   subsets: ["latin"],
-  variable: "--font-bricolage",
+  variable: "--font-playfair",
   display: "swap",
-  axes: ["wdth"],
+  style: ["normal", "italic"],
+  weight: ["400", "500", "600", "700"],
 });
-const jetbrainsMono = JetBrains_Mono({
+
+const dmMono = DM_Mono({
   subsets: ["latin"],
-  variable: "--font-jetbrains",
+  variable: "--font-dm-mono",
   display: "swap",
+  weight: ["300", "400", "500"],
 });
 
 export const metadata: Metadata = {
-  title: "TOKENIX",
-  description: "Real-time LLM token pricing across 100+ providers",
+  title: "Tokenix · AI Compute Price Index",
+  description: "The standard measure of AI compute value — quality-adjusted pricing across 100+ providers.",
 };
 
 export default function RootLayout({
@@ -26,11 +28,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`h-full antialiased ${inter.variable} ${bricolage.variable} ${jetbrainsMono.variable}`}>
-      <body
-        className="min-h-full flex flex-col"
-        style={{ fontFamily: "var(--font-inter), ui-sans-serif, system-ui, sans-serif" }}
-      >
+    <html lang="en" className={`${playfair.variable} ${dmMono.variable}`}>
+      <body className="min-h-full flex flex-col">
         {children}
       </body>
     </html>
