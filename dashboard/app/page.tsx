@@ -1,4 +1,4 @@
-import { loadPrices } from "@/lib/data";
+import { loadPrices, loadAcpi } from "@/lib/data";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { AcpiHeroCard } from "@/components/acpi-hero-card";
@@ -29,6 +29,7 @@ const TIER_COLORS: Record<string, string> = {
 
 export default function Home() {
   const rows = loadPrices();
+  const acpiData = loadAcpi();
 
   // ── Stats from real data ──────────────────────────────────────
   const withInput = rows.filter((r) => r.input_per_million_usd > 0);
@@ -134,8 +135,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Hero right: ACPI card (client component) */}
-        <AcpiHeroCard />
+        {/* Hero right: ACPI card — passes real computed value when available */}
+        <AcpiHeroCard acpi={acpiData} />
       </section>
 
       {/* ── CHART ─────────────────────────────────────────────── */}

@@ -1,0 +1,14 @@
+node_modules/
+package-lock.json
+
+# Price snapshots (large, ephemeral — acpi_history.csv in dashboard/data/ is the record)
+prices_*.csv
+acpi_history.csv
+
+# Python
+__pycache__/
+*.pyc
+
+# Misc
+.DS_Store
+.env*

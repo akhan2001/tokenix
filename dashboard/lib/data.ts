@@ -58,6 +58,32 @@ export function loadPrices(): PriceRow[] {
     .filter((r) => r.input_per_million_usd > 0 || r.output_per_million_usd > 0);
 }
 
+// ── ACPI ─────────────────────────────────────────────────────────────────────
+
+export interface AcpiData {
+  acpi: number;
+  computed_at: string;
+  model_count: number;
+  provider_count: number;
+  hardware_floor: number;
+  p2_score: number;
+  components: {
+    mean_blended_price: number;
+    mean_p3_spread: number;
+    mean_quality_adjustment: number;
+  };
+}
+
+export function loadAcpi(): AcpiData | null {
+  const jsonPath = path.join(process.cwd(), "data", "acpi_latest.json");
+  if (!fs.existsSync(jsonPath)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(jsonPath, "utf-8")) as AcpiData;
+  } catch {
+    return null;
+  }
+}
+
 // Pick interesting models for the ticker — one per well-known provider
 const TICKER_MODEL_IDS = [
   "openai/gpt-4o",

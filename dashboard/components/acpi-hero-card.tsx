@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { AcpiData } from "@/lib/data";
 
 /* Deterministic ACPI series — 17 months (Jan 2025 → May 2026), 204 data points */
 function buildSeries(): number[] {
@@ -91,7 +92,15 @@ function CountUp({ target }: { target: number }) {
   return <>${value.toFixed(2)}</>;
 }
 
-export function AcpiHeroCard() {
+export function AcpiHeroCard({ acpi }: { acpi: AcpiData | null }) {
+  const value = acpi?.acpi ?? null;
+  const updatedAt = acpi?.computed_at
+    ? new Date(acpi.computed_at).toLocaleString("en-US", {
+        month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
+        timeZoneName: "short",
+      })
+    : null;
+
   return (
     <div
       style={{
@@ -101,7 +110,7 @@ export function AcpiHeroCard() {
         position: "relative",
       }}
     >
-      {/* Top row: label + live badge */}
+      {/* Top row: label + status badge */}
       <div
         style={{
           display: "flex",
@@ -120,18 +129,20 @@ export function AcpiHeroCard() {
         >
           ACPI · AI Compute Price Index
         </div>
-        <div
-          style={{
-            fontSize: 9,
-            letterSpacing: "0.16em",
-            textTransform: "uppercase",
-            color: "var(--green)",
-            border: "1px solid rgba(76,175,125,0.3)",
-            padding: "3px 8px",
-          }}
-        >
-          Live
-        </div>
+        {value !== null && (
+          <div
+            style={{
+              fontSize: 9,
+              letterSpacing: "0.16em",
+              textTransform: "uppercase",
+              color: "var(--green)",
+              border: "1px solid rgba(76,175,125,0.3)",
+              padding: "3px 8px",
+            }}
+          >
+            Live
+          </div>
+        )}
       </div>
 
       {/* Big index number */}
@@ -145,10 +156,12 @@ export function AcpiHeroCard() {
           letterSpacing: "-0.02em",
         }}
       >
-        <CountUp target={5.84} />
+        {value !== null ? <CountUp target={value} /> : (
+          <span style={{ color: "var(--text3)", fontSize: "clamp(32px, 4vw, 56px)" }}>—</span>
+        )}
       </div>
 
-      {/* Unit + delta */}
+      {/* Unit + timestamp */}
       <div
         style={{
           display: "flex",
@@ -160,9 +173,11 @@ export function AcpiHeroCard() {
         <div style={{ fontSize: 11, color: "var(--text3)", letterSpacing: "0.05em" }}>
           per 1M standard compute units
         </div>
-        <div style={{ fontSize: 12, color: "var(--green)", letterSpacing: "0.04em" }}>
-          ▼ 13.0% MoM
-        </div>
+        {updatedAt && (
+          <div style={{ fontSize: 10, color: "var(--text3)", letterSpacing: "0.04em" }}>
+            {updatedAt}
+          </div>
+        )}
       </div>
 
       {/* Mini spark */}

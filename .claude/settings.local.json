@@ -12,7 +12,8 @@
       "PowerShell(cd C:\\\\Users\\\\mabdu\\\\Work\\\\gpu-trade\\\\dashboard; $env:PORT=\"3001\"; npx next dev 2>&1 | Select-Object -First 40)",
       "Bash(npx tsc *)",
       "Bash(ls \"C:\\\\Users\\\\mabdu\\\\Work\\\\gpu-trade\\\\\" 2>&1)",
-      "Bash(ls /mnt/c/Users/mabdu/Work/gpu-trade/)"
+      "Bash(ls /mnt/c/Users/mabdu/Work/gpu-trade/)",
+      "Bash(python acpi.py)"
     ]
   }
 }
