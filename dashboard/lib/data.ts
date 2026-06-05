@@ -84,6 +84,44 @@ export function loadAcpi(): AcpiData | null {
   }
 }
 
+// ── Calculator models — one flagship per major provider ───────────────────────
+
+const CALCULATOR_MODEL_IDS = [
+  "deepseek/deepseek-chat-v3-5",
+  "google/gemini-2.5-flash",
+  "google/gemini-2.5-pro",
+  "openai/gpt-4o",
+  "openai/gpt-4o-mini",
+  "anthropic/claude-sonnet-4-5",
+  "anthropic/claude-haiku-4-5",
+  "meta-llama/llama-4-maverick",
+  "x-ai/grok-3-mini-beta",
+  "mistralai/mistral-large-2411",
+];
+
+export function calculatorModels(rows: PriceRow[]): PriceRow[] {
+  const byId = new Map(rows.map((r) => [r.model_id, r]));
+  const seen = new Set<string>();
+  const hits: PriceRow[] = [];
+
+  for (const id of CALCULATOR_MODEL_IDS) {
+    const row = byId.has(id)
+      ? byId.get(id)!
+      : rows.find(
+          (r) =>
+            r.source === "openrouter" &&
+            !seen.has(r.model_id) &&
+            r.model_id.includes(id.split("/")[1])
+        );
+    if (row && !seen.has(row.model_id)) {
+      hits.push(row);
+      seen.add(row.model_id);
+    }
+  }
+
+  return hits;
+}
+
 // Pick interesting models for the ticker — one per well-known provider
 const TICKER_MODEL_IDS = [
   "openai/gpt-4o",
