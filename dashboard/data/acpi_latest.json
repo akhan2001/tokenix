@@ -1,13 +1,13 @@
 {
   "acpi": 2.7547,
-  "computed_at": "2026-06-05T14:32:12Z",
+  "computed_at": "2026-06-05T17:09:49Z",
   "model_count": 313,
   "provider_count": 54,
   "hardware_floor": 0.135,
   "p2_score": 74.0,
   "components": {
     "mean_blended_price": 8.1613,
-    "mean_p3_spread": 60.454,
-    "mean_quality_adjustment": 0.820277
+    "mean_p3_spread": 60.4538,
+    "mean_quality_adjustment": 0.820326
   }
 }
