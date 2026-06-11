@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ── Dependencies ──────────────────────────────────────────────────────────────
 node_modules/
 
@@ -41,3 +42,19 @@ Thumbs.db
 
 # ── Vercel ────────────────────────────────────────────────────────────────────
 .vercel
+=======
+node_modules/
+package-lock.json
+
+# Price snapshots (large, ephemeral — acpi_history.csv in dashboard/data/ is the record)
+prices_*.csv
+acpi_history.csv
+
+# Python
+__pycache__/
+*.pyc
+
+# Misc
+.DS_Store
+.env*
+>>>>>>> 1ad0c2ee8f19c21e53e36be40af47dae049161a7

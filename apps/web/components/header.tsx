@@ -59,13 +59,6 @@ export function Header({ page = "index" }: HeaderProps) {
 
       {/* Right: status + CTA */}
       <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-        <div
-          className="hidden md:flex"
-          style={{ alignItems: "center", gap: 8, fontSize: 11, color: "var(--text3)", letterSpacing: "0.04em", flexDirection: "row" }}
-        >
-          <span className="live-dot" />
-          Updated daily · May 2026
-        </div>
         {page !== "screener" && (
           <a href="/screener" className="nav-cta">
             Live Screener <span className="arr">→</span>
