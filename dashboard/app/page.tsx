@@ -58,7 +58,7 @@ export default function Home() {
   ];
 
   return (
-    <div style={{ background: "var(--bg)", color: "var(--text)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div className="theme-light" style={{ background: "var(--bg)", color: "var(--text)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <Header page="index" />
 
       {/* ── HERO ─────────────────────────────────────────────── */}

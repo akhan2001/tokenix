@@ -56,6 +56,11 @@
   --serif: var(--font-playfair), Georgia, serif;
   --mono: var(--font-dm-mono), 'DM Mono', 'Courier New', monospace;
 
+  /* component surfaces (theme-aware) */
+  --header-bg: rgba(11,12,14,0.92);
+  --ledger-line: rgba(40,48,63,0.18);
+  --tooltip-bg: #05060a;
+
   /* shadcn compat aliases */
   --background: #0b0c0e;
   --foreground: #e8ecf2;
@@ -84,6 +89,42 @@
   --sidebar-accent-foreground: #e8ecf2;
   --sidebar-border: #1f2430;
   --sidebar-ring: #c8a96e;
+}
+
+/* ── Light theme (scoped — e.g. homepage wrapper) ───────── */
+.theme-light {
+  --bg: #fbfaf7;
+  --s1: #f3f1ea;
+  --s2: #eae7dd;
+  --border: #e4e0d5;
+  --border2: #d2ccbc;
+  --text: #1a1c20;
+  --text2: #565c64;
+  --text3: #9c9a8c;
+  --accent: #9a7a36;
+  --accent-dim: #b1924f;
+  --green: #2f9c63;
+  --red: #cf4b4b;
+
+  --header-bg: rgba(251,250,247,0.9);
+  --ledger-line: rgba(120,110,80,0.10);
+  --tooltip-bg: #1a1c20;
+
+  /* shadcn compat aliases */
+  --background: #fbfaf7;
+  --foreground: #1a1c20;
+  --card: #f3f1ea;
+  --card-foreground: #1a1c20;
+  --popover: #f3f1ea;
+  --popover-foreground: #1a1c20;
+  --secondary: #e4e0d5;
+  --secondary-foreground: #1a1c20;
+  --muted-tw: #eae7dd;
+  --muted-foreground: #565c64;
+  --accent-tw: #e4e0d5;
+  --accent-foreground: #1a1c20;
+  --border-tw: #e4e0d5;
+  --input: #e4e0d5;
 }
 
 @layer base {
@@ -245,7 +286,7 @@
 
 /* ── Ledger grid (hero background) ─────────────────────── */
 .ledger {
-  background-image: linear-gradient(to right, rgba(40,48,63,0.18) 1px, transparent 1px);
+  background-image: linear-gradient(to right, var(--ledger-line) 1px, transparent 1px);
   background-size: calc(100% / 6) 100%;
 }
 

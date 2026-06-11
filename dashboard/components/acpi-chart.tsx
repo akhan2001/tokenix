@@ -49,6 +49,15 @@ interface ChartState {
 }
 
 function renderChart(svgEl: SVGSVGElement, monthsBack: number): ChartState {
+  // Theme-aware colors — read from CSS vars so the chart follows light/dark.
+  const cs = getComputedStyle(svgEl);
+  const cv = (name: string, fallback: string) =>
+    cs.getPropertyValue(name).trim() || fallback;
+  const cGrid = cv("--border", "#1f2430");
+  const cAxis = cv("--text3", "#3d4655");
+  const cCross = cv("--border2", "#28303f");
+  const cAccent = cv("--accent", "#c8a96e");
+
   const total = SERIES.length;
   const startIdx = Math.round(total - (monthsBack / 17) * total);
   const data = SERIES.slice(Math.max(0, startIdx));
@@ -77,8 +86,8 @@ function renderChart(svgEl: SVGSVGElement, monthsBack: number): ChartState {
   for (let k = 0; k <= 4; k++) {
     const val = yMin + ((yMax - yMin) * k) / 4;
     const y = yAt(val);
-    grid += `<line x1="${PAD.l}" y1="${y.toFixed(1)}" x2="${(PAD.l + innerW).toFixed(1)}" y2="${y.toFixed(1)}" stroke="#1f2430" stroke-width="1"/>`;
-    grid += `<text x="${(PAD.l + innerW + 10).toFixed(1)}" y="${(y + 3.5).toFixed(1)}" fill="#3d4655" font-family="DM Mono, monospace" font-size="10">$${val.toFixed(2)}</text>`;
+    grid += `<line x1="${PAD.l}" y1="${y.toFixed(1)}" x2="${(PAD.l + innerW).toFixed(1)}" y2="${y.toFixed(1)}" stroke="${cGrid}" stroke-width="1"/>`;
+    grid += `<text x="${(PAD.l + innerW + 10).toFixed(1)}" y="${(y + 3.5).toFixed(1)}" fill="${cAxis}" font-family="DM Mono, monospace" font-size="10">$${val.toFixed(2)}</text>`;
   }
 
   const labelCount = monthsBack <= 6 ? 4 : 6;
@@ -89,7 +98,7 @@ function renderChart(svgEl: SVGSVGElement, monthsBack: number): ChartState {
     const mIdx = Math.min(months.length - 1, Math.round(frac * (months.length - 1)));
     const x = xAt(idx);
     const anchor = k === 0 ? "start" : k === labelCount - 1 ? "end" : "middle";
-    xlab += `<text x="${x.toFixed(1)}" y="${CH - 12}" fill="#3d4655" font-family="DM Mono, monospace" font-size="10" text-anchor="${anchor}">${fmtMon(months[mIdx])}</text>`;
+    xlab += `<text x="${x.toFixed(1)}" y="${CH - 12}" fill="${cAxis}" font-family="DM Mono, monospace" font-size="10" text-anchor="${anchor}">${fmtMon(months[mIdx])}</text>`;
   }
 
   const lastX = xAt(data.length - 1).toFixed(1);
@@ -98,21 +107,21 @@ function renderChart(svgEl: SVGSVGElement, monthsBack: number): ChartState {
   svgEl.innerHTML = `
     <defs>
       <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#c8a96e" stop-opacity="0.16"/>
-        <stop offset="100%" stop-color="#c8a96e" stop-opacity="0"/>
+        <stop offset="0%" stop-color="${cAccent}" stop-opacity="0.16"/>
+        <stop offset="100%" stop-color="${cAccent}" stop-opacity="0"/>
       </linearGradient>
     </defs>
     ${grid}
     <path d="${area}" fill="url(#ag)"/>
-    <path id="cline" d="${line}" fill="none" stroke="#c8a96e" stroke-width="2" stroke-linejoin="round"/>
+    <path id="cline" d="${line}" fill="none" stroke="${cAccent}" stroke-width="2" stroke-linejoin="round"/>
     ${xlab}
-    <line id="cross" x1="0" y1="${PAD.t}" x2="0" y2="${(PAD.t + innerH).toFixed(1)}" stroke="#28303f" stroke-width="1" opacity="0"/>
-    <circle id="cdot-hover" r="4" fill="#c8a96e" opacity="0"/>
-    <circle cx="${lastX}" cy="${lastY}" r="9" fill="#c8a96e" opacity="0.18">
+    <line id="cross" x1="0" y1="${PAD.t}" x2="0" y2="${(PAD.t + innerH).toFixed(1)}" stroke="${cCross}" stroke-width="1" opacity="0"/>
+    <circle id="cdot-hover" r="4" fill="${cAccent}" opacity="0"/>
+    <circle cx="${lastX}" cy="${lastY}" r="9" fill="${cAccent}" opacity="0.18">
       <animate attributeName="r" values="5;11;5" dur="2.4s" repeatCount="indefinite"/>
       <animate attributeName="opacity" values="0.3;0;0.3" dur="2.4s" repeatCount="indefinite"/>
     </circle>
-    <circle cx="${lastX}" cy="${lastY}" r="3.5" fill="#c8a96e"/>
+    <circle cx="${lastX}" cy="${lastY}" r="3.5" fill="${cAccent}"/>
   `;
 
   // Animate the line draw
@@ -264,7 +273,7 @@ export function AcpiChart() {
               pointerEvents: "none",
               opacity: 0,
               transition: "opacity 0.12s",
-              background: "#05060a",
+              background: "var(--tooltip-bg)",
               border: "1px solid var(--border2)",
               padding: "8px 11px",
               fontSize: 10,

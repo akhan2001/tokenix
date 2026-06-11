@@ -13,7 +13,9 @@
       "Bash(npx tsc *)",
       "Bash(ls \"C:\\\\Users\\\\mabdu\\\\Work\\\\gpu-trade\\\\\" 2>&1)",
       "Bash(ls /mnt/c/Users/mabdu/Work/gpu-trade/)",
-      "Bash(python acpi.py)"
+      "Bash(python acpi.py)",
+      "Bash(git checkout *)",
+      "mcp__ide__getDiagnostics"
     ]
   }
 }
