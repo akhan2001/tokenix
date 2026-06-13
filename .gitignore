@@ -1,7 +1,12 @@
 node_modules/
 package-lock.json
 
+# Build / framework caches
+.next/
+.turbo/
+
 # Price snapshots (large, ephemeral — acpi_history.csv in dashboard/data/ is the record)
+token_prices_*.csv
 prices_*.csv
 acpi_history.csv
 
