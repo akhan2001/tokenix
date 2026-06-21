@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 {
   "acpi": 16.1832,
   "computed_at": "2026-06-21T17:31:32Z",
@@ -17,18 +16,4 @@
     "mean_benchmark_score": 0.103631,
     "mean_p1": -26.954068
   }
-=======
-{
-  "acpi": 2.8505,
-  "computed_at": "2026-06-21T17:22:05Z",
-  "model_count": 309,
-  "provider_count": 54,
-  "hardware_floor": 0.135,
-  "p2_score": 74.0,
-  "components": {
-    "mean_blended_price": 8.4685,
-    "mean_p3_spread": 62.7294,
-    "mean_quality_adjustment": 0.78907
-  }
->>>>>>> b83ba836fe85844337069d8c26c40fcacfbaeeb6
 }

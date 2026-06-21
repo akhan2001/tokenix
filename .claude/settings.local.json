@@ -14,7 +14,6 @@
       "Bash(ls \"C:\\\\Users\\\\mabdu\\\\Work\\\\gpu-trade\\\\\" 2>&1)",
       "Bash(ls /mnt/c/Users/mabdu/Work/gpu-trade/)",
       "Bash(python acpi.py)",
-<<<<<<< HEAD
       "Bash(python -c \"import pandas; print\\('pandas', pandas.__version__\\)\")",
       "Bash(python -c \"import pyarrow; print\\('pyarrow', pyarrow.__version__\\)\")",
       "Bash(python -c \"import huggingface_hub; print\\('hf', huggingface_hub.__version__\\)\")",
@@ -25,11 +24,9 @@
       "Bash(python *)",
       "Bash(echo \"EXIT: $?\")",
       "Bash(ls prices_2026*.csv)",
-      "Bash(git check-ignore *)"
-=======
+      "Bash(git check-ignore *)",
       "Bash(dir C:UsersmabduWorkgpu-trade *)",
       "PowerShell(git rm *)"
->>>>>>> b83ba836fe85844337069d8c26c40fcacfbaeeb6
     ]
   }
 }
