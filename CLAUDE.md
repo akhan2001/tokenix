@@ -51,25 +51,35 @@ input_per_million_usd, output_per_million_usd`
 `../token_prices_*.csv`, then falls back to `dashboard/data/prices.csv`.
 
 ## ⚠️ Current state of "the index" — read before touching ACPI
-The ACPI **methodology is published as UI prose** (`dashboard/app/page.tsx`,
-methodology section) but is **NOT implemented**. The hero number, delta, "Live"
-badge, and the 17-month chart are **hardcoded / synthetic**:
-- `dashboard/components/acpi-hero-card.tsx`: `CountUp target={5.84}`, `▼ 13.0% MoM`,
-  static "Live" badge.
-- `buildSeries()` in the same file generates a deterministic fake curve
-  (11.84 → 5.84). `acpi-chart.tsx` is similarly synthetic.
+The headline ACPI number is **real and implemented**. `acpi.py` fetches live
+OpenRouter pricing, applies the adjustments below, and writes
+`dashboard/data/acpi_latest.json` (read by `acpi-hero-card.tsx` via
+`loadAcpi()`) plus an append-only `acpi_history.csv`. The GitHub Action
+`.github/workflows/acpi.yml` runs it hourly.
+- Benchmark quality lives in `benchmark_quality.py` (HF OpenEvals leaderboard
+  Parquet → z-scored composite), powering the per-model P1 (intelligence-per-
+  dollar) screener metric.
+- Still synthetic: the hero **spark / 17-month chart** (`buildSeries()` in
+  `acpi-hero-card.tsx`, currently commented out, and `acpi-chart.tsx`). There is
+  no real long history yet — `acpi_history.csv` only accumulates from each run.
 
-So the screener shows **real scraped prices**, but the headline **index value is a
-mockup**. The active build is making that number real — see the
-`build-acpi-engine` skill in `.claude/skills/`.
+So the screener and the **headline index value are real**; only the long-range
+chart art is still a placeholder. See the `build-acpi-engine` skill in
+`.claude/skills/`.
 
-## Published methodology (from the site copy — the spec to honor)
+## Published methodology (the spec — kept in sync with the code)
 - Unit: dollars per **1M Standard Compute Units** (all modalities normalized to
   cost per 1M tokens).
-- ACPI = **equal-weighted average** of every tracked model's adjusted score.
-- Two adjustments on raw price: a **quality factor** (standardized benchmark
-  scores, stated source: Scale AI HELM) and a **market-risk factor** (provider
-  concentration / stability).
+- ACPI = **tiered-weighted average** of every tracked model's risk-adjusted price
+  (Tier S flagships 10×, Tier A 5×, Tier B major-lab 2×, Tier C long-tail 1×).
+  Tier assignment is a disclosed manual classification (`get_tier_weight` in
+  `acpi.py`), reviewed monthly.
+- Market-risk factor (P2) scales every price; the price-spread proxy that used to
+  stand in for "quality" has been removed.
+- Quality factor = **HELM-aligned benchmark composite** (MMLU-Pro, coding, math,
+  reasoning), z-score normalised, sourced via standardized leaderboard
+  aggregation (HF OpenEvals dataset — *not* raw Stanford HELM). It feeds the P1
+  screener; models without benchmark data are excluded from P1 but kept in ACPI.
 - Stated cadence: **updated daily** (hero copy says "One number, updated daily").
 - Stated data sources in copy: provider docs (token pricing), Lambda Labs H100
   SXM5 median (GPU), Hyperstack vLLM / Llama 3.1 70B (throughput), HELM

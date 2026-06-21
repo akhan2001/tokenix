@@ -65,12 +65,20 @@ export interface AcpiData {
   computed_at: string;
   model_count: number;
   provider_count: number;
+  /** "tiered" since the tiered-weighting change; absent on older snapshots. */
+  weighting?: string;
   hardware_floor: number;
   p2_score: number;
   components: {
     mean_blended_price: number;
     mean_p3_spread: number;
     mean_quality_adjustment: number;
+  };
+  /** Intelligence-per-dollar (P1) screener stats; absent on older snapshots. */
+  screener?: {
+    scored_model_count: number;
+    mean_benchmark_score: number | null;
+    mean_p1: number | null;
   };
 }
 

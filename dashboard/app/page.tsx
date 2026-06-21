@@ -238,8 +238,9 @@ export default function Home() {
             lineHeight: 1.8,
           }}
         >
-          The master index is the equal-weighted, quality-adjusted average of every
-          model we track. A selection of high-weight constituents is shown below —
+          The master index is the tiered-weighted average of every model we
+          track — frontier models carry more weight than the long tail. A
+          selection of high-weight constituents is shown below —
           the full set of{" "}
           <strong style={{ color: "var(--text2)" }}>
             {modelCount.toLocaleString()} endpoints
@@ -415,14 +416,15 @@ export default function Home() {
             title: "How it is calculated",
             paras: [
               "Every model is converted to a common unit — cost per 1M tokens — regardless of modality. Text, voice, image, video and GPU cloud pricing are all normalised to this single scale.",
-              "The raw price is adjusted by two signals: a quality factor from standardised benchmark scores, and a market-risk factor reflecting the concentration and stability of the provider landscape. The master ACPI is the equal-weighted average of all adjusted scores.",
+              "The raw price carries a market-risk factor reflecting the concentration and stability of the provider landscape, and the master ACPI is a tiered-weighted average — frontier models (Tier S) are weighted 10× relative to long-tail models (Tier C), so the index reflects actual market significance rather than whatever happens to be listed that day. Tier assignment is a disclosed manual classification, reviewed monthly.",
+              "Quality is computed from a HELM-aligned benchmark composite (MMLU, coding, math, reasoning), sourced via standardized leaderboard aggregation and z-score normalised. It powers the intelligence-per-dollar screener (P1). Models without available benchmark data are excluded from that screener but remain in the published ACPI price index.",
             ],
           },
           {
             num: "03",
             title: "Data sources",
             paras: [
-              `Benchmarks: Scale AI HELM leaderboard. Token pricing: provider documentation, verified daily. GPU pricing: Lambda Labs H100 SXM5 market median. Throughput: Hyperstack vLLM benchmark, Llama 3.1 70B.`,
+              `Benchmarks: HELM-aligned composite (MMLU, coding, math, reasoning) via standardized leaderboard aggregation. Token pricing: provider documentation, verified daily. GPU pricing: Lambda Labs H100 SXM5 market median. Throughput: Hyperstack vLLM benchmark, Llama 3.1 70B.`,
               "Market-health signal from provider ARR estimates, API accessibility and funding stability. Full methodology at tokenixindex.com/methodology.",
             ],
           },

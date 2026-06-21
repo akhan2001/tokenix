@@ -12,13 +12,14 @@ and computes a single blended index value. Writes:
 
 import csv
 import json
-import math
 import statistics
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 import httpx
+
+from benchmark_quality import get_quality_score
 
 # ── Constants (update these on schedule) ──────────────────────────────────────
 HARDWARE_FLOOR = 0.135   # USD/1M tokens — H100 SXM5 market median, update quarterly
@@ -28,6 +29,51 @@ BLENDED_OUTPUT = 0.75    # Output token weight
 
 OPENROUTER_URL    = "https://openrouter.ai/api/v1/models"
 PRICE_OUTLIER_CAP = 500.0   # Drop models with blended price above this
+
+
+# ── Tiered weighting ──────────────────────────────────────────────────────────
+# ACPI is a tier-weighted average so flagship models pull on the index in
+# proportion to their market significance rather than a $0.10 long-tail model
+# counting the same as a frontier one. Tier assignment is a MANUAL classification
+# (market consensus on flagship vs. niche as of 2026-06) — not derived from an
+# external data source — and is reviewed monthly. Disclosed in the methodology.
+# Matched on model family keywords so versioned ids (claude-opus-4.8, etc.) tier
+# correctly without an exact-id table.
+TIER_S_KEYWORDS = (          # frontier flagships → 10x
+    "claude-opus", "claude-sonnet",
+    "gpt-4o", "gpt-4.1", "gpt-5", "gpt-chat", "/o3", "/o4",
+    "grok-4",
+)
+# Cheap/derivative SKUs that carry a flagship family name but are not flagships
+# (mini/nano/lite/flash/image/codex-mini, etc.) — demoted from Tier S to Tier A.
+TIER_DEMOTE_KEYWORDS = (
+    "mini", "nano", "lite", "flash", "small", "tiny", "-image", "image-",
+)
+TIER_A_KEYWORDS = (          # strong, non-flagship → 5x
+    "claude-haiku", "gemini", "grok-3", "grok-build",
+    "deepseek", "mistral-large", "mistral-medium",
+    "llama-3.1-405b", "llama-4-maverick", "llama-4",
+    "qwen", "kimi", "glm", "minimax", "command",
+)
+TIER_B_PROVIDERS = {         # any other model from a major lab → 2x
+    "openai", "anthropic", "google", "deepseek", "mistralai",
+    "meta-llama", "x-ai", "qwen", "cohere", "moonshotai", "z-ai",
+}
+
+
+def get_tier_weight(model_id: str, provider: str) -> int:
+    mid = model_id.lower()
+
+    flagship = any(k in mid for k in TIER_S_KEYWORDS) or ("gemini" in mid and "pro" in mid)
+    is_derivative = any(k in mid for k in TIER_DEMOTE_KEYWORDS)
+
+    if flagship and not is_derivative:
+        return 10
+    if flagship or any(k in mid for k in TIER_A_KEYWORDS):
+        return 5
+    if provider in TIER_B_PROVIDERS:
+        return 2
+    return 1  # long-tail / niche models
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 ROOT        = Path(__file__).parent
@@ -45,7 +91,8 @@ HISTORY_FIELDS = [
 SNAPSHOT_FIELDS = [
     "timestamp", "provider", "model_id",
     "input_per_million_usd", "output_per_million_usd",
-    "blended_per_million_usd", "p3_spread", "quality_adjustment", "adjusted_price",
+    "blended_per_million_usd", "p3_spread", "risk_adjustment", "adjusted_price",
+    "tier_weight", "benchmark_score", "p1",
 ]
 
 
@@ -84,14 +131,24 @@ def compute_acpi(models: list[dict]) -> tuple[dict, list[dict]]:
         if blended > PRICE_OUTLIER_CAP:
             continue
 
-        p3_spread     = blended / HARDWARE_FLOOR
-        p3_adjustment = 1.0 / math.log(min(p3_spread, 50) + 1)
-        p2_adjustment = 0.5 + (P2_SCORE / 100)
-        quality_score = p2_adjustment * p3_adjustment
-        adj_price     = blended * quality_score
-
         model_id = m.get("id", "")
         provider = model_id.split("/")[0] if "/" in model_id else ""
+
+        # Markup over the hardware floor — kept as a reported diagnostic only.
+        # It used to masquerade as the "quality" factor (the price-spread proxy);
+        # quality is now sourced from real benchmarks, see below.
+        p3_spread = blended / HARDWARE_FLOOR
+
+        # Market-risk factor (P2): a market-health scalar applied to every price.
+        risk_adjustment = 0.5 + (P2_SCORE / 100)
+        adj_price       = blended * risk_adjustment
+
+        # Quality factor: HELM-aligned benchmark composite (z-normalised), or None
+        # when no benchmark data exists for this model. None → excluded from the
+        # P1 intelligence-per-dollar screener, but the model keeps its price in
+        # the ACPI index.
+        quality = get_quality_score(model_id)
+        p1 = round((quality / blended) * 10, 6) if quality is not None else None
 
         rows.append({
             "timestamp":               ts,
@@ -101,28 +158,42 @@ def compute_acpi(models: list[dict]) -> tuple[dict, list[dict]]:
             "output_per_million_usd":  round(out, 6),
             "blended_per_million_usd": round(blended, 6),
             "p3_spread":               round(p3_spread, 4),
-            "quality_adjustment":      round(quality_score, 6),
+            "risk_adjustment":         round(risk_adjustment, 6),
             "adjusted_price":          round(adj_price, 6),
+            "tier_weight":             get_tier_weight(model_id, provider),
+            "benchmark_score":         round(quality, 6) if quality is not None else None,
+            "p1":                      p1,
         })
 
     if not rows:
         print("No valid models after filtering.", file=sys.stderr)
         sys.exit(1)
 
-    acpi_val  = statistics.mean(r["adjusted_price"] for r in rows)
+    # Tier-weighted average of the risk-adjusted price → the published ACPI.
+    weight_total = sum(r["tier_weight"] for r in rows)
+    weighted_sum = sum(r["adjusted_price"] * r["tier_weight"] for r in rows)
+    acpi_val     = weighted_sum / weight_total
+
     providers = {r["provider"] for r in rows if r["provider"]}
+    scored    = [r for r in rows if r["p1"] is not None]
 
     result = {
         "acpi":           round(acpi_val, 4),
         "computed_at":    ts,
         "model_count":    len(rows),
         "provider_count": len(providers),
+        "weighting":      "tiered",
         "hardware_floor": HARDWARE_FLOOR,
         "p2_score":       P2_SCORE,
         "components": {
             "mean_blended_price":      round(statistics.mean(r["blended_per_million_usd"] for r in rows), 4),
             "mean_p3_spread":          round(statistics.mean(r["p3_spread"] for r in rows), 4),
-            "mean_quality_adjustment": round(statistics.mean(r["quality_adjustment"] for r in rows), 6),
+            "mean_quality_adjustment": round(statistics.mean(r["risk_adjustment"] for r in rows), 6),
+        },
+        "screener": {
+            "scored_model_count":  len(scored),
+            "mean_benchmark_score": round(statistics.mean(r["benchmark_score"] for r in scored), 6) if scored else None,
+            "mean_p1":              round(statistics.mean(r["p1"] for r in scored), 6) if scored else None,
         },
     }
     return result, rows
@@ -178,8 +249,9 @@ def main() -> None:
     append_history(result)
     snap = write_snapshot(rows, result["computed_at"])
 
-    print(f"\nACPI  = ${result['acpi']:.4f} / 1M SCU")
+    print(f"\nACPI  = ${result['acpi']:.4f} / 1M SCU  ({result['weighting']}-weighted)")
     print(f"Models: {result['model_count']}  |  Providers: {result['provider_count']}")
+    print(f"P1 screener: {result['screener']['scored_model_count']} models with benchmark data")
     print(f"Time  : {result['computed_at']}")
     print(f"\nWrote:")
     print(f"  {LATEST_JSON}")
