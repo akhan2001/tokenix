@@ -204,6 +204,22 @@ _LITELLM_URL = (
     "model_prices_and_context_window.json"
 )
 
+# LiteLLM stores most prices as USD *per token* (e.g. gpt-4o = 2.5e-06), which we
+# scale by 1e6 to get USD per 1M. But some providers' entries (notably `wandb/*`)
+# are recorded as USD *per 1M tokens* already (e.g. 0.135) — scaling those by 1e6
+# yields nonsense like $135,000/1M. No real model costs $1000/1M, so a raw value
+# at/above 1e-3 cannot be per-token. We classify the unit once per model (using
+# the larger of the two costs) so input/output are always read in the same unit.
+_LITELLM_PER_TOKEN_MAX = 1e-3  # $1000/1M ceiling for a legitimate per-token price
+
+def _litellm_per_million(raw_in, raw_out) -> tuple[float, float]:
+    cin  = float(raw_in or 0)
+    cout = float(raw_out or 0)
+    # If either cost is too large to be per-token, the entry is stored per-1M.
+    scale = 1.0 if max(cin, cout) >= _LITELLM_PER_TOKEN_MAX else 1e6
+    return cin * scale, cout * scale
+
+
 def scrape_litellm(client, ts):
     data = get_json(client, _LITELLM_URL, "LiteLLM DB")
     if not data:
@@ -213,8 +229,10 @@ def scrape_litellm(client, ts):
         if not isinstance(info, dict):
             continue
         try:
-            inp = float(info.get("input_cost_per_token", 0) or 0) * 1e6
-            out = float(info.get("output_cost_per_token", 0) or 0) * 1e6
+            inp, out = _litellm_per_million(
+                info.get("input_cost_per_token", 0),
+                info.get("output_cost_per_token", 0),
+            )
         except (TypeError, ValueError):
             continue
         if inp == 0 and out == 0:
@@ -501,6 +519,11 @@ def scrape_deepinfra(client, ts):
             continue
         name = cells[0]
         if not name or name.lower() in ("model", "name"):
+            continue
+        # The pricing page also renders a spend/rate-limit "Tier 2…5" table whose
+        # numbers ($100…$10000) are dollar thresholds, not token prices. Skip them
+        # so they don't surface as bogus models.
+        if re.match(r"tier\s*\d", name.strip(), re.I):
             continue
         rows.append(mkrow(ts, "deepinfra", "deepinfra", f"deepinfra/{slug(name)}", name, "", inp, out))
     return rows

@@ -26,7 +26,11 @@
       "Bash(ls prices_2026*.csv)",
       "Bash(git check-ignore *)",
       "Bash(dir C:UsersmabduWorkgpu-trade *)",
-      "PowerShell(git rm *)"
+      "PowerShell(git rm *)",
+      "Bash(awk -F, 'NR>1 {i=$\\(NF-1\\); o=$NF; if \\(i+0>1000 || o+0>1000\\) print NR\": \"$2\" | \"$4\" | in=\"i\" out=\"o}' token_prices_20260514_013658.csv)",
+      "Bash(curl -s \"https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json\" -o /tmp/litellm.json)",
+      "Bash(awk -F, 'NR>1 {i=$\\(NF-1\\); o=$NF; if \\(i+0>1000 || o+0>1000\\) print NR\": \"$2\" | \"$4\" | in=\"i\" out=\"o}' token_prices_20260622_193340.csv)",
+      "Bash(awk -F',' 'NR>1 {print $\\(NF\\)+0\"\\\\t\"$4}' token_prices_20260622_193340.csv)"
     ]
   }
 }
