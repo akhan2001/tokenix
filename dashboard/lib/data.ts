@@ -34,9 +34,17 @@ function latestCsvPath(): string | null {
   return null;
 }
 
+// Parsing the CSV on every render costs ~250ms. Cache the result keyed on the
+// file path + mtime, so repeated requests are free but a fresh scraper snapshot
+// (new file, or same file rewritten) still invalidates the cache automatically.
+let pricesCache: { key: string; rows: PriceRow[] } | null = null;
+
 export function loadPrices(): PriceRow[] {
   const csvPath = latestCsvPath();
   if (!csvPath) return [];
+
+  const key = `${csvPath}:${fs.statSync(csvPath).mtimeMs}`;
+  if (pricesCache && pricesCache.key === key) return pricesCache.rows;
 
   const content = fs.readFileSync(csvPath, "utf-8");
   const records = parse(content, { columns: true, skip_empty_lines: true }) as Record<
@@ -44,7 +52,7 @@ export function loadPrices(): PriceRow[] {
     string
   >[];
 
-  return records
+  const rows = records
     .map((r) => ({
       timestamp: r.timestamp,
       source: r.source,
@@ -56,6 +64,9 @@ export function loadPrices(): PriceRow[] {
       output_per_million_usd: parseFloat(r.output_per_million_usd) || 0,
     }))
     .filter((r) => r.input_per_million_usd > 0 || r.output_per_million_usd > 0);
+
+  pricesCache = { key, rows };
+  return rows;
 }
 
 // ── ACPI ─────────────────────────────────────────────────────────────────────
@@ -82,11 +93,17 @@ export interface AcpiData {
   };
 }
 
+let acpiCache: { key: string; data: AcpiData } | null = null;
+
 export function loadAcpi(): AcpiData | null {
   const jsonPath = path.join(process.cwd(), "data", "acpi_latest.json");
   if (!fs.existsSync(jsonPath)) return null;
   try {
-    return JSON.parse(fs.readFileSync(jsonPath, "utf-8")) as AcpiData;
+    const key = `${jsonPath}:${fs.statSync(jsonPath).mtimeMs}`;
+    if (acpiCache && acpiCache.key === key) return acpiCache.data;
+    const data = JSON.parse(fs.readFileSync(jsonPath, "utf-8")) as AcpiData;
+    acpiCache = { key, data };
+    return data;
   } catch {
     return null;
   }
