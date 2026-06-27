@@ -105,7 +105,7 @@ export function AcpiHeroCard({ acpi }: { acpi: AcpiData | null }) {
     <div
       style={{
         border: "1px solid var(--border)",
-        background: "linear-gradient(180deg, var(--s1), rgba(17,19,23,0.4))",
+        background: "linear-gradient(180deg, var(--s1), transparent)",
         padding: "30px 32px",
         position: "relative",
       }}

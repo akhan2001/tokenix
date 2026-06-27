@@ -40,7 +40,12 @@
       "Bash(git rm *)",
       "Bash(rm -rf __pycache__)",
       "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} in %{time_total}s\\\\n\" http://localhost:3099/)",
-      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} in %{time_total}s\\\\n\" http://localhost:3099/screener)"
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} in %{time_total}s\\\\n\" http://localhost:3099/screener)",
+      "Bash(curl -s -o /dev/null -w \"home %{http_code} %{time_total}s\\\\n\" http://localhost:3099/)",
+      "Bash(curl -s -o /dev/null -w \"screener %{http_code} %{time_total}s\\\\n\" http://localhost:3099/screener)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{time_total}s\\\\n\" http://localhost:3000/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{time_total}s\\\\n\" http://localhost:3000/screener)",
+      "Bash(curl -s http://localhost:3000/)"
     ]
   }
 }

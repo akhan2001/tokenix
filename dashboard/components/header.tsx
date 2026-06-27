@@ -15,7 +15,7 @@ export function Header({ page = "index" }: HeaderProps) {
         position: "sticky",
         top: 0,
         zIndex: 100,
-        background: "rgba(11,12,14,0.92)",
+        background: "var(--header-bg)",
         backdropFilter: "blur(16px)",
       }}
     >

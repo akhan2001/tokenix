@@ -39,51 +39,53 @@
   --radius-lg: var(--radius);
 }
 
-/* ── Tokenix design tokens ─────────────────────────────── */
+/* ── Tokenix design tokens (light "paper ledger" theme) ── */
 :root {
-  --bg: #0b0c0e;
-  --s1: #111317;
-  --s2: #16191e;
-  --border: #1f2430;
-  --border2: #28303f;
-  --text: #e8ecf2;
-  --text2: #8a96a8;
-  --text3: #3d4655;
-  --accent: #c8a96e;
-  --accent-dim: #9b8252;
-  --green: #4caf7d;
-  --red: #e05c5c;
+  color-scheme: light;
+  --bg: #f5f2ec;
+  --s1: #fdfcf9;
+  --s2: #efeae0;
+  --border: #e3ddd0;
+  --border2: #cfc8b6;
+  --text: #1a1c20;
+  --text2: #565f6e;
+  --text3: #8b8576;
+  --accent: #9a7b2e;
+  --accent-dim: #c3a663;
+  --green: #2f8f5b;
+  --red: #c0392b;
+  --header-bg: rgba(245,242,236,0.88);
   --serif: var(--font-playfair), Georgia, serif;
   --mono: var(--font-dm-mono), 'DM Mono', 'Courier New', monospace;
 
   /* shadcn compat aliases */
-  --background: #0b0c0e;
-  --foreground: #e8ecf2;
-  --card: #111317;
-  --card-foreground: #e8ecf2;
-  --popover: #111317;
-  --popover-foreground: #e8ecf2;
-  --primary: #c8a96e;
-  --primary-foreground: #0b0c0e;
-  --secondary: #1f2430;
-  --secondary-foreground: #e8ecf2;
-  --muted-tw: #16191e;
-  --muted-foreground: #8a96a8;
-  --accent-tw: #1f2430;
-  --accent-foreground: #e8ecf2;
-  --destructive: #e05c5c;
-  --border-tw: #1f2430;
-  --input: #1f2430;
-  --ring: #c8a96e;
+  --background: #f5f2ec;
+  --foreground: #1a1c20;
+  --card: #fdfcf9;
+  --card-foreground: #1a1c20;
+  --popover: #fdfcf9;
+  --popover-foreground: #1a1c20;
+  --primary: #9a7b2e;
+  --primary-foreground: #fdfcf9;
+  --secondary: #e3ddd0;
+  --secondary-foreground: #1a1c20;
+  --muted-tw: #efeae0;
+  --muted-foreground: #565f6e;
+  --accent-tw: #e3ddd0;
+  --accent-foreground: #1a1c20;
+  --destructive: #c0392b;
+  --border-tw: #e3ddd0;
+  --input: #e3ddd0;
+  --ring: #9a7b2e;
   --radius: 0rem;
-  --sidebar: #111317;
-  --sidebar-foreground: #e8ecf2;
-  --sidebar-primary: #c8a96e;
-  --sidebar-primary-foreground: #0b0c0e;
-  --sidebar-accent: #1f2430;
-  --sidebar-accent-foreground: #e8ecf2;
-  --sidebar-border: #1f2430;
-  --sidebar-ring: #c8a96e;
+  --sidebar: #fdfcf9;
+  --sidebar-foreground: #1a1c20;
+  --sidebar-primary: #9a7b2e;
+  --sidebar-primary-foreground: #fdfcf9;
+  --sidebar-accent: #e3ddd0;
+  --sidebar-accent-foreground: #1a1c20;
+  --sidebar-border: #e3ddd0;
+  --sidebar-ring: #9a7b2e;
 }
 
 @layer base {
