@@ -24,8 +24,14 @@ from benchmark_quality import get_quality_score
 # ── Constants (update these on schedule) ──────────────────────────────────────
 HARDWARE_FLOOR = 0.135   # USD/1M tokens — H100 SXM5 market median, update quarterly
 P2_SCORE       = 74.0    # Market health 0–100 — update monthly
-BLENDED_INPUT  = 0.25    # Input token weight
-BLENDED_OUTPUT = 0.75    # Output token weight
+BLENDED_INPUT  = 0.75    # Input token weight (3:1 input:output, the standard blend)
+BLENDED_OUTPUT = 0.25    # Output token weight
+
+# Broad-market weighting: the index is the average of two equally-weighted
+# buckets — premium frontier models (Tier S/A) and the commodity long tail
+# (Tier B/C) — so the cheaper half of the market pulls on the index as hard as
+# the frontier (CPI-style), instead of flagships dominating via a ×10 tier.
+PREMIUM_BUCKET_WEIGHT = 0.50   # premium (S/A) share; commodity (B/C) gets the rest
 
 OPENROUTER_URL    = "https://openrouter.ai/api/v1/models"
 PRICE_OUTLIER_CAP = 500.0   # Drop models with blended price above this
@@ -171,10 +177,18 @@ def compute_acpi(models: list[dict]) -> tuple[dict, list[dict]]:
         print("No valid models after filtering.", file=sys.stderr)
         sys.exit(1)
 
-    # Tier-weighted average of the risk-adjusted price → the published ACPI.
-    weight_total = sum(r["tier_weight"] for r in rows)
-    weighted_sum = sum(r["adjusted_price"] * r["tier_weight"] for r in rows)
-    acpi_val     = weighted_sum / weight_total
+    # Two-bucket broad-market average of the risk-adjusted price → published ACPI.
+    # Premium = Tier S/A (weight >= 5); commodity = Tier B/C (weight < 5). Each
+    # bucket is equal-weighted internally, then the buckets are combined 50/50 so
+    # the commodity half of the market is not drowned out by expensive flagships.
+    premium   = [r["adjusted_price"] for r in rows if r["tier_weight"] >= 5]
+    commodity = [r["adjusted_price"] for r in rows if r["tier_weight"] <  5]
+
+    if premium and commodity:
+        acpi_val = (PREMIUM_BUCKET_WEIGHT * statistics.mean(premium)
+                    + (1 - PREMIUM_BUCKET_WEIGHT) * statistics.mean(commodity))
+    else:  # degenerate: one bucket empty → fall back to whatever we have
+        acpi_val = statistics.mean(premium or commodity)
 
     providers = {r["provider"] for r in rows if r["provider"]}
     scored    = [r for r in rows if r["p1"] is not None]
@@ -184,7 +198,14 @@ def compute_acpi(models: list[dict]) -> tuple[dict, list[dict]]:
         "computed_at":    ts,
         "model_count":    len(rows),
         "provider_count": len(providers),
-        "weighting":      "tiered",
+        "weighting":      "bucket-5050",
+        "buckets": {
+            "premium_weight":    PREMIUM_BUCKET_WEIGHT,
+            "premium_count":     len(premium),
+            "premium_mean":      round(statistics.mean(premium), 4) if premium else None,
+            "commodity_count":   len(commodity),
+            "commodity_mean":    round(statistics.mean(commodity), 4) if commodity else None,
+        },
         "hardware_floor": HARDWARE_FLOOR,
         "p2_score":       P2_SCORE,
         "components": {

@@ -77,11 +77,16 @@ chart art is still a placeholder. See the `build-acpi-engine` skill in
 
 ## Published methodology (the spec — kept in sync with the code)
 - Unit: dollars per **1M Standard Compute Units** (all modalities normalized to
-  cost per 1M tokens).
-- ACPI = **tiered-weighted average** of every tracked model's risk-adjusted price
-  (Tier S flagships 10×, Tier A 5×, Tier B major-lab 2×, Tier C long-tail 1×).
-  Tier assignment is a disclosed manual classification (`get_tier_weight` in
-  `scripts/acpi.py`), reviewed monthly.
+  cost per 1M tokens). Each model's per-token cost is blended **75% input / 25%
+  output** (the standard 3:1 input:output usage assumption).
+- ACPI = **two-bucket broad-market average** of every tracked model's risk-
+  adjusted price. Models split into a **premium bucket** (Tier S/A) and a
+  **commodity bucket** (Tier B/C); each bucket is equal-weighted internally, then
+  the two are combined **50/50** so the cheaper long-tail half of the market pulls
+  on the index as hard as the frontier (CPI-style), rather than flagships
+  dominating. Tier assignment is a disclosed manual classification
+  (`get_tier_weight` in `scripts/acpi.py`), reviewed monthly; the 50/50 split is
+  `PREMIUM_BUCKET_WEIGHT` in `scripts/acpi.py`.
 - Market-risk factor (P2) scales every price; the price-spread proxy that used to
   stand in for "quality" has been removed.
 - Quality factor = **HELM-aligned benchmark composite** (MMLU-Pro, coding, math,
