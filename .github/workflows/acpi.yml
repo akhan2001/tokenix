@@ -27,7 +27,7 @@ jobs:
         run: pip install httpx pandas pyarrow
 
       - name: Run ACPI calculation
-        run: python acpi.py
+        run: python scripts/acpi.py
 
       - name: Commit updated data files
         run: |

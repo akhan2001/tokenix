@@ -24,6 +24,10 @@ import json
 import re
 import sys
 from datetime import datetime, timezone
+from pathlib import Path
+
+# Raw scraper snapshots live in <repo root>/data/snapshots/ (this file is in scripts/).
+SNAPSHOT_DIR = Path(__file__).resolve().parent.parent / "data" / "snapshots"
 
 # Windows cmd/PowerShell default to cp1252 — force UTF-8 so box-drawing chars work.
 if hasattr(sys.stdout, "reconfigure"):
@@ -637,7 +641,8 @@ SOURCES = [
 def main():
     now = datetime.now(timezone.utc)
     ts    = now.strftime("%Y-%m-%dT%H:%M:%SZ")
-    fname = f"token_prices_{now.strftime('%Y%m%d_%H%M%S')}.csv"
+    SNAPSHOT_DIR.mkdir(parents=True, exist_ok=True)
+    fname = SNAPSHOT_DIR / f"token_prices_{now.strftime('%Y%m%d_%H%M%S')}.csv"
 
     print(f"Scraping {len(SOURCES)} sources  [{ts}]\n")
 

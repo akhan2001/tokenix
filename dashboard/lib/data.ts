@@ -14,17 +14,17 @@ export interface PriceRow {
 }
 
 function latestCsvPath(): string | null {
-  // 1. Look for timestamped CSVs in the parent dir (local dev with scraper running alongside)
-  const parentDir = path.join(process.cwd(), "..");
+  // 1. Look for timestamped CSVs in <repo root>/data/snapshots (local dev with scraper running alongside)
+  const snapshotsDir = path.join(process.cwd(), "..", "data", "snapshots");
   try {
     const files = fs
-      .readdirSync(parentDir)
+      .readdirSync(snapshotsDir)
       .filter((f) => f.startsWith("token_prices_") && f.endsWith(".csv"))
       .sort()
       .reverse();
-    if (files.length) return path.join(parentDir, files[0]);
+    if (files.length) return path.join(snapshotsDir, files[0]);
   } catch {
-    // parent dir not accessible (Vercel serverless)
+    // snapshots dir not accessible (Vercel serverless)
   }
 
   // 2. Fall back to the bundled snapshot committed alongside the app

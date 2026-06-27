@@ -30,7 +30,17 @@
       "Bash(awk -F, 'NR>1 {i=$\\(NF-1\\); o=$NF; if \\(i+0>1000 || o+0>1000\\) print NR\": \"$2\" | \"$4\" | in=\"i\" out=\"o}' token_prices_20260514_013658.csv)",
       "Bash(curl -s \"https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json\" -o /tmp/litellm.json)",
       "Bash(awk -F, 'NR>1 {i=$\\(NF-1\\); o=$NF; if \\(i+0>1000 || o+0>1000\\) print NR\": \"$2\" | \"$4\" | in=\"i\" out=\"o}' token_prices_20260622_193340.csv)",
-      "Bash(awk -F',' 'NR>1 {print $\\(NF\\)+0\"\\\\t\"$4}' token_prices_20260622_193340.csv)"
+      "Bash(awk -F',' 'NR>1 {print $\\(NF\\)+0\"\\\\t\"$4}' token_prices_20260622_193340.csv)",
+      "Bash(grep -iA12 \"root\")",
+      "Bash(mkdir -p scripts data/snapshots)",
+      "Bash(git mv *)",
+      "Bash(mv token_prices_*.csv data/snapshots/)",
+      "Bash(mv prices_*.csv data/snapshots/)",
+      "Bash(mv acpi_history.csv data/snapshots/)",
+      "Bash(git rm *)",
+      "Bash(rm -rf __pycache__)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} in %{time_total}s\\\\n\" http://localhost:3099/)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} in %{time_total}s\\\\n\" http://localhost:3099/screener)"
     ]
   }
 }

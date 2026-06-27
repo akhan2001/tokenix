@@ -5,9 +5,9 @@ ACPI — AI Compute Price Index calculator.
 Fetches live pricing from OpenRouter, applies quality/risk adjustments,
 and computes a single blended index value. Writes:
 
-  dashboard/data/acpi_latest.json  — current value (read by dashboard)
-  dashboard/data/acpi_history.csv  — append-only historical log
-  prices_YYYYMMDD_HHMMSS.csv       — raw model snapshot per run (repo root)
+  dashboard/data/acpi_latest.json       — current value (read by dashboard)
+  dashboard/data/acpi_history.csv        — append-only historical log
+  data/snapshots/prices_YYYYMMDD_HHMMSS.csv — raw model snapshot per run
 """
 
 import csv
@@ -76,9 +76,11 @@ def get_tier_weight(model_id: str, provider: str) -> int:
     return 1  # long-tail / niche models
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-ROOT        = Path(__file__).parent
+ROOT        = Path(__file__).resolve().parent.parent  # repo root (this file lives in scripts/)
 DASHBOARD_DATA = ROOT / "dashboard" / "data"
 DASHBOARD_DATA.mkdir(parents=True, exist_ok=True)
+SNAPSHOT_DIR = ROOT / "data" / "snapshots"
+SNAPSHOT_DIR.mkdir(parents=True, exist_ok=True)
 
 LATEST_JSON  = DASHBOARD_DATA / "acpi_latest.json"
 HISTORY_CSV  = DASHBOARD_DATA / "acpi_history.csv"
@@ -226,7 +228,7 @@ def append_history(result: dict) -> None:
 
 def write_snapshot(rows: list[dict], ts: str) -> Path:
     ts_clean = ts.replace(":", "").replace("-", "").replace("T", "_").replace("Z", "")
-    snap_path = ROOT / f"prices_{ts_clean}.csv"
+    snap_path = SNAPSHOT_DIR / f"prices_{ts_clean}.csv"
     with snap_path.open("w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=SNAPSHOT_FIELDS)
         w.writeheader()

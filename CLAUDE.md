@@ -13,13 +13,19 @@ Remote: `https://github.com/akhan2001/tokenix.git`
 
 ```
 tokenix/
-├─ scrape_prices.py        # Python price scraper (multi-source). Run manually today.
-├─ token_prices_*.csv      # Timestamped scraper output (committed snapshots)
+├─ scripts/                # Python pipeline (run manually / by GitHub Action)
+│  ├─ scrape_prices.py     #   multi-source token price scraper
+│  ├─ acpi.py              #   computes the ACPI index value + history
+│  ├─ benchmark_quality.py #   HF OpenEvals leaderboard → quality composite
+│  └─ scheduler.py         #   local hourly loop around acpi.main()
+├─ data/snapshots/         # Timestamped scraper output (token_prices_*.csv, prices_*.csv)
+│                          #   gitignored working files; data.ts reads the newest from here
+├─ docs/                   # Markdown notes + GPU market briefing
 ├─ dashboard/              # Next.js 16 app — the public site (homepage + screener)
 │  ├─ app/                 # page.tsx (index), screener/page.tsx
 │  ├─ components/          # acpi-hero-card, acpi-chart, price-table, ticker, header…
 │  ├─ lib/data.ts          # Loads the latest CSV → PriceRow[]  ← the data layer today
-│  └─ data/prices.csv      # Bundled fallback snapshot (used on Vercel)
+│  └─ data/                # acpi_latest.json, acpi_history.csv, prices.csv (bundled fallback)
 ├─ package.json            # Root wrapper: `npm run dev|build|start` proxy into dashboard/
 └─ vercel.json
 ```
@@ -34,13 +40,14 @@ different/aspirational project — confirm before building against it.
   `node_modules/next/dist/docs/` before writing Next code.
 - Tailwind v4, shadcn, base-ui, lucide, cobe (globe). Most styling is **inline
   styles**, not utility classes — match the surrounding file.
-- **Python 3** scraper using `httpx` only (`scrape_prices.py`).
+- **Python 3** scraper using `httpx` only (`scripts/scrape_prices.py`).
 - Data transport today: **CSV files on disk**, parsed by `dashboard/lib/data.ts`.
 
 ## Run / build
 - Dev site: `npm run dev` (root) → runs `next dev` in `dashboard/`.
 - Build: `npm run build` (root) installs dashboard deps then `next build`.
-- Scrape prices: `python scrape_prices.py` → writes a new `token_prices_<ts>.csv`.
+- Scrape prices: `python scripts/scrape_prices.py` → writes a new
+  `data/snapshots/token_prices_<ts>.csv`.
 
 ## Data contract (do not break)
 The scraper and `dashboard/lib/data.ts` share a fixed CSV schema. Any new data
@@ -48,15 +55,16 @@ source or pipeline MUST emit these columns:
 `timestamp, source, provider, model_id, model_name, context_length,
 input_per_million_usd, output_per_million_usd`
 `PriceRow` in `dashboard/lib/data.ts` mirrors it. `data.ts` prefers the newest
-`../token_prices_*.csv`, then falls back to `dashboard/data/prices.csv`.
+`../data/snapshots/token_prices_*.csv`, then falls back to
+`dashboard/data/prices.csv`.
 
 ## ⚠️ Current state of "the index" — read before touching ACPI
-The headline ACPI number is **real and implemented**. `acpi.py` fetches live
+The headline ACPI number is **real and implemented**. `scripts/acpi.py` fetches live
 OpenRouter pricing, applies the adjustments below, and writes
 `dashboard/data/acpi_latest.json` (read by `acpi-hero-card.tsx` via
 `loadAcpi()`) plus an append-only `acpi_history.csv`. The GitHub Action
 `.github/workflows/acpi.yml` runs it hourly.
-- Benchmark quality lives in `benchmark_quality.py` (HF OpenEvals leaderboard
+- Benchmark quality lives in `scripts/benchmark_quality.py` (HF OpenEvals leaderboard
   Parquet → z-scored composite), powering the per-model P1 (intelligence-per-
   dollar) screener metric.
 - Still synthetic: the hero **spark / 17-month chart** (`buildSeries()` in
@@ -73,7 +81,7 @@ chart art is still a placeholder. See the `build-acpi-engine` skill in
 - ACPI = **tiered-weighted average** of every tracked model's risk-adjusted price
   (Tier S flagships 10×, Tier A 5×, Tier B major-lab 2×, Tier C long-tail 1×).
   Tier assignment is a disclosed manual classification (`get_tier_weight` in
-  `acpi.py`), reviewed monthly.
+  `scripts/acpi.py`), reviewed monthly.
 - Market-risk factor (P2) scales every price; the price-spread proxy that used to
   stand in for "quality" has been removed.
 - Quality factor = **HELM-aligned benchmark composite** (MMLU-Pro, coding, math,
