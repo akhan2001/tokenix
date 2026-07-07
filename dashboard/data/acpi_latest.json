@@ -1,6 +1,6 @@
 {
   "acpi": 5.181,
-  "computed_at": "2026-07-07T06:39:01Z",
+  "computed_at": "2026-07-07T10:19:58Z",
   "model_count": 312,
   "provider_count": 54,
   "weighting": "bucket-5050",
@@ -15,7 +15,7 @@
   "p2_score": 74.0,
   "components": {
     "mean_blended_price": 4.1924,
-    "mean_p3_spread": 31.055,
+    "mean_p3_spread": 31.0549,
     "mean_quality_adjustment": 1.24
   },
   "screener": {
