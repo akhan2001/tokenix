@@ -63,7 +63,7 @@ export default function Home() {
 
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section
-        className="ledger home-hero"
+        className="home-hero"
         style={{
           maxWidth: 1200,
           margin: "0 auto",
