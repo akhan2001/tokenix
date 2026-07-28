@@ -93,6 +93,46 @@ export interface AcpiData {
   };
 }
 
+export interface AcpiHistoryPoint {
+  timestamp: string;
+  acpi: number;
+  model_count: number;
+  provider_count: number;
+}
+
+let historyCache: { key: string; rows: AcpiHistoryPoint[] } | null = null;
+
+/**
+ * The append-only ACPI history log written by scripts/acpi.py — every hourly
+ * run adds one row. Powers the real index-performance chart (no synthetic art).
+ */
+export function loadAcpiHistory(): AcpiHistoryPoint[] {
+  const csvPath = path.join(process.cwd(), "data", "acpi_history.csv");
+  if (!fs.existsSync(csvPath)) return [];
+
+  const key = `${csvPath}:${fs.statSync(csvPath).mtimeMs}`;
+  if (historyCache && historyCache.key === key) return historyCache.rows;
+
+  const content = fs.readFileSync(csvPath, "utf-8");
+  const records = parse(content, { columns: true, skip_empty_lines: true }) as Record<
+    string,
+    string
+  >[];
+
+  const rows = records
+    .map((r) => ({
+      timestamp: r.timestamp,
+      acpi: parseFloat(r.acpi) || 0,
+      model_count: parseInt(r.model_count, 10) || 0,
+      provider_count: parseInt(r.provider_count, 10) || 0,
+    }))
+    .filter((r) => r.acpi > 0 && !!r.timestamp)
+    .sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+
+  historyCache = { key, rows };
+  return rows;
+}
+
 let acpiCache: { key: string; data: AcpiData } | null = null;
 
 export function loadAcpi(): AcpiData | null {

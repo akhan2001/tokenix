@@ -45,7 +45,14 @@
       "Bash(curl -s -o /dev/null -w \"screener %{http_code} %{time_total}s\\\\n\" http://localhost:3099/screener)",
       "Bash(curl -s -o /dev/null -w \"%{http_code} %{time_total}s\\\\n\" http://localhost:3000/)",
       "Bash(curl -s -o /dev/null -w \"%{http_code} %{time_total}s\\\\n\" http://localhost:3000/screener)",
-      "Bash(curl -s http://localhost:3000/)"
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(awk -F, 'NR>1{print $3}' data/snapshots/token_prices_20260622_193449.csv)",
+      "Bash(awk -F, 'NR>1{split\\($3,a,\"/\"\\); print a[1]}' data/snapshots/prices_20260627_155456.csv)",
+      "Bash(awk -F, 'NR>1 && $2==\"openai\"{print $3}' data/snapshots/prices_20260627_155456.csv)",
+      "Bash(awk -F, 'NR>1{print $2}' /c/Users/User/Work/Business/token-index/tokenix/data/snapshots/prices_20260627_155456.csv)",
+      "Bash(awk -F, 'NR>1{print $3}' /c/Users/User/Work/Business/token-index/tokenix/dashboard/data/prices.csv)",
+      "Bash(awk -F, 'NR>1 && $7+0>0{print $7\"  \"$3\"  \"$5}' /c/Users/User/Work/Business/token-index/tokenix/dashboard/data/prices.csv)",
+      "Bash(node *)"
     ]
   }
 }

@@ -1,40 +1,41 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { AcpiHistoryPoint } from "@/lib/data";
 
-/* ── Series builder (deterministic, same as home.html) ────── */
-function buildSeries(): number[] {
-  const N = 204;
-  const v0 = 11.84,
-    vN = 5.84;
-  const smooth = (t: number) => t * t * (3 - 2 * t);
-  const pts: number[] = [];
-  for (let i = 0; i < N; i++) {
-    const t = i / (N - 1);
-    const base = v0 + (vN - v0) * smooth(t);
-    const env = Math.sin(Math.PI * t) * 0.9;
-    const noise =
-      env *
-      (0.42 * Math.sin(t * 11 + 1) +
-        0.2 * Math.sin(t * 27 + 0.5) +
-        0.12 * Math.sin(t * 47));
-    pts.push(Math.max(5.4, base + noise));
-  }
-  pts[pts.length - 1] = vN;
-  return pts;
+/* ── Time-window ranges over the real history ───────────────── */
+const RANGES = [
+  { label: "7D", days: 7 },
+  { label: "30D", days: 30 },
+  { label: "All", days: Infinity },
+] as const;
+
+interface ChartPoint {
+  d: Date;
+  v: number;
 }
 
-const SERIES = buildSeries();
-
-const MONTH_DATES: Date[] = [];
-for (let i = 0; i < 17; i++) MONTH_DATES.push(new Date(2025, i, 1));
-
-function fmtMon(d: Date): string {
+function fmtDate(d: Date, withTime: boolean): string {
+  const day = d.toLocaleString("en-US", { month: "short", day: "numeric" });
+  if (!withTime) return day;
   return (
-    d.toLocaleString("en-US", { month: "short" }) +
-    " '" +
-    String(d.getFullYear()).slice(2)
+    day +
+    " " +
+    d.toLocaleString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false })
   );
+}
+
+function windowPoints(history: AcpiHistoryPoint[], days: number): ChartPoint[] {
+  const all = history
+    .map((p) => ({ d: new Date(p.timestamp), v: p.acpi }))
+    .filter((p) => !Number.isNaN(p.d.getTime()));
+  if (!all.length) return [];
+  if (!Number.isFinite(days)) return all;
+
+  const last = all[all.length - 1].d.getTime();
+  const cutoff = last - days * 24 * 60 * 60 * 1000;
+  const win = all.filter((p) => p.d.getTime() >= cutoff);
+  return win.length >= 2 ? win : all.slice(-2);
 }
 
 const CW = 1100,
@@ -42,31 +43,29 @@ const CW = 1100,
 const PAD = { t: 18, b: 34, l: 8, r: 54 };
 
 interface ChartState {
-  data: number[];
-  months: Date[];
+  data: ChartPoint[];
   xAt: (i: number) => number;
   yAt: (v: number) => number;
+  withTime: boolean;
 }
 
-function renderChart(svgEl: SVGSVGElement, monthsBack: number): ChartState {
-  const total = SERIES.length;
-  const startIdx = Math.round(total - (monthsBack / 17) * total);
-  const data = SERIES.slice(Math.max(0, startIdx));
-  const months = MONTH_DATES.slice(17 - monthsBack);
-
+function renderChart(svgEl: SVGSVGElement, data: ChartPoint[], withTime: boolean): ChartState {
   const innerW = CW - PAD.l - PAD.r;
   const innerH = CH - PAD.t - PAD.b;
-  const min = Math.min(...data);
-  const max = Math.max(...data);
-  const yMin = Math.floor(min - 0.4);
-  const yMax = Math.ceil(max + 0.4);
+  const values = data.map((p) => p.v);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  // Pad the y-range by ~8% of the span so the line never hugs the frame edges.
+  const span = Math.max(max - min, 0.01);
+  const yMin = min - span * 0.18;
+  const yMax = max + span * 0.18;
 
-  const xAt = (i: number) => PAD.l + (i / (data.length - 1)) * innerW;
+  const xAt = (i: number) => PAD.l + (i / Math.max(1, data.length - 1)) * innerW;
   const yAt = (v: number) => PAD.t + (1 - (v - yMin) / (yMax - yMin)) * innerH;
 
   let line = "";
-  data.forEach((v, i) => {
-    line += (i === 0 ? "M" : "L") + xAt(i).toFixed(1) + " " + yAt(v).toFixed(1) + " ";
+  data.forEach((p, i) => {
+    line += (i === 0 ? "M" : "L") + xAt(i).toFixed(1) + " " + yAt(p.v).toFixed(1) + " ";
   });
   const area =
     line +
@@ -76,9 +75,9 @@ function renderChart(svgEl: SVGSVGElement, monthsBack: number): ChartState {
   // SVG presentation attributes don't support var(), so resolve the theme
   // tokens to concrete colors (falls back to the original dark values).
   const cs = getComputedStyle(svgEl);
-  const cGrid  = cs.getPropertyValue("--border").trim()  || "#1f2430";
-  const cLabel = cs.getPropertyValue("--text3").trim()   || "#3d4655";
-  const cLine  = cs.getPropertyValue("--accent").trim()  || "#c8a96e";
+  const cGrid = cs.getPropertyValue("--border").trim() || "#1f2430";
+  const cLabel = cs.getPropertyValue("--text3").trim() || "#3d4655";
+  const cLine = cs.getPropertyValue("--accent").trim() || "#c8a96e";
   const cCross = cs.getPropertyValue("--border2").trim() || "#28303f";
 
   let grid = "";
@@ -89,19 +88,18 @@ function renderChart(svgEl: SVGSVGElement, monthsBack: number): ChartState {
     grid += `<text x="${(PAD.l + innerW + 10).toFixed(1)}" y="${(y + 3.5).toFixed(1)}" fill="${cLabel}" font-family="DM Mono, monospace" font-size="10">$${val.toFixed(2)}</text>`;
   }
 
-  const labelCount = monthsBack <= 6 ? 4 : 6;
+  const labelCount = Math.min(6, Math.max(2, data.length));
   let xlab = "";
   for (let k = 0; k < labelCount; k++) {
     const frac = k / (labelCount - 1);
     const idx = Math.round(frac * (data.length - 1));
-    const mIdx = Math.min(months.length - 1, Math.round(frac * (months.length - 1)));
     const x = xAt(idx);
     const anchor = k === 0 ? "start" : k === labelCount - 1 ? "end" : "middle";
-    xlab += `<text x="${x.toFixed(1)}" y="${CH - 12}" fill="${cLabel}" font-family="DM Mono, monospace" font-size="10" text-anchor="${anchor}">${fmtMon(months[mIdx])}</text>`;
+    xlab += `<text x="${x.toFixed(1)}" y="${CH - 12}" fill="${cLabel}" font-family="DM Mono, monospace" font-size="10" text-anchor="${anchor}">${fmtDate(data[idx].d, false)}</text>`;
   }
 
   const lastX = xAt(data.length - 1).toFixed(1);
-  const lastY = yAt(data[data.length - 1]).toFixed(1);
+  const lastY = yAt(data[data.length - 1].v).toFixed(1);
 
   svgEl.innerHTML = `
     <defs>
@@ -134,32 +132,61 @@ function renderChart(svgEl: SVGSVGElement, monthsBack: number): ChartState {
     cl.style.strokeDashoffset = "0";
   }
 
-  return { data, months, xAt, yAt };
+  return { data, xAt, yAt, withTime };
 }
 
-export function AcpiChart() {
-  const [range, setRange] = useState(17);
+function fmtDelta(pct: number): string {
+  const arrow = pct > 0 ? "▲" : pct < 0 ? "▼" : "■";
+  return `${arrow} ${Math.abs(pct).toFixed(1)}%`;
+}
+
+export function AcpiChart({
+  history,
+  modelCount,
+}: {
+  history: AcpiHistoryPoint[];
+  modelCount?: number;
+}) {
+  const [rangeIdx, setRangeIdx] = useState(1); // default 30D
   const svgRef = useRef<SVGSVGElement>(null);
   const tipRef = useRef<HTMLDivElement>(null);
   const chartStateRef = useRef<ChartState | null>(null);
 
-  // Draw chart when range changes
+  const days = RANGES[rangeIdx].days;
+  const data = useMemo(() => windowPoints(history, days), [history, days]);
+  const withTime = days <= 7;
+
+  const hasData = data.length >= 2;
+
+  // Real stats derived from the selected window
+  const stats = useMemo(() => {
+    if (!hasData) return null;
+    const values = data.map((p) => p.v);
+    const first = values[0];
+    const last = values[values.length - 1];
+    const high = Math.max(...values);
+    const low = Math.min(...values);
+    const change = first > 0 ? ((last - first) / first) * 100 : 0;
+    return { first, last, high, low, change };
+  }, [data, hasData]);
+
+  // Draw chart when the windowed data changes
   useEffect(() => {
     const svg = svgRef.current;
-    if (!svg) return;
-    chartStateRef.current = renderChart(svg, range);
-  }, [range]);
+    if (!svg || !hasData) return;
+    chartStateRef.current = renderChart(svg, data, withTime);
+  }, [data, withTime, hasData]);
 
-  // Hover interaction — re-attach when range changes
+  // Hover interaction — re-attach when data changes
   useEffect(() => {
     const svg = svgRef.current;
     const tip = tipRef.current;
-    if (!svg || !tip) return;
+    if (!svg || !tip || !hasData) return;
 
     function onMove(e: MouseEvent) {
       const cs = chartStateRef.current;
       if (!cs) return;
-      const { data, months, xAt, yAt } = cs;
+      const { data, xAt, yAt, withTime } = cs;
 
       const rect = svg!.getBoundingClientRect();
       const relX = ((e.clientX - rect.left) / rect.width) * CW;
@@ -167,7 +194,7 @@ export function AcpiChart() {
       i = Math.max(0, Math.min(data.length - 1, i));
 
       const px = xAt(i);
-      const py = yAt(data[i]);
+      const py = yAt(data[i].v);
 
       const cross = svg!.querySelector<SVGLineElement>("#cross");
       const dot = svg!.querySelector<SVGCircleElement>("#cdot-hover");
@@ -180,11 +207,10 @@ export function AcpiChart() {
       tip!.style.left = Math.min(rect.width - 130, Math.max(0, px * scaleX + 12)) + "px";
       tip!.style.top = (py * scaleY - 10) + "px";
 
-      const mIdx = Math.min(months.length - 1, Math.round((i / (data.length - 1)) * (months.length - 1)));
       const ttv = tip!.querySelector<HTMLElement>(".tt-v");
       const ttd = tip!.querySelector<HTMLElement>(".tt-d");
-      if (ttv) ttv.textContent = "$" + data[i].toFixed(2);
-      if (ttd) ttd.textContent = fmtMon(months[mIdx]);
+      if (ttv) ttv.textContent = "$" + data[i].v.toFixed(4);
+      if (ttd) ttd.textContent = fmtDate(data[i].d, withTime);
     }
 
     function onLeave() {
@@ -201,7 +227,25 @@ export function AcpiChart() {
       svg.removeEventListener("mousemove", onMove);
       svg.removeEventListener("mouseleave", onLeave);
     };
-  }, [range]);
+  }, [data, hasData]);
+
+  const statTiles = stats
+    ? [
+        { label: `Index high · ${RANGES[rangeIdx].label}`, value: "$" + stats.high.toFixed(2), tone: "var(--text)" },
+        { label: `Index low · ${RANGES[rangeIdx].label}`, value: "$" + stats.low.toFixed(2), tone: "var(--accent)" },
+        {
+          label: `Change · ${RANGES[rangeIdx].label}`,
+          value: fmtDelta(stats.change),
+          tone: stats.change <= 0 ? "var(--green)" : "var(--red)",
+        },
+        { label: "Current level", value: "$" + stats.last.toFixed(4), tone: "var(--text)" },
+        {
+          label: "Models in basket",
+          value: (modelCount ?? history[history.length - 1]?.model_count ?? 0).toLocaleString(),
+          tone: "var(--text)",
+        },
+      ]
+    : [];
 
   return (
     <section
@@ -235,13 +279,13 @@ export function AcpiChart() {
 
           {/* Range tabs */}
           <div style={{ display: "flex", gap: 6 }}>
-            {([6, 12, 17] as const).map((r) => (
+            {RANGES.map((r, i) => (
               <button
-                key={r}
-                className={`range-tab${range === r ? " on" : ""}`}
-                onClick={() => setRange(r)}
+                key={r.label}
+                className={`range-tab${rangeIdx === i ? " on" : ""}`}
+                onClick={() => setRangeIdx(i)}
               >
-                {r}M
+                {r.label}
               </button>
             ))}
           </div>
@@ -256,14 +300,30 @@ export function AcpiChart() {
             padding: "24px 24px 14px",
           }}
         >
-          <svg
-            ref={svgRef}
-            viewBox={`0 0 ${CW} ${CH}`}
-            width="100%"
-            preserveAspectRatio="none"
-            style={{ display: "block", overflow: "visible" }}
-            suppressHydrationWarning
-          />
+          {hasData ? (
+            <svg
+              ref={svgRef}
+              viewBox={`0 0 ${CW} ${CH}`}
+              width="100%"
+              preserveAspectRatio="none"
+              style={{ display: "block", overflow: "visible" }}
+              suppressHydrationWarning
+            />
+          ) : (
+            <div
+              style={{
+                height: 240,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "var(--text3)",
+                fontSize: 12,
+                letterSpacing: "0.04em",
+              }}
+            >
+              Building index history — check back after the next hourly run.
+            </div>
+          )}
           {/* Hover tooltip */}
           <div
             ref={tipRef}
@@ -292,46 +352,42 @@ export function AcpiChart() {
         </div>
 
         {/* Chart stats */}
-        <div
-          style={{
-            display: "flex",
-            gap: 36,
-            marginTop: 22,
-            paddingTop: 20,
-            borderTop: "1px solid var(--border)",
-            flexWrap: "wrap",
-          }}
-        >
-          {[
-            { label: "Index high · 17M",    value: "$11.84",  tone: "var(--text)" },
-            { label: "Index low · 17M",     value: "$5.84",   tone: "var(--accent)" },
-            { label: "Trailing change",      value: "▼ 50.7%", tone: "var(--green)" },
-            { label: "Annualised deflation", value: "▼ 38.4%", tone: "var(--green)" },
-            { label: "Models in basket",     value: "312",     tone: "var(--text)" },
-          ].map(({ label, value, tone }) => (
-            <div key={label} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-              <div
-                style={{
-                  fontSize: 9,
-                  letterSpacing: "0.16em",
-                  textTransform: "uppercase",
-                  color: "var(--text3)",
-                }}
-              >
-                {label}
+        {stats && (
+          <div
+            style={{
+              display: "flex",
+              gap: 36,
+              marginTop: 22,
+              paddingTop: 20,
+              borderTop: "1px solid var(--border)",
+              flexWrap: "wrap",
+            }}
+          >
+            {statTiles.map(({ label, value, tone }) => (
+              <div key={label} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                <div
+                  style={{
+                    fontSize: 9,
+                    letterSpacing: "0.16em",
+                    textTransform: "uppercase",
+                    color: "var(--text3)",
+                  }}
+                >
+                  {label}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "var(--serif)",
+                    fontSize: 18,
+                    color: tone,
+                  }}
+                >
+                  {value}
+                </div>
               </div>
-              <div
-                style={{
-                  fontFamily: "var(--serif)",
-                  fontSize: 18,
-                  color: tone,
-                }}
-              >
-                {value}
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
