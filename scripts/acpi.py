@@ -267,7 +267,7 @@ def write_snapshot(rows: list[dict], ts: str) -> Path:
     ts_clean = ts.replace(":", "").replace("-", "").replace("T", "_").replace("Z", "")
     snap_path = SNAPSHOT_DIR / f"prices_{ts_clean}.csv"
     with snap_path.open("w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=SNAPSHOT_FIELDS)
+        w = csv.DictWriter(f, fieldnames=SNAPSHOT_FIELDS, extrasaction="ignore")
         w.writeheader()
         w.writerows(rows)
     return snap_path
