@@ -102,6 +102,12 @@ SNAPSHOT_FIELDS = [
     "blended_per_million_usd", "p3_spread", "risk_adjustment", "adjusted_price",
     "tier_weight", "benchmark_score", "p1",
 ]
+# Screener CSV — same schema as scrape_prices.py so data.ts can read it directly
+PRICES_FIELDS = [
+    "timestamp", "source", "provider", "model_id", "model_name",
+    "context_length", "input_per_million_usd", "output_per_million_usd",
+]
+PRICES_CSV = DASHBOARD_DATA / "prices.csv"
 
 
 # ── Fetch ─────────────────────────────────────────────────────────────────────
@@ -162,6 +168,8 @@ def compute_acpi(models: list[dict]) -> tuple[dict, list[dict]]:
             "timestamp":               ts,
             "provider":                provider,
             "model_id":                model_id,
+            "model_name":              m.get("name", ""),
+            "context_length":          m.get("context_length", ""),
             "input_per_million_usd":   round(inp, 6),
             "output_per_million_usd":  round(out, 6),
             "blended_per_million_usd": round(blended, 6),
@@ -247,6 +255,14 @@ def append_history(result: dict) -> None:
         })
 
 
+def write_prices_csv(rows: list[dict]) -> None:
+    with PRICES_CSV.open("w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=PRICES_FIELDS, extrasaction="ignore")
+        w.writeheader()
+        for r in rows:
+            w.writerow({**r, "source": "openrouter"})
+
+
 def write_snapshot(rows: list[dict], ts: str) -> Path:
     ts_clean = ts.replace(":", "").replace("-", "").replace("T", "_").replace("Z", "")
     snap_path = SNAPSHOT_DIR / f"prices_{ts_clean}.csv"
@@ -270,6 +286,7 @@ def main() -> None:
     print("Writing output files...")
     write_latest_json(result)
     append_history(result)
+    write_prices_csv(rows)
     snap = write_snapshot(rows, result["computed_at"])
 
     print(f"\nACPI  = ${result['acpi']:.4f} / 1M SCU  ({result['weighting']}-weighted)")
@@ -279,6 +296,7 @@ def main() -> None:
     print(f"\nWrote:")
     print(f"  {LATEST_JSON}")
     print(f"  {HISTORY_CSV}")
+    print(f"  {PRICES_CSV}  ({len(rows)} models — screener)")
     print(f"  {snap}")
 
 
