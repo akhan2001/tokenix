@@ -36,6 +36,13 @@ PREMIUM_BUCKET_WEIGHT = 0.50   # premium (S/A) share; commodity (B/C) gets the r
 OPENROUTER_URL    = "https://openrouter.ai/api/v1/models"
 PRICE_OUTLIER_CAP = 500.0   # Drop models with blended price above this
 
+# Variant SKUs OpenRouter lists as separate catalog entries even though they're
+# not independent market entrants (async batch pricing, free-tier mirrors,
+# "latest" aliases, etc). Left undeduped, each one is counted as its own
+# equal-weighted model and can swing the bucket means on a listing change
+# alone, with no underlying provider having repriced anything.
+VARIANT_SUFFIXES = (":batch", ":free", ":extended", ":nitro", ":floor")
+
 
 # ── Tiered weighting ──────────────────────────────────────────────────────────
 # ACPI is a tier-weighted average so flagship models pull on the index in
@@ -122,6 +129,61 @@ def fetch_models() -> list[dict]:
         sys.exit(1)
 
 
+def _extract_blended_price(m: dict) -> float | None:
+    """USD per 1M blended tokens for a raw OpenRouter model dict, or None if unpriced."""
+    pricing = m.get("pricing") or {}
+    try:
+        # OpenRouter returns prices in USD per token; multiply by 1M for per-1M
+        inp = float(pricing.get("prompt") or 0) * 1_000_000
+        out = float(pricing.get("completion") or 0) * 1_000_000
+    except (TypeError, ValueError):
+        return None
+    if inp <= 0 or out <= 0:
+        return None
+    return inp * BLENDED_INPUT + out * BLENDED_OUTPUT
+
+
+def get_base_model_id(model_id: str) -> str:
+    """Maps a variant SKU id back to its base model id (see VARIANT_SUFFIXES)."""
+    for suffix in VARIANT_SUFFIXES:
+        if model_id.endswith(suffix):
+            return model_id[: -len(suffix)]
+    return model_id.lstrip("~")
+
+
+def deduplicate_models(models: list[dict]) -> tuple[list[dict], int]:
+    """Collapses variant SKUs (batch/free/alias/...) onto their base model id.
+    The bare (no-suffix) listing — standard synchronous pricing, what the
+    methodology actually prices — wins whenever it's present in the group;
+    batch/nitro/floor variants are consistently discounted off that price and
+    would otherwise silently re-price the model to a rate nobody pays for
+    normal usage. Falls back to the cheapest priced variant only when no bare
+    listing exists (pure ~alias-only entries). Returns (models, count_removed)."""
+    canonical: dict[str, dict] = {}
+    for m in models:
+        model_id = m.get("id", "")
+        base_id = get_base_model_id(model_id)
+        price = _extract_blended_price(m)
+        existing = canonical.get(base_id)
+
+        if existing is None:
+            canonical[base_id] = m
+            continue
+
+        is_bare = model_id == base_id
+        existing_is_bare = existing.get("id", "") == base_id
+
+        if is_bare and not existing_is_bare and price is not None:
+            canonical[base_id] = m
+        elif not is_bare and existing_is_bare:
+            continue  # bare listing already canonical, never displaced by a variant
+        else:
+            existing_price = _extract_blended_price(existing)
+            if price is not None and (existing_price is None or price < existing_price):
+                canonical[base_id] = m
+    return list(canonical.values()), len(models) - len(canonical)
+
+
 # ── Compute ───────────────────────────────────────────────────────────────────
 
 def compute_acpi(models: list[dict]) -> tuple[dict, list[dict]]:
@@ -129,21 +191,16 @@ def compute_acpi(models: list[dict]) -> tuple[dict, list[dict]]:
     rows: list[dict] = []
 
     for m in models:
-        pricing = m.get("pricing") or {}
-        try:
-            # OpenRouter returns prices in USD per token; multiply by 1M for per-1M
-            inp = float(pricing.get("prompt") or 0) * 1_000_000
-            out = float(pricing.get("completion") or 0) * 1_000_000
-        except (TypeError, ValueError):
+        blended = _extract_blended_price(m)
+        if blended is None:
             continue
-
-        if inp <= 0 or out <= 0:
-            continue
-
-        blended = inp * BLENDED_INPUT + out * BLENDED_OUTPUT
 
         if blended > PRICE_OUTLIER_CAP:
             continue
+
+        pricing = m.get("pricing") or {}
+        inp = float(pricing.get("prompt") or 0) * 1_000_000
+        out = float(pricing.get("completion") or 0) * 1_000_000
 
         model_id = m.get("id", "")
         provider = model_id.split("/")[0] if "/" in model_id else ""
@@ -280,8 +337,12 @@ def main() -> None:
     models = fetch_models()
     print(f"  {len(models)} models received")
 
+    models, duplicates_removed = deduplicate_models(models)
+    print(f"  {duplicates_removed} variant listings deduplicated (batch/free/alias SKUs)")
+
     print("Computing ACPI...")
     result, rows = compute_acpi(models)
+    result["deduped_variants_removed"] = duplicates_removed
 
     print("Writing output files...")
     write_latest_json(result)

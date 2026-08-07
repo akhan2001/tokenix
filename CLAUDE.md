@@ -89,6 +89,14 @@ chart art is still a placeholder. See the `build-acpi-engine` skill in
   `PREMIUM_BUCKET_WEIGHT` in `scripts/acpi.py`.
 - Market-risk factor (P2) scales every price; the price-spread proxy that used to
   stand in for "quality" has been removed.
+- Variant SKUs — batch-pricing, free-tier, and provider-alias listings
+  (`:batch`, `:free`, `:extended`, `:nitro`, `:floor`, `~alias`) — are
+  deduplicated to their base model before entering ACPI, so an OpenRouter
+  catalog change (e.g. it starting to list async batch pricing as separate
+  entries) doesn't get counted as new market entrants and inflate the index.
+  `deduplicate_models`/`get_base_model_id` in `scripts/acpi.py`; the run's
+  removed-variant count is reported as `deduped_variants_removed` in
+  `acpi_latest.json`.
 - Quality factor = **HELM-aligned benchmark composite** (MMLU-Pro, coding, math,
   reasoning), z-score normalised, sourced via standardized leaderboard
   aggregation (HF OpenEvals dataset — *not* raw Stanford HELM). It feeds the P1
