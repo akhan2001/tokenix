@@ -10,6 +10,10 @@ token_prices_*.csv
 prices_*.csv
 acpi_history.csv
 
+# …but the calculator's cleaned export IS a committed artifact — it ships with
+# the deploy and is read by /api/calculator/prices. Negated after the glob above.
+!dashboard/data/prices_latest.csv
+
 # Python
 __pycache__/
 *.pyc

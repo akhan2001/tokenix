@@ -29,6 +29,9 @@ jobs:
       - name: Run ACPI calculation
         run: python scripts/acpi.py
 
+      - name: Export calculator prices
+        run: python scripts/export_prices.py
+
       - name: Commit updated data files
         run: |
           git config user.name  "tokenix-bot"
@@ -36,6 +39,7 @@ jobs:
           git add dashboard/data/acpi_latest.json
           git add dashboard/data/acpi_history.csv
           git add dashboard/data/prices.csv
+          git add dashboard/data/prices_latest.csv
           git diff --staged --quiet || git commit -m "chore: acpi update $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
       - name: Push changes

@@ -149,6 +149,86 @@ export function loadAcpi(): AcpiData | null {
   }
 }
 
+// ── Calculator prices ────────────────────────────────────────────────────────
+
+/**
+ * A row of `dashboard/data/prices_latest.csv`, written by
+ * `scripts/export_prices.py`. This is the cleaned cut of the price feed —
+ * normalised ids, major providers only, one row per model, blended price
+ * precomputed. Distinct from `PriceRow`, which is the full screener catalog.
+ */
+export interface CalculatorPriceRow {
+  model_id: string;
+  model_name: string;
+  provider: string;
+  input_per_million: number;
+  output_per_million: number;
+  blended_per_million: number;
+  context_length: number;
+}
+
+let calcPricesCache: { key: string; rows: CalculatorPriceRow[] } | null = null;
+
+/**
+ * Loads the calculator price export. Returns null — not an empty array — when
+ * the file is absent, so callers can tell "pipeline hasn't run" apart from
+ * "everything got filtered out".
+ */
+export function loadCalculatorPrices(): CalculatorPriceRow[] | null {
+  const csvPath = path.join(process.cwd(), "data", "prices_latest.csv");
+  if (!fs.existsSync(csvPath)) return null;
+
+  const key = `${csvPath}:${fs.statSync(csvPath).mtimeMs}`;
+  if (calcPricesCache && calcPricesCache.key === key) return calcPricesCache.rows;
+
+  const content = fs.readFileSync(csvPath, "utf-8");
+  const records = parse(content, { columns: true, skip_empty_lines: true }) as Record<
+    string,
+    string
+  >[];
+
+  const rows = records
+    .map((r) => ({
+      model_id: r.model_id,
+      model_name: r.model_name || r.model_id,
+      provider: r.provider,
+      input_per_million: parseFloat(r.input_per_million_usd) || 0,
+      output_per_million: parseFloat(r.output_per_million_usd) || 0,
+      blended_per_million: parseFloat(r.blended_per_million_usd) || 0,
+      context_length: parseInt(r.context_length, 10) || 0,
+    }))
+    .filter((r) => !!r.model_id && r.blended_per_million > 0)
+    .sort((a, b) => a.blended_per_million - b.blended_per_million);
+
+  calcPricesCache = { key, rows };
+  return rows;
+}
+
+let calcUpdatedCache: { key: string; at: string | null } | null = null;
+
+/** The `last_updated` stamp on the export — the run that produced these prices. */
+export function calculatorPricesUpdatedAt(): string | null {
+  const csvPath = path.join(process.cwd(), "data", "prices_latest.csv");
+  if (!fs.existsSync(csvPath)) return null;
+
+  const key = `${csvPath}:${fs.statSync(csvPath).mtimeMs}`;
+  if (calcUpdatedCache && calcUpdatedCache.key === key) return calcUpdatedCache.at;
+
+  try {
+    const content = fs.readFileSync(csvPath, "utf-8");
+    const records = parse(content, {
+      columns: true,
+      skip_empty_lines: true,
+      to: 1, // every row carries the same run timestamp; the first is enough
+    }) as Record<string, string>[];
+    const at = records[0]?.last_updated?.trim() || null;
+    calcUpdatedCache = { key, at };
+    return at;
+  } catch {
+    return null;
+  }
+}
+
 // Pick interesting models for the ticker — one per well-known provider
 const TICKER_MODEL_IDS = [
   "openai/gpt-4o",

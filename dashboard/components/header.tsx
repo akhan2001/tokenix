@@ -1,6 +1,6 @@
 interface HeaderProps {
   /** Which nav item to highlight. "index" = homepage, "screener" = screener page. */
-  page?: "index" | "screener" | "methodology";
+  page?: "index" | "screener" | "calculator" | "methodology";
 }
 
 export function Header({ page = "index" }: HeaderProps) {
@@ -43,6 +43,7 @@ export function Header({ page = "index" }: HeaderProps) {
           [
             { label: "Index",       href: "/",           key: "index" },
             { label: "Screener",    href: "/screener",   key: "screener" },
+            { label: "Calculator",  href: "/calculator", key: "calculator" },
             { label: "Methodology", href: "/#methodology", key: "methodology" },
           ] as const
         ).map(({ label, href, key }) => (

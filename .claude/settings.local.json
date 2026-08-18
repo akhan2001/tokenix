@@ -65,7 +65,11 @@
       "Bash(xxd)",
       "Bash(awk 'NR==2{print; exit}')",
       "Bash(git checkout *)",
-      "Bash(GIT_EDITOR=true git rebase --continue)"
+      "Bash(GIT_EDITOR=true git rebase --continue)",
+      "Bash(echo \"exit=$? \\(1 = NOT ignored, good\\)\")",
+      "Bash(npx next *)",
+      "Bash(npx eslint *)",
+      "Bash(echo \"eslint exit: $?\")"
     ]
   }
 }
