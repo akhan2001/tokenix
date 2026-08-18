@@ -165,6 +165,10 @@ export interface CalculatorPriceRow {
   output_per_million: number;
   blended_per_million: number;
   context_length: number;
+  /** HELM-aligned benchmark composite (z-normalised). Null when unscored — most models. */
+  benchmark_score: number | null;
+  /** Intelligence-per-dollar: (benchmark_score / blended_per_million) * 10. Null when unscored. */
+  p1: number | null;
 }
 
 let calcPricesCache: { key: string; rows: CalculatorPriceRow[] } | null = null;
@@ -196,6 +200,8 @@ export function loadCalculatorPrices(): CalculatorPriceRow[] | null {
       output_per_million: parseFloat(r.output_per_million_usd) || 0,
       blended_per_million: parseFloat(r.blended_per_million_usd) || 0,
       context_length: parseInt(r.context_length, 10) || 0,
+      benchmark_score: r.benchmark_score?.trim() ? parseFloat(r.benchmark_score) : null,
+      p1: r.p1?.trim() ? parseFloat(r.p1) : null,
     }))
     .filter((r) => !!r.model_id && r.blended_per_million > 0)
     .sort((a, b) => a.blended_per_million - b.blended_per_million);

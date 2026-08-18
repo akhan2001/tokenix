@@ -69,7 +69,10 @@
       "Bash(echo \"exit=$? \\(1 = NOT ignored, good\\)\")",
       "Bash(npx next *)",
       "Bash(npx eslint *)",
-      "Bash(echo \"eslint exit: $?\")"
+      "Bash(echo \"eslint exit: $?\")",
+      "Bash(python3 scripts/export_prices.py)",
+      "Bash(awk -F',' 'NR>1 && $9!=\"\" {print; c++} END{print \"scored rows:\", c}' dashboard/data/prices_latest.csv)",
+      "Bash(awk -F',' 'NR>1{if\\($9!=\"\"\\) c++} END{print \"scored:\", c, \"of\", NR-1}' dashboard/data/prices_latest.csv)"
     ]
   }
 }

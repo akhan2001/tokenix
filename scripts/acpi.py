@@ -109,10 +109,14 @@ SNAPSHOT_FIELDS = [
     "blended_per_million_usd", "p3_spread", "risk_adjustment", "adjusted_price",
     "tier_weight", "benchmark_score", "p1",
 ]
-# Screener CSV — same schema as scrape_prices.py so data.ts can read it directly
+# Screener CSV — same base schema as scrape_prices.py so data.ts can read it
+# directly, plus benchmark_score/p1 appended so the calculator export can carry
+# real quality scores instead of inventing one. Extra trailing columns are safe:
+# data.ts parses PriceRow by field name and ignores columns it doesn't know.
 PRICES_FIELDS = [
     "timestamp", "source", "provider", "model_id", "model_name",
     "context_length", "input_per_million_usd", "output_per_million_usd",
+    "benchmark_score", "p1",
 ]
 PRICES_CSV = DASHBOARD_DATA / "prices.csv"
 

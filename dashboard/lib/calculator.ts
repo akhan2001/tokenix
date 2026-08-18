@@ -201,14 +201,30 @@ export function calculateCost(
   };
 }
 
-/** Costs every model, cheapest first. */
+/**
+ * Costs every model, ranked by ACPI value score (P1 — intelligence per dollar,
+ * the same quality-adjusted metric the index's screener uses) rather than raw
+ * price, so a cheap-but-weak model doesn't outrank a stronger one for less.
+ *
+ * Only ~1 in 10 tracked models has published benchmark data behind a P1 score
+ * (see CLAUDE.md — models without it are excluded from P1 but kept in ACPI).
+ * Scored models sort first, best value first; unscored models follow, cheapest
+ * first, since price is the only honest signal available for them.
+ */
 export function calculateAll(
   config: CalculatorConfig,
   models: CalculatorPriceRow[]
 ): CostResult[] {
   return models
     .map((m) => calculateCost(config, m))
-    .sort((a, b) => a.monthly - b.monthly);
+    .sort((a, b) => {
+      const ap = a.model.p1;
+      const bp = b.model.p1;
+      if (ap !== null && bp !== null) return bp - ap;
+      if (ap !== null) return -1;
+      if (bp !== null) return 1;
+      return a.monthly - b.monthly;
+    });
 }
 
 /** Spread between the cheapest and dearest option in a result set. */

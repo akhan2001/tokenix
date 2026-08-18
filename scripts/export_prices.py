@@ -49,6 +49,7 @@ OUTPUT_FIELDS = [
     "model_id", "model_name", "provider",
     "input_per_million_usd", "output_per_million_usd",
     "blended_per_million_usd", "context_length", "last_updated",
+    "benchmark_score", "p1",
 ]
 
 # Providers the calculator compares. Deliberately curated rather than
@@ -80,6 +81,16 @@ def normalize_model_id(model_id: str) -> str:
 def blended_price(input_usd: float, output_usd: float) -> float:
     """USD per 1M blended tokens — the index's 3:1 input:output assumption."""
     return input_usd * BLENDED_INPUT + output_usd * BLENDED_OUTPUT
+
+
+def parse_optional_float(raw) -> float | None:
+    """Empty/missing → None (no benchmark data), distinct from a real 0.0 score."""
+    if raw is None or str(raw).strip() == "":
+        return None
+    try:
+        return float(raw)
+    except (TypeError, ValueError):
+        return None
 
 
 # ── Clean ─────────────────────────────────────────────────────────────────────
@@ -131,6 +142,8 @@ def clean_rows(records: list[dict]) -> tuple[list[dict], dict[str, int]]:
             "blended_per_million_usd": round(blended, 6),
             "context_length":          (r.get("context_length") or "").strip(),
             "last_updated":            (r.get("timestamp") or "").strip(),
+            "benchmark_score":         parse_optional_float(r.get("benchmark_score")),
+            "p1":                      parse_optional_float(r.get("p1")),
             "_is_bare":                raw_id == model_id,
         }
 

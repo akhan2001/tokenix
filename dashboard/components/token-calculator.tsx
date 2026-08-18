@@ -271,18 +271,20 @@ function CostBars({ results, total }: { results: CostResult[]; total: number }) 
 
   if (!shown.length || max <= 0) return null;
 
+  const topIsScored = shown[0]?.model.p1 !== null;
+
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
         <Kicker>
-          Cheapest {shown.length} of {formatCount(total)} models · monthly
+          Top {shown.length} of {formatCount(total)} models · monthly
         </Kicker>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {shown.map((r, i) => {
           const pct = (r.monthly / max) * 100;
-          const isCheapest = i === 0;
+          const isBestValue = i === 0 && topIsScored;
           const isHovered = hovered === i;
 
           return (
@@ -311,7 +313,7 @@ function CostBars({ results, total }: { results: CostResult[]; total: number }) 
                   }}
                 >
                   {r.model.model_name.replace(/^[A-Za-z][A-Za-z0-9 ]+:\s*/, "")}
-                  {isCheapest && (
+                  {isBestValue && (
                     <span
                       style={{
                         marginLeft: 8,
@@ -321,7 +323,7 @@ function CostBars({ results, total }: { results: CostResult[]; total: number }) 
                         color: "var(--green)",
                       }}
                     >
-                      cheapest
+                      best value
                     </span>
                   )}
                 </span>
@@ -343,7 +345,7 @@ function CostBars({ results, total }: { results: CostResult[]; total: number }) 
                   style={{
                     height: "100%",
                     width: `${Math.max(pct, 0.4)}%`,
-                    background: isCheapest ? "var(--green)" : "var(--accent)",
+                    background: isBestValue ? "var(--green)" : "var(--accent)",
                     opacity: isHovered ? 1 : 0.85,
                     transition: "width 0.25s ease, opacity 0.15s",
                   }}
@@ -404,6 +406,7 @@ function ResultsTable({ results }: { results: CostResult[] }) {
           <tr style={{ background: "var(--s1)", borderBottom: "1px solid var(--border)", position: "sticky", top: 0, zIndex: 2 }}>
             <th style={{ ...th, textAlign: "left", width: 40 }}>#</th>
             <th style={{ ...th, textAlign: "left" }}>Model</th>
+            <th style={{ ...th, width: 90 }}>ACPI Score</th>
             <th style={{ ...th, width: 120 }}>Blended /1M</th>
             <th style={{ ...th, width: 120 }}>Per workflow</th>
             <th style={{ ...th, width: 130 }}>Monthly</th>
@@ -411,7 +414,10 @@ function ResultsTable({ results }: { results: CostResult[] }) {
           </tr>
         </thead>
         <tbody>
-          {results.map((r, i) => (
+          {results.map((r, i) => {
+            const scored = r.model.p1 !== null;
+            const isBestValue = i === 0 && scored;
+            return (
             <tr
               key={r.model.model_id}
               style={{ borderBottom: "1px solid var(--border)", transition: "background 0.12s" }}
@@ -423,13 +429,28 @@ function ResultsTable({ results }: { results: CostResult[] }) {
               </td>
               <td style={{ padding: cellPad }}>
                 <div style={{ display: "flex", flexDirection: "column" }}>
-                  <span style={{ color: "var(--text)" }}>
+                  <span style={{ color: "var(--text)", display: "flex", alignItems: "center", gap: 8 }}>
                     {r.model.model_name.replace(/^[A-Za-z][A-Za-z0-9 ]+:\s*/, "")}
+                    {isBestValue && (
+                      <span
+                        style={{
+                          fontSize: 9,
+                          letterSpacing: "0.1em",
+                          textTransform: "uppercase",
+                          color: "var(--green)",
+                        }}
+                      >
+                        best value
+                      </span>
+                    )}
                   </span>
                   <span style={{ fontFamily: "var(--mono)", color: "var(--text3)", fontSize: 10 }}>
                     {r.model.model_id}
                   </span>
                 </div>
+              </td>
+              <td style={{ padding: cellPad, textAlign: "right", fontFamily: "var(--mono)", color: scored ? "var(--accent)" : "var(--text3)" }}>
+                {scored ? r.model.p1!.toFixed(1) : "—"}
               </td>
               <td style={{ padding: cellPad, textAlign: "right", fontFamily: "var(--mono)", color: "var(--text3)" }}>
                 {formatCurrency(r.model.blended_per_million)}
@@ -444,7 +465,8 @@ function ResultsTable({ results }: { results: CostResult[] }) {
                 {formatCurrency(r.annual)}
               </td>
             </tr>
-          ))}
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -740,7 +762,7 @@ export function TokenCalculator() {
 
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {/* Headline */}
-            <Panel title="Cheapest option">
+            <Panel title={results[0]?.model.p1 !== null ? "Best value" : "Cheapest option"}>
               {results.length > 0 ? (
                 <div>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
@@ -751,8 +773,13 @@ export function TokenCalculator() {
                       / month · {formatCurrency(results[0].annual)} / yr
                     </span>
                   </div>
-                  <div style={{ fontSize: 12, color: "var(--text2)", marginTop: 8 }}>
+                  <div style={{ fontSize: 12, color: "var(--text2)", marginTop: 8, display: "flex", alignItems: "center", gap: 8 }}>
                     {results[0].model.model_name.replace(/^[A-Za-z][A-Za-z0-9 ]+:\s*/, "")}
+                    {results[0].model.p1 !== null && (
+                      <span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--accent)" }}>
+                        ACPI {results[0].model.p1.toFixed(1)}
+                      </span>
+                    )}
                   </div>
 
                   {/* The spread needs two models to mean anything — filtering
@@ -831,7 +858,7 @@ export function TokenCalculator() {
         <section>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
             <div>
-              <Kicker>Full comparison</Kicker>
+              <Kicker>Ranked by ACPI value score — price and quality combined</Kicker>
               <div
                 style={{
                   fontFamily: "var(--serif)",
@@ -840,7 +867,7 @@ export function TokenCalculator() {
                   letterSpacing: "-0.012em",
                 }}
               >
-                {selectedGroups.length ? "Selected models" : "Every tracked model"}, cheapest first
+                {selectedGroups.length ? "Selected models" : "Every tracked model"}
               </div>
             </div>
             <span style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--text3)" }}>
@@ -906,6 +933,12 @@ export function TokenCalculator() {
               <li>
                 Prices from the OpenRouter catalog, deduplicated to base models across major
                 providers.
+              </li>
+              <li>
+                Ranked by ACPI Score (P1, intelligence-per-dollar) where a model has published
+                benchmark data — currently a minority of the catalog. Models without a score sort
+                below the scored ones, cheapest first, since price is the only signal available
+                for them.
               </li>
             </ul>
             {data.last_updated && (
