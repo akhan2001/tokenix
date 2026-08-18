@@ -72,7 +72,9 @@
       "Bash(echo \"eslint exit: $?\")",
       "Bash(python3 scripts/export_prices.py)",
       "Bash(awk -F',' 'NR>1 && $9!=\"\" {print; c++} END{print \"scored rows:\", c}' dashboard/data/prices_latest.csv)",
-      "Bash(awk -F',' 'NR>1{if\\($9!=\"\"\\) c++} END{print \"scored:\", c, \"of\", NR-1}' dashboard/data/prices_latest.csv)"
+      "Bash(awk -F',' 'NR>1{if\\($9!=\"\"\\) c++} END{print \"scored:\", c, \"of\", NR-1}' dashboard/data/prices_latest.csv)",
+      "Bash(git fetch *)",
+      "Bash(git rebase *)"
     ]
   }
 }
