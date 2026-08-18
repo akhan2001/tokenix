@@ -19,6 +19,10 @@ import type { CalculatorPriceRow } from "./data";
 export const INPUT_SHARE = 0.75;
 export const OUTPUT_SHARE = 0.25;
 
+/** Standard word→token approximation (~0.75 words per token) for estimating
+ * tokensPerStep from a pasted sample message in the Chat assistant scenario. */
+export const WORDS_PER_TOKEN = 0.75;
+
 /**
  * Prompt caching. In a repeated workflow most of the input — system prompt,
  * tool definitions, retrieved context — is identical call to call, so it can be

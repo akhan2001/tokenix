@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { TokenCalculator } from "@/components/token-calculator";
-import { WordCalculator } from "@/components/word-calculator";
 
 export const metadata: Metadata = {
   title: "Token Cost Calculator · Tokenix",
@@ -59,50 +58,6 @@ export default function CalculatorPage() {
               Describe the workflow you run. Every major model is priced against it from the same
               live feed that computes the index — so the comparison moves when the market does.
             </p>
-          </div>
-        </section>
-
-        {/* ── Word calculator — simple, no config, top of the page ────────── */}
-        <section className="calc-wrap" style={{ padding: "36px 48px 0" }}>
-          <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-            <div className="sec-kicker">Quick estimate</div>
-            <h2
-              style={{
-                margin: "0 0 20px",
-                fontFamily: "var(--serif)",
-                fontSize: 24,
-                fontWeight: 500,
-                letterSpacing: "-0.012em",
-                color: "var(--text)",
-              }}
-            >
-              Paste text, see what it costs
-            </h2>
-            <WordCalculator />
-          </div>
-        </section>
-
-        {/* ── Divider ───────────────────────────────────────────────────── */}
-        <div className="calc-wrap" style={{ padding: "40px 48px 0" }}>
-          <div style={{ maxWidth: 1200, margin: "0 auto", borderTop: "1px solid var(--border)" }} />
-        </div>
-
-        {/* ── Workflow calculator — advanced, configurable ─────────────────── */}
-        <section className="calc-wrap" style={{ padding: "36px 48px 0" }}>
-          <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-            <div className="sec-kicker">Full workflow</div>
-            <h2
-              style={{
-                margin: 0,
-                fontFamily: "var(--serif)",
-                fontSize: 24,
-                fontWeight: 500,
-                letterSpacing: "-0.012em",
-                color: "var(--text)",
-              }}
-            >
-              Model a real workload
-            </h2>
           </div>
         </section>
 

@@ -10,6 +10,7 @@ import {
   LIMITS,
   OUTPUT_SHARE,
   SCENARIOS,
+  WORDS_PER_TOKEN,
   calculateAll,
   calculateSavings,
   formatCount,
@@ -483,6 +484,11 @@ export function TokenCalculator() {
   const [scenarioId, setScenarioId] = useState<string>(SCENARIOS[0].id);
   const [config, setConfig] = useState<CalculatorConfig>(SCENARIOS[0].config);
 
+  // Chat assistant's config comes from a pasted sample message rather than a
+  // token-count slider — this is only read/shown when scenarioId === "assistant".
+  const [pastedText, setPastedText] = useState("");
+  const isAssistantScenario = scenarioId === "assistant";
+
   /** Selected provider-group ids. Empty means "all" — never means "none". */
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
 
@@ -549,6 +555,36 @@ export function TokenCalculator() {
     if (!s) return;
     setScenarioId(id);
     setConfig(s.config);
+    setPastedText("");
+  }
+
+  const pastedWordCount = useMemo(() => {
+    const trimmed = pastedText.trim();
+    return trimmed ? trimmed.split(/\s+/).length : 0;
+  }, [pastedText]);
+
+  /**
+   * Derives tokensPerStep from the pasted message. The message is the input
+   * side of the call, so tokensPerStep is backed into inputTokens / INPUT_SHARE
+   * — the same 75/25 blend the rest of the calculator (and the ACPI index)
+   * uses — rather than inventing a second output-ratio assumption just for
+   * this scenario.
+   */
+  function updatePastedText(text: string) {
+    setPastedText(text);
+    const trimmed = text.trim();
+    const words = trimmed ? trimmed.split(/\s+/).length : 0;
+    if (words === 0) return; // keep the last real estimate until there's text again
+
+    const inputTokens = words / WORDS_PER_TOKEN;
+    const rawTokensPerStep = Math.round(inputTokens / INPUT_SHARE);
+    const tokensPerStep = Math.min(
+      LIMITS.tokensPerStep.max,
+      Math.max(LIMITS.tokensPerStep.min, rawTokensPerStep)
+    );
+    // Chat assistant is a single short call, no agent loop — stepsPerWorkflow
+    // and agentStepsPerStep stay fixed at 1; only the token count moves.
+    setConfig((c) => ({ ...c, tokensPerStep, stepsPerWorkflow: 1, agentStepsPerStep: 1 }));
   }
 
   const callsPerMonth =
@@ -674,8 +710,8 @@ export function TokenCalculator() {
           <Panel title="Your workload">
             <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
               <Slider
-                label="Workflow runs / month"
-                hint="One end-to-end pass of your task."
+                label={isAssistantScenario ? "Messages / month" : "Workflow runs / month"}
+                hint={isAssistantScenario ? "How often you send a message like this." : "One end-to-end pass of your task."}
                 display={formatCount(config.workflowsPerMonth)}
                 trackValue={toTrack(
                   config.workflowsPerMonth,
@@ -683,52 +719,103 @@ export function TokenCalculator() {
                   LIMITS.workflowsPerMonth.max
                 )}
                 trackMax={TRACK}
-                onTrackChange={(v) =>
-                  update({
-                    workflowsPerMonth: fromTrack(
-                      v,
-                      LIMITS.workflowsPerMonth.min,
-                      LIMITS.workflowsPerMonth.max
-                    ),
-                  })
-                }
+                onTrackChange={(v) => {
+                  const workflowsPerMonth = fromTrack(
+                    v,
+                    LIMITS.workflowsPerMonth.min,
+                    LIMITS.workflowsPerMonth.max
+                  );
+                  // On the Chat assistant tab, adjusting volume refines the
+                  // preset rather than leaving it — the paste box should stay
+                  // visible. Every other scenario keeps the old behavior:
+                  // any manual slider edit drops out of the preset.
+                  if (isAssistantScenario) {
+                    setConfig((c) => ({ ...c, workflowsPerMonth }));
+                  } else {
+                    update({ workflowsPerMonth });
+                  }
+                }}
               />
-              <Slider
-                label="Steps / workflow"
-                hint="Model calls in a single pass."
-                display={String(config.stepsPerWorkflow)}
-                trackValue={config.stepsPerWorkflow}
-                trackMax={LIMITS.stepsPerWorkflow.max}
-                onTrackChange={(v) =>
-                  update({ stepsPerWorkflow: Math.max(LIMITS.stepsPerWorkflow.min, v) })
-                }
-              />
-              <Slider
-                label="Agent iterations / step"
-                hint="Tool-use loops per step. 1 = no agent loop."
-                display={String(config.agentStepsPerStep)}
-                trackValue={config.agentStepsPerStep}
-                trackMax={LIMITS.agentStepsPerStep.max}
-                onTrackChange={(v) =>
-                  update({ agentStepsPerStep: Math.max(LIMITS.agentStepsPerStep.min, v) })
-                }
-              />
-              <Slider
-                label="Tokens / step"
-                hint={`Input + output per call, split ${INPUT_SHARE * 100}/${OUTPUT_SHARE * 100}.`}
-                display={formatTokens(config.tokensPerStep)}
-                trackValue={toTrack(
-                  config.tokensPerStep,
-                  LIMITS.tokensPerStep.min,
-                  LIMITS.tokensPerStep.max
-                )}
-                trackMax={TRACK}
-                onTrackChange={(v) =>
-                  update({
-                    tokensPerStep: fromTrack(v, LIMITS.tokensPerStep.min, LIMITS.tokensPerStep.max),
-                  })
-                }
-              />
+
+              {isAssistantScenario ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <span style={{ fontSize: 12, color: "var(--text2)" }}>Paste a sample message</span>
+                  <textarea
+                    value={pastedText}
+                    onChange={(e) => updatePastedText(e.target.value)}
+                    placeholder="Paste or type a typical message here…"
+                    rows={5}
+                    style={{
+                      width: "100%",
+                      resize: "vertical",
+                      background: "var(--bg)",
+                      border: "1px solid var(--border)",
+                      color: "var(--text)",
+                      padding: "10px 12px",
+                      fontSize: 12,
+                      fontFamily: "var(--mono)",
+                      lineHeight: 1.6,
+                      outline: "none",
+                      transition: "border-color 0.2s",
+                    }}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent-dim)")}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
+                  />
+                  <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
+                    {[
+                      { label: "Words", value: formatCount(pastedWordCount) },
+                      { label: "Tokens / call", value: formatTokens(config.tokensPerStep) },
+                    ].map(({ label, value }) => (
+                      <span key={label} style={{ fontSize: 10, color: "var(--text3)" }}>
+                        {label}: <span style={{ fontFamily: "var(--mono)", color: "var(--text2)" }}>{value}</span>
+                      </span>
+                    ))}
+                  </div>
+                  <span style={{ fontSize: 10, color: "var(--text3)", letterSpacing: "0.02em" }}>
+                    1 token ≈ {WORDS_PER_TOKEN} words · output modelled at the same{" "}
+                    {INPUT_SHARE * 100}/{OUTPUT_SHARE * 100} blend as the rest of this calculator.
+                  </span>
+                </div>
+              ) : (
+                <>
+                  <Slider
+                    label="Steps / workflow"
+                    hint="Model calls in a single pass."
+                    display={String(config.stepsPerWorkflow)}
+                    trackValue={config.stepsPerWorkflow}
+                    trackMax={LIMITS.stepsPerWorkflow.max}
+                    onTrackChange={(v) =>
+                      update({ stepsPerWorkflow: Math.max(LIMITS.stepsPerWorkflow.min, v) })
+                    }
+                  />
+                  <Slider
+                    label="Agent iterations / step"
+                    hint="Tool-use loops per step. 1 = no agent loop."
+                    display={String(config.agentStepsPerStep)}
+                    trackValue={config.agentStepsPerStep}
+                    trackMax={LIMITS.agentStepsPerStep.max}
+                    onTrackChange={(v) =>
+                      update({ agentStepsPerStep: Math.max(LIMITS.agentStepsPerStep.min, v) })
+                    }
+                  />
+                  <Slider
+                    label="Tokens / step"
+                    hint={`Input + output per call, split ${INPUT_SHARE * 100}/${OUTPUT_SHARE * 100}.`}
+                    display={formatTokens(config.tokensPerStep)}
+                    trackValue={toTrack(
+                      config.tokensPerStep,
+                      LIMITS.tokensPerStep.min,
+                      LIMITS.tokensPerStep.max
+                    )}
+                    trackMax={TRACK}
+                    onTrackChange={(v) =>
+                      update({
+                        tokensPerStep: fromTrack(v, LIMITS.tokensPerStep.min, LIMITS.tokensPerStep.max),
+                      })
+                    }
+                  />
+                </>
+              )}
 
               {/* Prompt caching toggle */}
               <label
@@ -744,7 +831,14 @@ export function TokenCalculator() {
                 <input
                   type="checkbox"
                   checked={config.promptCaching}
-                  onChange={(e) => update({ promptCaching: e.target.checked })}
+                  onChange={(e) => {
+                    const promptCaching = e.target.checked;
+                    if (isAssistantScenario) {
+                      setConfig((c) => ({ ...c, promptCaching }));
+                    } else {
+                      update({ promptCaching });
+                    }
+                  }}
                   style={{ accentColor: "var(--accent)", marginTop: 2, cursor: "pointer" }}
                 />
                 <span>
