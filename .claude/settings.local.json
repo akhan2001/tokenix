@@ -74,7 +74,10 @@
       "Bash(awk -F',' 'NR>1 && $9!=\"\" {print; c++} END{print \"scored rows:\", c}' dashboard/data/prices_latest.csv)",
       "Bash(awk -F',' 'NR>1{if\\($9!=\"\"\\) c++} END{print \"scored:\", c, \"of\", NR-1}' dashboard/data/prices_latest.csv)",
       "Bash(git fetch *)",
-      "Bash(git rebase *)"
+      "Bash(git rebase *)",
+      "PowerShell(gh repo view akhan2001/ai-gateway --json name,description,isPrivate,primaryLanguage,updatedAt,pushedAt,defaultBranchRef,url 2>&1 | Out-String)",
+      "Bash(git commit *)",
+      "Bash(mkdir *)"
     ]
   }
 }
