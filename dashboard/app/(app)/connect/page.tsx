@@ -1,0 +1,254 @@
+import type { Metadata } from "next";
+
+import { AppNav } from "@/components/app-nav";
+import { ConnectForm } from "@/components/connect-form";
+import { getWorkspaceKey } from "@/lib/tokenix-api";
+
+export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Connect · Tokenix",
+  description: "Route your AI traffic through Tokenix by changing one line.",
+};
+
+const GATEWAY_URL =
+  process.env.NEXT_PUBLIC_TOKENIX_GATEWAY_URL ?? "https://gateway.tokenixindex.com";
+
+const PYTHON = `from openai import OpenAI
+
+client = OpenAI(
+    api_key="txk-your-tokenix-key",
+    base_url="${GATEWAY_URL}/openai/v1",
+)`;
+
+const TYPESCRIPT = `import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: "txk-your-tokenix-key",
+  baseURL: "${GATEWAY_URL}/openai/v1",
+});`;
+
+function CodeBlock({ label, code }: { label: string; code: string }) {
+  return (
+    <div>
+      <div
+        style={{
+          fontSize: 9,
+          letterSpacing: "0.2em",
+          textTransform: "uppercase",
+          color: "var(--text3)",
+          marginBottom: 10,
+        }}
+      >
+        {label}
+      </div>
+      <pre
+        style={{
+          fontFamily: "var(--mono)",
+          fontSize: 12,
+          lineHeight: 1.85,
+          color: "var(--text2)",
+          background: "var(--s1)",
+          border: "1px solid var(--border)",
+          padding: "16px 18px",
+          margin: 0,
+          overflowX: "auto",
+        }}
+      >
+        {code}
+      </pre>
+    </div>
+  );
+}
+
+function Step({ n, title, children }: { n: string; title: string; children: React.ReactNode }) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "38px 1fr", gap: 18 }}>
+      <div
+        style={{
+          fontFamily: "var(--serif)",
+          fontSize: 13,
+          color: "var(--accent)",
+          paddingTop: 2,
+        }}
+      >
+        {n}
+      </div>
+      <div>
+        <h3
+          style={{
+            fontFamily: "var(--serif)",
+            fontSize: 17,
+            fontWeight: 500,
+            color: "var(--text)",
+            margin: "0 0 12px",
+          }}
+        >
+          {title}
+        </h3>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+export default async function ConnectPage() {
+  const connected = (await getWorkspaceKey()) !== null;
+
+  return (
+    <>
+      <AppNav page="connect" connected={connected} />
+
+      <section
+        className="app-wrap"
+        style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "48px 48px 64px" }}
+      >
+        <div className="sec-kicker">Onboarding</div>
+        <h1
+          style={{
+            fontFamily: "var(--serif)",
+            fontSize: 30,
+            fontWeight: 500,
+            letterSpacing: "-0.01em",
+            color: "var(--text)",
+            margin: "0 0 10px",
+          }}
+        >
+          Connect your workspace
+        </h1>
+        <p
+          style={{
+            fontSize: 12,
+            color: "var(--text3)",
+            lineHeight: 1.9,
+            maxWidth: 620,
+            marginBottom: 42,
+          }}
+        >
+          Point your existing OpenAI SDK at the Tokenix gateway. Every request keeps working
+          exactly as it does today — and each one gets priced against the ACPI as it passes
+          through.
+        </p>
+
+        <div
+          className="connect-grid"
+          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 56, alignItems: "start" }}
+        >
+          {/* Left: the steps */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 34 }}>
+            <Step n="01" title="Get your workspace key">
+              <p style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.9, margin: 0 }}>
+                Your Tokenix key looks like <code style={{ fontFamily: "var(--mono)" }}>txk-…</code>
+                . It is issued once when the workspace is created and is not recoverable
+                afterwards — if you have lost it, issue a new one and revoke the old.
+              </p>
+            </Step>
+
+            <Step n="02" title="Add your provider credentials">
+              <p style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.9, margin: 0 }}>
+                Store your own OpenAI, Anthropic or Google keys against the workspace. They are
+                encrypted at rest, decrypted in memory only for the duration of a single upstream
+                call, and never logged. You keep your existing provider accounts and billing.
+              </p>
+            </Step>
+
+            <Step n="03" title="Change one line">
+              <p
+                style={{
+                  fontSize: 12,
+                  color: "var(--text2)",
+                  lineHeight: 1.9,
+                  margin: "0 0 18px",
+                }}
+              >
+                Swap the base URL. Nothing else about your code changes. Use{" "}
+                <code style={{ fontFamily: "var(--mono)" }}>/anthropic/v1</code> or{" "}
+                <code style={{ fontFamily: "var(--mono)" }}>/google/v1</code> to reach those
+                providers through the same OpenAI SDK.
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+                <CodeBlock label="Python" code={PYTHON} />
+                <CodeBlock label="TypeScript" code={TYPESCRIPT} />
+              </div>
+            </Step>
+
+            <Step n="04" title="Tag your traffic (optional)">
+              <p
+                style={{
+                  fontSize: 12,
+                  color: "var(--text2)",
+                  lineHeight: 1.9,
+                  margin: "0 0 14px",
+                }}
+              >
+                Send these headers to slice spend by product surface and environment on the
+                Insights page.
+              </p>
+              <pre
+                style={{
+                  fontFamily: "var(--mono)",
+                  fontSize: 12,
+                  lineHeight: 1.85,
+                  color: "var(--text2)",
+                  background: "var(--s1)",
+                  border: "1px solid var(--border)",
+                  padding: "16px 18px",
+                  margin: 0,
+                  overflowX: "auto",
+                }}
+              >
+                {"Tokenix-Feature:  search\nTokenix-Workload: production"}
+              </pre>
+            </Step>
+          </div>
+
+          {/* Right: the session form */}
+          <div
+            style={{
+              border: "1px solid var(--border)",
+              background: "linear-gradient(180deg, var(--s1), transparent)",
+              padding: "30px 30px 34px",
+              position: "sticky",
+              top: 96,
+            }}
+          >
+            <div className="sec-kicker" style={{ marginBottom: 6 }}>
+              {connected ? "Session active" : "View your spend"}
+            </div>
+            <h2
+              style={{
+                fontFamily: "var(--serif)",
+                fontSize: 20,
+                fontWeight: 500,
+                color: "var(--text)",
+                margin: "0 0 8px",
+              }}
+            >
+              {connected ? "You are connected" : "Sign in with your key"}
+            </h2>
+            <p
+              style={{
+                fontSize: 11,
+                color: "var(--text3)",
+                lineHeight: 1.85,
+                marginBottom: 24,
+              }}
+            >
+              {connected
+                ? "This browser is linked to your workspace. Open Insights to see live spend, or disconnect to clear the session."
+                : "The same workspace key that authenticates your traffic also unlocks the dashboard. It is verified before the session is stored."}
+            </p>
+
+            {connected ? (
+              <a href="/insights" className="btn-primary">
+                Open insights <span>→</span>
+              </a>
+            ) : (
+              <ConnectForm />
+            )}
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}

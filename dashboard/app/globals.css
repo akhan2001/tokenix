@@ -373,6 +373,25 @@
 .const-row { transition: background 0.12s; }
 .const-row:hover { background: var(--s1); }
 
+/* ── Product area (insights / benchmark / forecast) ──────── */
+/* Stat cells need the same 1px rules the homepage strip has; they are
+   separate components there, so the borders are applied from here. */
+.app-stats > * { border-right: 1px solid var(--border); }
+.app-stats > *:last-child { border-right: none; }
+
+@media (max-width: 900px) {
+  .app-wrap { padding-left: 20px !important; padding-right: 20px !important; }
+  .app-stats { grid-template-columns: repeat(2, 1fr) !important; }
+  .app-stats > * { border-bottom: 1px solid var(--border); }
+  .app-stats > *:nth-child(even) { border-right: none; }
+  .app-stats > *:nth-child(n + 3) { border-bottom: none; }
+  .connect-grid { grid-template-columns: 1fr !important; gap: 36px !important; }
+  /* The sign-in panel is sticky on desktop; stacked, it must scroll away. */
+  .connect-grid > div:last-child { position: static !important; }
+  .bench-headline { grid-template-columns: 1fr !important; gap: 22px !important; }
+  .forecast-meth { grid-template-columns: 1fr !important; gap: 24px !important; }
+}
+
 /* ── CTA link hover ─────────────────────────────────────── */
 .const-cta { transition: border-color 0.2s; }
 .const-cta:hover { border-color: var(--border2) !important; }
