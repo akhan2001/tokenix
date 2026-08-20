@@ -130,6 +130,9 @@ export default function Home() {
             <a href="/screener" className="btn-primary">
               Explore the screener <span>→</span>
             </a>
+            <a href="/connect" className="btn-text">
+              Connect your stack <span className="arr">→</span>
+            </a>
             <a href="#methodology" className="btn-text">
               Read methodology <span className="arr">↓</span>
             </a>
