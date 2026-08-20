@@ -29,7 +29,7 @@ export async function connectWorkspace(
 
   try {
     if (!(await verifyKey(raw))) {
-      return { error: "That key was rejected. Check it and try again." };
+      return { error: "Invalid API key — check your key and try again." };
     }
   } catch (error) {
     return {

@@ -80,7 +80,7 @@ export function AppNav({ page, connected = false }: AppNavProps) {
               padding: 0,
             }}
           >
-            Disconnect
+            Sign out
           </button>
         </form>
       )}

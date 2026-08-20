@@ -1,5 +1,7 @@
 import { cookies } from "next/headers";
 
+import { KEY_COOKIE } from "./cookie-name";
+
 /**
  * Client for the Tokenix analytics API (apps/analytics-api in the ai-gateway
  * repo).
@@ -12,8 +14,9 @@ import { cookies } from "next/headers";
 
 const API_BASE = process.env.TOKENIX_ANALYTICS_URL ?? "http://localhost:8001";
 
-/** Name of the httpOnly cookie holding the workspace `txk-` key. */
-export const KEY_COOKIE = "tokenix_key";
+// Re-exported so existing importers keep working; the literal lives in
+// lib/cookie-name.ts because proxy.ts needs it without next/headers.
+export { KEY_COOKIE };
 
 export interface Summary {
   this_month_spend_usd: number;
