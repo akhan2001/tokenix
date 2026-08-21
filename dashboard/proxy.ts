@@ -1,31 +1,30 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { NextResponse, type NextRequest } from "next/server";
+
+import { KEY_COOKIE } from "@/lib/cookie-name";
 
 /**
- * Clerk session context for every request.
+ * Route guard for the authenticated product area.
  *
- * This file is `proxy.ts`: Next 16 renamed the `middleware` convention and
- * warns on the old filename. Next accepts a default export here, which is what
- * `clerkMiddleware()` returns.
+ * Next 16 renamed the `middleware` convention to `proxy` (same file role, new
+ * name and a nodejs-only runtime), so this lives in `proxy.ts` and exports
+ * `proxy` — a `middleware.ts` here would be the deprecated convention.
  *
- * It deliberately does NO route matching. `createRouteMatcher` is deprecated in
- * Clerk v7 ("will be removed in the next major version — use resource-based
- * auth checks instead"), so protection lives with the resource it protects:
- * app/(app)/layout.tsx gates the product area, and requireWorkspaceKey() gates
- * each data page again on the way to the API. This only establishes the
- * session; it decides nothing.
+ * `/connect` is deliberately NOT guarded: it is the page that issues the
+ * session, so redirecting an unauthenticated visitor away from it would loop.
  *
- * Clerk authenticates humans. The `txk-` key still authenticates machines —
- * gateway traffic and the analytics API — and none of that passes through here.
+ * This checks only that a cookie is *present*, never that it is valid — the
+ * proxy cannot call the analytics API cheaply on every request. Each data page
+ * still calls `requireWorkspaceKey()`, and the API still rejects a bad key with
+ * a 401, so this is a fast redirect for the common signed-out case rather than
+ * the security boundary.
  */
-export default clerkMiddleware();
+export function proxy(request: NextRequest) {
+  if (request.cookies.has(KEY_COOKIE)) return NextResponse.next();
+
+  const target = new URL("/connect", request.url);
+  return NextResponse.redirect(target);
+}
 
 export const config = {
-  matcher: [
-    // Everything except Next internals and files with an extension, plus the
-    // API routes, which need session context even though none are protected.
-    "/((?!_next|[^?]*\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    "/(api|trpc)(.*)",
-    // Clerk's auto-proxy path — handshake and session endpoints live here.
-    "/__clerk/:path*",
-  ],
+  matcher: ["/insights/:path*", "/benchmark/:path*", "/forecast/:path*"],
 };

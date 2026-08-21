@@ -1,4 +1,4 @@
-import { SignOutButton } from "@clerk/nextjs";
+import { disconnectWorkspace } from "@/app/(app)/actions";
 
 export type AppPage = "connect" | "insights" | "benchmark" | "forecast";
 
@@ -65,9 +65,9 @@ export function AppNav({ page, connected = false }: AppNavProps) {
       </ul>
 
       {connected && (
-        <SignOutButton redirectUrl="/">
+        <form action={disconnectWorkspace}>
           <button
-            type="button"
+            type="submit"
             style={{
               background: "none",
               border: "none",
@@ -82,7 +82,7 @@ export function AppNav({ page, connected = false }: AppNavProps) {
           >
             Sign out
           </button>
-        </SignOutButton>
+        </form>
       )}
     </div>
   );
