@@ -1,3 +1,4 @@
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Playfair_Display, DM_Mono } from "next/font/google";
 import "./globals.css";
@@ -28,10 +29,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${playfair.variable} ${dmMono.variable}`}>
-      <body className="min-h-full flex flex-col">
-        {children}
-      </body>
-    </html>
+    // ClerkProvider wraps the whole tree, including the public pages. It only
+    // supplies session context — it does not gate anything; middleware.ts
+    // decides what is protected.
+    <ClerkProvider>
+      <html lang="en" className={`${playfair.variable} ${dmMono.variable}`}>
+        <body className="min-h-full flex flex-col">
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

@@ -1,22 +1,14 @@
-import { cookies } from "next/headers";
-
-import { KEY_COOKIE } from "./cookie-name";
 
 /**
  * Client for the Tokenix analytics API (apps/analytics-api in the ai-gateway
  * repo).
  *
- * Server-only: it imports `next/headers`, which throws if a Client Component
- * ever pulls it in. The workspace API key lives in an httpOnly cookie and is
- * only ever read here — it is never serialised into a payload sent to the
- * browser.
+ * Server-only. Callers pass either a `txk-` key or a workspace UUID; the UUID
+ * path uses INTERNAL_API_TOKEN, which must never reach the browser. Humans are
+ * authenticated by Clerk and never hold a key.
  */
 
 const API_BASE = process.env.TOKENIX_ANALYTICS_URL ?? "http://localhost:8001";
-
-// Re-exported so existing importers keep working; the literal lives in
-// lib/cookie-name.ts because proxy.ts needs it without next/headers.
-export { KEY_COOKIE };
 
 export interface Summary {
   this_month_spend_usd: number;
@@ -90,12 +82,6 @@ export interface Forecast {
   low_confidence: boolean;
 }
 
-/** Read the workspace key from the request cookies. */
-export async function getWorkspaceKey(): Promise<string | null> {
-  const store = await cookies();
-  return store.get(KEY_COOKIE)?.value ?? null;
-}
-
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -106,11 +92,30 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * Build the auth headers for one analytics call.
+ *
+ * A `txk-` value is sent as a bearer key. Anything else is a workspace UUID,
+ * which goes over the server-to-server path with the internal token — that is
+ * how a Clerk-authenticated human reads their own spend without ever holding a
+ * key. Both are server-side only; neither secret reaches the browser.
+ */
+function authHeaders(keyOrWorkspaceId: string): Record<string, string> {
+  if (keyOrWorkspaceId.startsWith("txk-")) {
+    return { authorization: `Bearer ${keyOrWorkspaceId}` };
+  }
+  const internal = process.env.INTERNAL_API_TOKEN;
+  if (!internal) {
+    throw new ApiError("INTERNAL_API_TOKEN is not set on the dashboard.", 503);
+  }
+  return { "x-internal-token": internal, "x-workspace-id": keyOrWorkspaceId };
+}
+
 async function get<T>(path: string, key: string): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`${API_BASE}${path}`, {
-      headers: { authorization: `Bearer ${key}` },
+      headers: authHeaders(key),
       // Spend data is live; never serve it from a cache.
       cache: "no-store",
     });
@@ -142,17 +147,6 @@ export const fetchBenchmark = (key: string, days: number) =>
   get<Benchmark>(`/api/v1/benchmark?days=${days}`, key);
 
 export const fetchForecast = (key: string) => get<Forecast>("/api/v1/forecast", key);
-
-/** Validate a key by calling an endpoint that requires auth. */
-export async function verifyKey(key: string): Promise<boolean> {
-  try {
-    await fetchSummary(key);
-    return true;
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 401) return false;
-    throw error;
-  }
-}
 
 // ── formatting helpers, shared by every page ────────────────────────────────
 
