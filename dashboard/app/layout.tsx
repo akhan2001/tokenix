@@ -31,8 +31,9 @@ export default function RootLayout({
   return (
     // ClerkProvider sits INSIDE <body>, not around <html>: wrapping the html
     // element makes Clerk own the document shell and breaks the font variables
-    // set on it. It only supplies session context — it gates nothing;
-    // middleware.ts decides what is protected.
+    // set on it. It only supplies session context — it gates nothing, and
+    // neither does proxy.ts. app/(app)/layout.tsx is what protects the
+    // product area.
     <html lang="en" className={`${playfair.variable} ${dmMono.variable}`}>
       <body className="min-h-full flex flex-col">
         <ClerkProvider>{children}</ClerkProvider>
