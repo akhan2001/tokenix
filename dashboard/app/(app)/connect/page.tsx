@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 
 import { AppNav } from "@/components/app-nav";
-import { ConnectForm } from "@/components/connect-form";
-import { getWorkspaceKey } from "@/lib/tokenix-api";
+import { WorkspaceKey } from "@/components/workspace-key";
+import { requireClerkUser } from "@/lib/require-key";
+import { ProvisionError, findWorkspace, provisionWorkspace } from "@/lib/workspace";
 
 export const dynamic = "force-dynamic";
 
@@ -93,7 +94,37 @@ function Step({ n, title, children }: { n: string; title: string; children: Reac
 }
 
 export default async function ConnectPage() {
-  const connected = (await getWorkspaceKey()) !== null;
+  const user = await requireClerkUser();
+  const email = user.emailAddresses[0]?.emailAddress ?? null;
+
+  // Provision on first visit rather than from a signup webhook: the plaintext
+  // key exists only in the response that mints it, so the only way to show it
+  // to its owner is to mint it inside a request they are looking at.
+  let freshKey: string | undefined;
+  let keyPrefix: string | null = null;
+  let problem: string | null = null;
+
+  try {
+    const existing = await findWorkspace(user.id);
+    if (existing) {
+      keyPrefix = existing.key_prefix;
+    } else {
+      const created = await provisionWorkspace(
+        user.id,
+        email,
+        email?.split("@")[0] || `workspace-${user.id.slice(-6)}`,
+      );
+      freshKey = created.api_key;
+      keyPrefix = created.key_prefix;
+    }
+  } catch (error) {
+    problem =
+      error instanceof ProvisionError
+        ? error.message
+        : "Something went wrong preparing your workspace. Try reloading in a moment.";
+  }
+
+  const connected = problem === null;
 
   return (
     <>
@@ -213,7 +244,7 @@ export default async function ConnectPage() {
             }}
           >
             <div className="sec-kicker" style={{ marginBottom: 6 }}>
-              {connected ? "Session active" : "View your spend"}
+              {freshKey ? "Workspace created" : "Your workspace"}
             </div>
             <h2
               style={{
@@ -224,7 +255,7 @@ export default async function ConnectPage() {
                 margin: "0 0 8px",
               }}
             >
-              {connected ? "You are connected" : "Sign in with your key"}
+              {freshKey ? "Save your key" : "You are connected"}
             </h2>
             <p
               style={{
@@ -234,17 +265,35 @@ export default async function ConnectPage() {
                 marginBottom: 24,
               }}
             >
-              {connected
-                ? "This browser is linked to your workspace. Open Insights to see live spend, or disconnect to clear the session."
-                : "The same workspace key that authenticates your traffic also unlocks the dashboard. It is verified before the session is stored."}
+              {problem
+                ? "Your workspace could not be prepared. The details are below."
+                : freshKey
+                  ? "Your workspace is ready. This key authenticates your traffic through the gateway — it is separate from the account you just signed in with."
+                  : "Your workspace is ready. The key below authenticates your traffic through the gateway."}
             </p>
 
-            {connected ? (
-              <a href="/insights" className="btn-primary">
-                Open insights <span>→</span>
-              </a>
+            {problem ? (
+              <div
+                role="alert"
+                style={{
+                  fontSize: 12,
+                  color: "var(--red)",
+                  lineHeight: 1.8,
+                  border: "1px solid var(--red)",
+                  padding: "13px 16px",
+                }}
+              >
+                {problem}
+              </div>
             ) : (
-              <ConnectForm />
+              <>
+                <WorkspaceKey apiKey={freshKey} keyPrefix={keyPrefix} />
+                <div style={{ marginTop: 26 }}>
+                  <a href="/insights" className="btn-primary">
+                    Open insights <span>→</span>
+                  </a>
+                </div>
+              </>
             )}
           </div>
         </div>
