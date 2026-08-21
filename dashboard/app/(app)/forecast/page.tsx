@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { AppNav } from "@/components/app-nav";
+import { HeadlineFact, HeadlineFigure } from "@/components/headline-figure";
 import { ForecastChart } from "@/components/forecast-chart";
 import { EmptyState, StatCard, StatStrip } from "@/components/stat-card";
 import { requireWorkspaceKey } from "@/lib/require-key";
@@ -52,18 +53,38 @@ export default async function ForecastPage() {
       >
         <div className="sec-kicker">Projections</div>
         <h1
-          style={{
-            fontFamily: "var(--serif)",
-            fontSize: 30,
-            fontWeight: 500,
-            letterSpacing: "-0.01em",
-            color: "var(--text)",
-            margin: "0 0 8px",
-          }}
+          className="sr-only"
         >
           Forecast
         </h1>
-        <p style={{ fontSize: 12, color: "var(--text3)", lineHeight: 1.9, maxWidth: 660 }}>
+        <HeadlineFigure
+          kicker="At current growth"
+          value={fmtUsd(data.projected_rest_of_year_usd)}
+          caption="Projected spend over the next twelve months"
+          aside={
+            <>
+              <HeadlineFact tone={data.mom_growth_pct > 0 ? "up" : "plain"}>
+                {data.mom_growth_pct > 0 ? "↑" : ""} {fmtPct(data.mom_growth_pct)} monthly
+                growth
+              </HeadlineFact>
+              <HeadlineFact tone="down">
+                With optimization {fmtUsd(data.projected_with_optimization_usd)}
+              </HeadlineFact>
+              <HeadlineFact tone="down">
+                ↓ Save {fmtUsd(data.potential_saving_usd)}
+              </HeadlineFact>
+            </>
+          }
+        />
+        <p
+          style={{
+            fontSize: 12,
+            color: "var(--text3)",
+            lineHeight: 1.9,
+            maxWidth: 660,
+            marginTop: 22,
+          }}
+        >
           Month-to-date spend run-rated to the full month, then compounded forward at your
           month-over-month growth. A trend line, not a model — treat it as direction, not a
           number to budget against.

@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 
 import { AppNav } from "@/components/app-nav";
+import { BarList } from "@/components/bar-list";
+import { DailyBars } from "@/components/daily-bars";
+import { HeadlineFact, HeadlineFigure } from "@/components/headline-figure";
 import { SpendChart } from "@/components/spend-chart";
 import { EmptyState, StatCard, StatStrip } from "@/components/stat-card";
 import { requireWorkspaceKey } from "@/lib/require-key";
@@ -52,7 +55,11 @@ export default async function InsightsPage() {
     );
   }
 
-  const hasData = summary.total_requests > 0 && usage.series.length > 0;
+  // Two points, not one: SpendChart draws a trend between days and returns
+  // null below that, which would leave this section blank rather than
+  // explaining itself.
+  const hasData = summary.total_requests > 0 && usage.series.length >= 2;
+  const singleDay = summary.total_requests > 0 && usage.series.length === 1;
 
   return (
     <>
@@ -62,23 +69,38 @@ export default async function InsightsPage() {
         className="app-wrap"
         style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "40px 48px 22px" }}
       >
-        <div className="sec-kicker">Cost visibility</div>
-        <h1
-          style={{
-            fontFamily: "var(--serif)",
-            fontSize: 30,
-            fontWeight: 500,
-            letterSpacing: "-0.01em",
-            color: "var(--text)",
-            margin: "0 0 8px",
-          }}
-        >
-          Insights
-        </h1>
-        <p style={{ fontSize: 12, color: "var(--text3)", lineHeight: 1.9, maxWidth: 620 }}>
-          Live spend across every model your workspace calls through the gateway, priced against
-          the AI Compute Price Index. Last {DAYS} days.
-        </p>
+        <h1 className="sr-only">Insights</h1>
+        <HeadlineFigure
+          kicker="Cost visibility"
+          value={fmtUsd(summary.this_month_spend_usd)}
+          caption={`This month's AI spend · last ${DAYS} days through the gateway`}
+          aside={
+            <>
+              <HeadlineFact
+                tone={
+                  summary.mom_change_pct === null
+                    ? "plain"
+                    : summary.mom_change_pct > 0
+                      ? "up"
+                      : "down"
+                }
+              >
+                {summary.mom_change_pct === null
+                  ? "— no prior month to compare"
+                  : `${summary.mom_change_pct > 0 ? "↑" : "↓"} ${fmtPct(
+                      summary.mom_change_pct,
+                    )} vs last month`}
+              </HeadlineFact>
+              <HeadlineFact>
+                {models.models.length.toLocaleString("en-US")} model
+                {models.models.length === 1 ? "" : "s"} in your traffic
+              </HeadlineFact>
+              <HeadlineFact>
+                {fmtCompact(summary.total_requests)} requests this month
+              </HeadlineFact>
+            </>
+          }
+        />
       </section>
 
       <StatStrip>
@@ -129,13 +151,20 @@ export default async function InsightsPage() {
           <SpendChart points={usage.series} />
         ) : (
           <EmptyState
-            title="No priced traffic yet"
+            title={singleDay ? "One day of traffic so far" : "No priced traffic yet"}
             body={
-              <>
-                Once your first request flows through the gateway it appears here within seconds.
-                Check the <a href="/connect" style={{ color: "var(--accent)" }}>Connect</a> page if
-                you have not switched your base URL over yet.
-              </>
+              singleDay ? (
+                <>
+                  A spend trend needs at least two days to plot. Today&rsquo;s totals are in the
+                  breakdown below, and this chart fills in from tomorrow.
+                </>
+              ) : (
+                <>
+                  Once your first request flows through the gateway it appears here within seconds.
+                  Check the <a href="/connect" style={{ color: "var(--accent)" }}>Connect</a> page
+                  if you have not switched your base URL over yet.
+                </>
+              )
             }
           />
         )}
@@ -146,7 +175,37 @@ export default async function InsightsPage() {
           className="app-wrap"
           style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "40px 48px 64px" }}
         >
-          <div className="sec-kicker">Breakdown</div>
+          <div className="app-duo" style={{ marginBottom: 46 }}>
+            <div>
+              <div className="sec-kicker">Breakdown</div>
+              <h2 style={panelTitle}>Spend by model</h2>
+              <BarList
+                rows={[...models.models]
+                  .sort((a, b) => b.cost_usd - a.cost_usd)
+                  .slice(0, 8)
+                  .map((m) => ({
+                    id: m.model_id,
+                    label: shortModel(m.model_id),
+                    sub: m.provider,
+                    value: m.cost_usd,
+                    display: fmtUsd(m.cost_usd),
+                  }))}
+              />
+            </div>
+            <div>
+              <div className="sec-kicker">Daily</div>
+              <h2 style={panelTitle}>Spend by day</h2>
+              <DailyBars
+                points={usage.series.map((d) => ({
+                  day: d.day,
+                  cost_usd: d.cost_usd,
+                  requests: d.requests,
+                }))}
+              />
+            </div>
+          </div>
+
+          <div className="sec-kicker">Detail</div>
           <div
             style={{
               fontFamily: "var(--serif)",
@@ -156,7 +215,7 @@ export default async function InsightsPage() {
               marginBottom: 22,
             }}
           >
-            Spend by model
+            Every model, in full
           </div>
 
           {/* The table doubles as the accessible view of the chart above. */}
@@ -239,6 +298,14 @@ export default async function InsightsPage() {
     </>
   );
 }
+
+const panelTitle: React.CSSProperties = {
+  fontFamily: "var(--serif)",
+  fontSize: 19,
+  fontWeight: 500,
+  color: "var(--text)",
+  margin: "6px 0 20px",
+};
 
 function numCell(color: string): React.CSSProperties {
   return {

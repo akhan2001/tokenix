@@ -69,6 +69,17 @@ export function ForecastChart({ monthlyBase, growthRate, savingShare }: Forecast
         yAt,
         currentPath: path((m) => m.current),
         optimizedPath: path((m) => m.optimized),
+        // The gap between the two trajectories IS the saving, so shade it
+        // rather than leaving the reader to measure the distance by eye.
+        savingsBand:
+          path((m) => m.current) +
+          " " +
+          months
+            .slice()
+            .reverse()
+            .map((m, i) => `L${xAt(months.length - 1 - i).toFixed(1)} ${yAt(m.optimized).toFixed(1)}`)
+            .join(" ") +
+          " Z",
       },
     };
   }, [monthlyBase, growthRate, savingShare]);
@@ -132,6 +143,8 @@ export function ForecastChart({ monthlyBase, growthRate, savingShare }: Forecast
           );
         })}
 
+        {/* Savings band: drawn under both lines so neither is obscured. */}
+        <path d={geom.savingsBand} fill={CURRENT} opacity={0.1} stroke="none" />
         <path
           d={geom.optimizedPath}
           fill="none"

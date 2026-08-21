@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
 import { AppNav } from "@/components/app-nav";
+import { HeadlineFact, HeadlineFigure } from "@/components/headline-figure";
+import { loadAcpi } from "@/lib/data";
 import { EmptyState } from "@/components/stat-card";
 import { requireWorkspaceKey } from "@/lib/require-key";
 import {
@@ -77,6 +79,8 @@ function DivergingBar({ pct, max }: { pct: number | null; max: number }) {
 
 export default async function BenchmarkPage() {
   const key = await requireWorkspaceKey();
+  // The headline market rate, from the index the gateway prices against.
+  const acpiRate = loadAcpi()?.acpi ?? null;
 
   let data;
   try {
@@ -113,22 +117,42 @@ export default async function BenchmarkPage() {
         className="app-wrap"
         style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "40px 48px 30px" }}
       >
-        <div className="sec-kicker">ACPI comparison</div>
-        <h1
+        <h1 className="sr-only">Benchmark</h1>
+        <HeadlineFigure
+          kicker="ACPI comparison"
+          value={fmtUsd(Math.abs(data.overpay_usd))}
+          caption={
+            overpaying
+              ? `Overpaid vs the market rate · last ${DAYS} days`
+              : `Saved vs the market rate · last ${DAYS} days`
+          }
+          aside={
+            <>
+              <HeadlineFact tone={overpaying ? "up" : "down"}>
+                {overpaying ? "↑" : "↓"} {fmtPct(data.overpay_pct)}{" "}
+                {overpaying ? "above market" : "below market"}
+              </HeadlineFact>
+              <HeadlineFact>
+                You paid {fmtUsd(data.total_cost_usd)} · market{" "}
+                {fmtUsd(data.acpi_benchmark_usd)}
+              </HeadlineFact>
+              {acpiRate !== null && (
+                <HeadlineFact>ACPI ${acpiRate.toFixed(4)} / 1M SCU</HeadlineFact>
+              )}
+            </>
+          }
+        />
+        <p
           style={{
-            fontFamily: "var(--serif)",
-            fontSize: 30,
-            fontWeight: 500,
-            letterSpacing: "-0.01em",
-            color: "var(--text)",
-            margin: "0 0 8px",
+            fontSize: 12,
+            color: "var(--text3)",
+            lineHeight: 1.9,
+            maxWidth: 660,
+            marginTop: 22,
           }}
         >
-          Benchmark
-        </h1>
-        <p style={{ fontSize: 12, color: "var(--text3)", lineHeight: 1.9, maxWidth: 660 }}>
           Every request you sent, repriced at the market-wide ACPI rate for the same token volume.
-          The gap is what your model choices cost you relative to the market. Last {DAYS} days.
+          The gap is what your model choices cost you relative to the market.
         </p>
       </section>
 
@@ -329,17 +353,19 @@ export default async function BenchmarkPage() {
               >
                 Savings opportunities
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {data.opportunities.map((o) => (
+              <div className="app-cards">
+                {data.opportunities.slice(0, 3).map((o) => (
                   <div
                     key={o.model_id}
                     style={{
                       border: "1px solid var(--border)",
-                      padding: "18px 22px",
+                      background: "linear-gradient(180deg, var(--s1), transparent)",
+                      padding: "20px 22px",
                       display: "flex",
+                      flexDirection: "column",
                       justifyContent: "space-between",
-                      alignItems: "center",
-                      gap: 28,
+                      gap: 18,
+                      minHeight: 132,
                     }}
                   >
                     <div style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.85 }}>
@@ -348,9 +374,10 @@ export default async function BenchmarkPage() {
                     <div
                       style={{
                         fontFamily: "var(--serif)",
-                        fontSize: 20,
+                        fontSize: 24,
                         color: "var(--accent)",
                         whiteSpace: "nowrap",
+                        lineHeight: 1,
                       }}
                     >
                       {fmtUsd(o.potential_saving_usd)}

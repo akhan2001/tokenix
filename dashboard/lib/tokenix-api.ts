@@ -162,7 +162,9 @@ export function fmtUsd(n: number): string {
   if (abs >= 1) return "$" + n.toFixed(2);
   if (abs >= 0.01) return "$" + n.toFixed(3);
   if (abs === 0) return "$0.00";
-  return "$" + n.toFixed(5);
+  // Sub-cent: 6 places. Per-request costs are genuinely this small, and
+  // rounding them to "$0.00" would read as free rather than cheap.
+  return "$" + n.toFixed(6);
 }
 
 export function fmtPct(n: number | null, withSign = true): string {
