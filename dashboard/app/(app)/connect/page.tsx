@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 
 import { AppNav } from "@/components/app-nav";
 import { WorkspaceKey } from "@/components/workspace-key";
+import { WorkspaceSetup } from "@/components/workspace-setup";
 import { requireClerkUser } from "@/lib/require-key";
-import { ProvisionError, findWorkspace, provisionWorkspace } from "@/lib/workspace";
+import { ProvisionError, findWorkspace } from "@/lib/workspace";
 
 export const dynamic = "force-dynamic";
 
@@ -97,11 +98,14 @@ export default async function ConnectPage() {
   const user = await requireClerkUser();
   const email = user.emailAddresses[0]?.emailAddress ?? null;
 
-  // Provision on first visit rather than from a signup webhook: the plaintext
-  // key exists only in the response that mints it, so the only way to show it
-  // to its owner is to mint it inside a request they are looking at.
-  let freshKey: string | undefined;
+  // No auto-provisioning. A signed-in person with no workspace is either brand
+  // new or an existing customer whose workspace predates Clerk and so has no
+  // account attached; minting for both silently handed the second an empty
+  // workspace while their real history sat behind an unlinked key. The page
+  // asks instead, and provisioning became an explicit action.
+  const freshKey: string | undefined = undefined;
   let keyPrefix: string | null = null;
+  let needsSetup = false;
   let problem: string | null = null;
 
   try {
@@ -109,13 +113,7 @@ export default async function ConnectPage() {
     if (existing) {
       keyPrefix = existing.key_prefix;
     } else {
-      const created = await provisionWorkspace(
-        user.id,
-        email,
-        email?.split("@")[0] || `workspace-${user.id.slice(-6)}`,
-      );
-      freshKey = created.api_key;
-      keyPrefix = created.key_prefix;
+      needsSetup = true;
     }
   } catch (error) {
     problem =
@@ -244,7 +242,7 @@ export default async function ConnectPage() {
             }}
           >
             <div className="sec-kicker" style={{ marginBottom: 6 }}>
-              {freshKey ? "Workspace created" : "Your workspace"}
+              {needsSetup ? "Set up" : "Your workspace"}
             </div>
             <h2
               style={{
@@ -255,7 +253,7 @@ export default async function ConnectPage() {
                 margin: "0 0 8px",
               }}
             >
-              {freshKey ? "Save your key" : "You are connected"}
+              {needsSetup ? "Connect a workspace" : "You are connected"}
             </h2>
             <p
               style={{
@@ -267,7 +265,9 @@ export default async function ConnectPage() {
             >
               {problem
                 ? "Your workspace could not be prepared. The details are below."
-                : freshKey
+                : needsSetup
+                  ? "Connect the workspace your traffic already flows through, or start a new one."
+                  : freshKey
                   ? "Your workspace is ready. This key authenticates your traffic through the gateway — it is separate from the account you just signed in with."
                   : "Your workspace is ready. The key below authenticates your traffic through the gateway."}
             </p>
@@ -286,14 +286,18 @@ export default async function ConnectPage() {
                 {problem}
               </div>
             ) : (
-              <>
-                <WorkspaceKey apiKey={freshKey} keyPrefix={keyPrefix} />
-                <div style={{ marginTop: 26 }}>
-                  <a href="/insights" className="btn-primary">
-                    Open insights <span>→</span>
-                  </a>
-                </div>
-              </>
+              needsSetup ? (
+                <WorkspaceSetup />
+              ) : (
+                <>
+                  <WorkspaceKey apiKey={freshKey} keyPrefix={keyPrefix} />
+                  <div style={{ marginTop: 26 }}>
+                    <a href="/insights" className="btn-primary">
+                      Open insights <span>→</span>
+                    </a>
+                  </div>
+                </>
+              )
             )}
           </div>
         </div>

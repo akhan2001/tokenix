@@ -132,3 +132,51 @@ export async function provisionWorkspace(
     api_key: workspace.api_key,
   };
 }
+
+
+/**
+ * Claim an existing workspace by presenting its `txk-` key.
+ *
+ * For customers provisioned before Clerk: their workspace has no Clerk user,
+ * so signing in would otherwise strand their spend history behind a new empty
+ * one. The server moves the link transactionally, releasing any workspace this
+ * user was auto-provisioned into.
+ */
+export async function linkExistingKey(
+  clerkUserId: string,
+  txkKey: string,
+): Promise<Workspace> {
+  const token = requireSecret("INTERNAL_API_TOKEN");
+
+  let response: Response;
+  try {
+    response = await fetch(`${ANALYTICS_URL}/api/v1/internal/workspaces/link-key`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-internal-token": token },
+      body: JSON.stringify({ clerk_user_id: clerkUserId, txk_key: txkKey }),
+      cache: "no-store",
+    });
+  } catch {
+    throw new ProvisionError(`Could not reach the analytics API at ${ANALYTICS_URL}.`);
+  }
+
+  if (response.status === 404) {
+    throw new ProvisionError("That key was not recognised. Check it and try again.");
+  }
+  if (response.status === 409) {
+    throw new ProvisionError("That workspace is already linked to a different account.");
+  }
+  if (response.status === 400) {
+    throw new ProvisionError("That does not look like a Tokenix key — they start with `txk-`.");
+  }
+  if (!response.ok) {
+    throw new ProvisionError(`Could not link that key (${response.status}).`);
+  }
+
+  const linked = (await response.json()) as {
+    workspace_id: string;
+    name: string;
+    key_prefix: string;
+  };
+  return { ...linked, email: null };
+}
