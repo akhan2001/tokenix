@@ -1,16 +1,31 @@
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 
 /**
- * Shell for the authenticated product area.
+ * Shell for the authenticated product area, and its gate.
  *
- * Deliberately does *not* gate on the session: `/connect` lives in this group
- * and gating here would bounce a signed-out visitor away from the one page
- * that can sign them in. Each data page calls `requireWorkspaceKey()` instead.
+ * Protection lives here rather than in proxy.ts because `createRouteMatcher`
+ * is deprecated in Clerk v7 in favour of resource-based checks — the guard
+ * belongs with the resource it guards.
+ *
+ * Gating the whole group is safe now in a way it was not under the old cookie
+ * auth. `/connect` is in this group, and back then it was the page that took
+ * your key, so redirecting an anonymous visitor away from it was a loop. Under
+ * Clerk it provisions a workspace for someone already signed in, so an
+ * anonymous visitor belongs at /sign-in like every other page here.
+ *
+ * Each data page still calls `requireWorkspaceKey()`, which re-checks the
+ * session and resolves the workspace. This layout answers "may you be here";
+ * that answers "whose data is this".
  */
-export default function AppLayout({ children }: { children: ReactNode }) {
+export default async function AppLayout({ children }: { children: ReactNode }) {
+  const { userId } = await auth();
+  if (!userId) redirect("/sign-in");
+
   return (
     <div
       style={{
