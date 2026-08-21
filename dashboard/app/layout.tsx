@@ -29,15 +29,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // ClerkProvider wraps the whole tree, including the public pages. It only
-    // supplies session context — it does not gate anything; middleware.ts
-    // decides what is protected.
-    <ClerkProvider>
-      <html lang="en" className={`${playfair.variable} ${dmMono.variable}`}>
-        <body className="min-h-full flex flex-col">
-          {children}
-        </body>
-      </html>
-    </ClerkProvider>
+    // ClerkProvider sits INSIDE <body>, not around <html>: wrapping the html
+    // element makes Clerk own the document shell and breaks the font variables
+    // set on it. It only supplies session context — it gates nothing;
+    // middleware.ts decides what is protected.
+    <html lang="en" className={`${playfair.variable} ${dmMono.variable}`}>
+      <body className="min-h-full flex flex-col">
+        <ClerkProvider>{children}</ClerkProvider>
+      </body>
+    </html>
   );
 }

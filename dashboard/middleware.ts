@@ -34,5 +34,8 @@ export const config = {
     // API routes, which need session context even though none are protected.
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
     "/(api|trpc)(.*)",
+    // Clerk's auto-proxy path — handshake and session endpoints are served
+    // from here, so the middleware has to see it.
+    "/__clerk/:path*",
   ],
 };
