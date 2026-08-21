@@ -296,6 +296,12 @@ export default async function ConnectPage() {
                       Open insights <span>→</span>
                     </a>
                   </div>
+                  {/* Anyone auto-provisioned before the setup choice existed
+                      already has a workspace, so they would never see the
+                      claim form — which is precisely who needs it. */}
+                  <div style={{ marginTop: 34, borderTop: "1px solid var(--border)", paddingTop: 26 }}>
+                    <WorkspaceSetup mode="relink" />
+                  </div>
                 </>
               )
             )}

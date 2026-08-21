@@ -46,7 +46,7 @@ function CreateButton() {
   );
 }
 
-export function WorkspaceSetup() {
+export function WorkspaceSetup({ mode = "setup" }: { mode?: "setup" | "relink" }) {
   const [linkState, linkAction] = useActionState<ConnectState, FormData>(linkKeyAction, {});
   const [createState, createAction] = useActionState<ConnectState, FormData>(
     () => createWorkspaceAction(),
@@ -62,10 +62,13 @@ export function WorkspaceSetup() {
   return (
     <div style={{ display: "grid", gap: 26 }}>
       <form action={linkAction} style={{ display: "grid", gap: 12 }}>
-        <div style={labelStyle}>Already have a key?</div>
+        <div style={labelStyle}>
+          {mode === "relink" ? "Connect a different workspace" : "Already have a key?"}
+        </div>
         <p style={helpStyle}>
-          If you were set up before accounts existed, paste your <code>txk-</code> key to attach
-          that workspace — all of its history comes with it.
+          {mode === "relink"
+            ? "Paste a txk- key to attach the workspace it belongs to. Its history comes with it, and the workspace shown above is released."
+            : "If you were set up before accounts existed, paste your txk- key to attach that workspace — all of its history comes with it."}
         </p>
         <input
           name="key"
@@ -97,6 +100,7 @@ export function WorkspaceSetup() {
         </div>
       </form>
 
+      {mode === "setup" && (
       <div style={{ borderTop: "1px solid var(--border)", paddingTop: 22 }}>
         <div style={labelStyle}>New here?</div>
         <p style={helpStyle}>
@@ -115,6 +119,7 @@ export function WorkspaceSetup() {
           </div>
         )}
       </div>
+      )}
     </div>
   );
 }
