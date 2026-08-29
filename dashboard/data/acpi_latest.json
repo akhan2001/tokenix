@@ -1,27 +1,27 @@
 {
-  "acpi": 5.0257,
-  "computed_at": "2026-08-29T02:58:48Z",
+  "acpi": 5.027,
+  "computed_at": "2026-08-29T09:49:21Z",
   "model_count": 329,
   "provider_count": 55,
   "weighting": "bucket-5050",
   "buckets": {
     "premium_weight": 0.5,
     "premium_count": 200,
-    "premium_mean": 5.1197,
+    "premium_mean": 5.1222,
     "commodity_count": 129,
     "commodity_mean": 4.9317
   },
   "hardware_floor": 0.135,
   "p2_score": 74.0,
   "components": {
-    "mean_blended_price": 4.0693,
-    "mean_p3_spread": 30.143,
+    "mean_blended_price": 4.0706,
+    "mean_p3_spread": 30.1524,
     "mean_quality_adjustment": 1.24
   },
   "screener": {
     "scored_model_count": 27,
     "mean_benchmark_score": 0.103631,
-    "mean_p1": -24.04259
+    "mean_p1": -24.070606
   },
   "deduped_variants_removed": 53
 }
