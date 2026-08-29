@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { AppNav } from "@/components/app-nav";
 import { BarList } from "@/components/bar-list";
 import { DailyBars } from "@/components/daily-bars";
+import { ExportButtons } from "@/components/export-buttons";
 import { HeadlineFact, HeadlineFigure } from "@/components/headline-figure";
 import { SpendChart } from "@/components/spend-chart";
 import { EmptyState, StatCard, StatStrip } from "@/components/stat-card";
@@ -26,6 +27,18 @@ export const metadata: Metadata = {
 };
 
 const DAYS = 30;
+
+/**
+ * Report month for the PDF export, in UTC.
+ *
+ * Resolved on the server so the file matches the calendar month the stat cards
+ * describe — a browser in UTC-7 would ask for the previous month for the first
+ * seven hours of every new one.
+ */
+function currentMonth(): string {
+  const now = new Date();
+  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
+}
 
 export default async function InsightsPage() {
   const key = await requireWorkspaceKey();
@@ -101,6 +114,22 @@ export default async function InsightsPage() {
             </>
           }
         />
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 14,
+            marginTop: 30,
+          }}
+        >
+          <div className="sec-kicker" style={{ margin: 0 }}>
+            Export &middot; last {DAYS} days
+          </div>
+          <ExportButtons days={DAYS} month={currentMonth()} />
+        </div>
       </section>
 
       <StatStrip>

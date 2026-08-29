@@ -148,6 +148,28 @@ export const fetchBenchmark = (key: string, days: number) =>
 
 export const fetchForecast = (key: string) => get<Forecast>("/api/v1/forecast", key);
 
+/**
+ * Fetch one export file, returning the raw upstream `Response`.
+ *
+ * Deliberately not `get<T>`: the body is a CSV/XLSX/PDF stream, not JSON, and
+ * it is passed straight through to the browser rather than parsed. The caller
+ * is the /api/export route handler, which exists because these headers carry
+ * INTERNAL_API_TOKEN and so can never be sent from the browser itself.
+ */
+export async function fetchExport(key: string, path: string): Promise<Response> {
+  try {
+    return await fetch(`${API_BASE}${path}`, {
+      headers: authHeaders(key),
+      cache: "no-store",
+    });
+  } catch {
+    throw new ApiError(
+      `Could not reach the Tokenix analytics API at ${API_BASE}. Is it running?`,
+      503,
+    );
+  }
+}
+
 // ── formatting helpers, shared by every page ────────────────────────────────
 
 export function fmtUsd(n: number): string {
