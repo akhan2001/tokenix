@@ -101,7 +101,7 @@ export function HeroSection({
             <div style={{ width: 64, height: 1, background: "var(--line)", marginBottom: 26 }} />
             <h1
               style={{
-                fontFamily: "var(--serif)",
+                fontFamily: "var(--sans)",
                 fontWeight: 300,
                 fontSize: "clamp(40px, 5.2vw, 72px)",
                 lineHeight: 1.04,
@@ -168,7 +168,7 @@ export function HeroSection({
             </div>
             <div
               style={{
-                fontFamily: "var(--serif)",
+                fontFamily: "var(--sans)",
                 fontWeight: 300,
                 fontSize: "clamp(52px, 6.4vw, 88px)",
                 lineHeight: 1,

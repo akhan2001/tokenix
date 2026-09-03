@@ -34,7 +34,7 @@ export function HeadlineFigure({ kicker, value, caption, aside }: HeadlineFigure
         <div className="sec-kicker">{kicker}</div>
         <div
           style={{
-            fontFamily: "var(--serif)",
+            fontFamily: "var(--sans)",
             fontSize: "clamp(38px, 7vw, 62px)",
             fontWeight: 500,
             letterSpacing: "-0.022em",

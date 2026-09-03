@@ -148,7 +148,7 @@ export function AcpiHeroCard({ acpi }: { acpi: AcpiData | null }) {
       {/* Big index number */}
       <div
         style={{
-          fontFamily: "var(--serif)",
+          fontFamily: "var(--sans)",
           fontSize: "clamp(56px, 7vw, 92px)",
           fontWeight: 400,
           lineHeight: 1,

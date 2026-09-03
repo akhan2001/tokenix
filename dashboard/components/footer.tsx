@@ -20,7 +20,7 @@ export function Footer() {
         flexWrap: "wrap",
       }}
     >
-      <div style={{ fontFamily: "var(--serif)", fontSize: 15, color: "var(--text3)" }}>
+      <div style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--text3)" }}>
         Token<span style={{ color: "var(--accent-dim)" }}>ix</span>
       </div>
 

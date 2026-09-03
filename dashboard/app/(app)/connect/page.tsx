@@ -68,7 +68,7 @@ function Step({ n, title, children }: { n: string; title: string; children: Reac
     <div style={{ display: "grid", gridTemplateColumns: "38px 1fr", gap: 18 }}>
       <div
         style={{
-          fontFamily: "var(--serif)",
+          fontFamily: "var(--sans)",
           fontSize: 13,
           color: "var(--accent)",
           paddingTop: 2,
@@ -79,7 +79,7 @@ function Step({ n, title, children }: { n: string; title: string; children: Reac
       <div>
         <h3
           style={{
-            fontFamily: "var(--serif)",
+            fontFamily: "var(--sans)",
             fontSize: 17,
             fontWeight: 500,
             color: "var(--text)",
@@ -135,7 +135,7 @@ export default async function ConnectPage() {
         <div className="sec-kicker">Onboarding</div>
         <h1
           style={{
-            fontFamily: "var(--serif)",
+            fontFamily: "var(--sans)",
             fontSize: 30,
             fontWeight: 500,
             letterSpacing: "-0.01em",
@@ -246,7 +246,7 @@ export default async function ConnectPage() {
             </div>
             <h2
               style={{
-                fontFamily: "var(--serif)",
+                fontFamily: "var(--sans)",
                 fontSize: 20,
                 fontWeight: 500,
                 color: "var(--text)",

@@ -266,7 +266,7 @@ export function AcpiChart({
             <div className="sec-kicker">Index performance</div>
             <div
               style={{
-                fontFamily: "var(--serif)",
+                fontFamily: "var(--sans)",
                 fontSize: 26,
                 fontWeight: 500,
                 color: "var(--text)",
@@ -342,7 +342,7 @@ export function AcpiChart({
           >
             <div
               className="tt-v"
-              style={{ fontFamily: "var(--serif)", fontSize: 15, color: "var(--accent)" }}
+              style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--accent)" }}
             />
             <div
               className="tt-d"
@@ -377,7 +377,7 @@ export function AcpiChart({
                 </div>
                 <div
                   style={{
-                    fontFamily: "var(--serif)",
+                    fontFamily: "var(--sans)",
                     fontSize: 18,
                     color: tone,
                   }}

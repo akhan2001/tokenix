@@ -113,7 +113,7 @@ export function ProblemSection({
         <div>
           <h2
             style={{
-              fontFamily: "var(--serif)",
+              fontFamily: "var(--sans)",
               fontWeight: 300,
               fontSize: "clamp(28px, 3.1vw, 42px)",
               lineHeight: 1.28,

@@ -167,7 +167,7 @@ export default async function ForecastPage() {
         <div className="sec-kicker">How this is calculated</div>
         <div
           style={{
-            fontFamily: "var(--serif)",
+            fontFamily: "var(--sans)",
             fontSize: 22,
             fontWeight: 500,
             color: "var(--text)",

@@ -396,7 +396,7 @@ export function PriceTable({ rows, providers }: { rows: PriceRow[]; providers: s
               margin: 0,
               fontSize: 22,
               fontWeight: 500,
-              fontFamily: "var(--serif)",
+              fontFamily: "var(--sans)",
               letterSpacing: "-0.012em",
               color: "var(--text)",
             }}

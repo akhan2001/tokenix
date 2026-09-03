@@ -2,6 +2,7 @@ import { loadPrices, loadAcpi, loadAcpiHistory } from "@/lib/data";
 import { Header } from "@/components/header";
 import { HeroSection } from "@/components/sections/hero-section";
 import { ProblemSection } from "@/components/sections/problem-section";
+import { MethodologySection } from "@/components/sections/methodology-section";
 import { Footer } from "@/components/footer";
 import { AcpiChart } from "@/components/acpi-chart";
 
@@ -110,7 +111,7 @@ export default function Home() {
               </div>
               <div
                 style={{
-                  fontFamily: "var(--serif)",
+                  fontFamily: "var(--sans)",
                   fontSize: 24,
                   fontWeight: 500,
                   color: s.cls === "gold" ? "var(--accent)" : "var(--text)",
@@ -151,7 +152,7 @@ export default function Home() {
             <div className="sec-kicker">Inside the basket</div>
             <div
               style={{
-                fontFamily: "var(--serif)",
+                fontFamily: "var(--sans)",
                 fontSize: 26,
                 fontWeight: 500,
                 color: "var(--text)",
@@ -224,7 +225,7 @@ export default function Home() {
                   <td style={{ padding: "15px 16px", verticalAlign: "middle" }}>
                     <div
                       style={{
-                        fontFamily: "var(--serif)",
+                        fontFamily: "var(--sans)",
                         fontSize: 15,
                         color: "var(--text)",
                         fontWeight: 500,
@@ -304,7 +305,7 @@ export default function Home() {
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             <div
               style={{
-                fontFamily: "var(--serif)",
+                fontFamily: "var(--sans)",
                 fontSize: 18,
                 color: "var(--text)",
               }}
@@ -322,87 +323,10 @@ export default function Home() {
       </section>
 
       {/* ── METHODOLOGY ──────────────────────────────────────── */}
-      <section
-        id="methodology"
-        className="home-meth"
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          width: "100%",
-          padding: "var(--space-section-md) 48px",
-          borderBottom: "1px solid var(--border)",
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
-          gap: 48,
-        }}
-      >
-        {[
-          {
-            num: "01",
-            title: "What is ACPI?",
-            paras: [
-              "The AI Compute Price Index is a quality-adjusted, risk-adjusted measure of what one unit of AI intelligence costs across the market — expressed as a single number in dollars per 1M Standard Compute Units.",
-              "Like the Consumer Price Index tracks a basket of goods, ACPI tracks a basket of AI compute. When the number falls, AI is getting cheaper. When it rises, something in the market is tightening.",
-            ],
-          },
-          {
-            num: "02",
-            title: "How it is calculated",
-            paras: [
-              "Every model is converted to a common unit — cost per 1M tokens — regardless of modality. Text, voice, image, video and GPU cloud pricing are all normalised to this single scale.",
-              "Each model's per-token cost is blended 75% input / 25% output — the standard 3:1 usage assumption — and carries a market-risk factor reflecting the concentration and stability of the provider landscape. The master ACPI is a two-bucket broad-market average: models split into a premium bucket (frontier flagships) and a commodity bucket (the long tail), each averaged on its own, then combined 50/50 so the cheaper half of the market pulls on the index as hard as the frontier — a true market measure rather than a frontier price tag. Tier assignment is a disclosed manual classification, reviewed monthly.",
-              "Quality is computed from a HELM-aligned benchmark composite (MMLU, coding, math, reasoning), sourced via standardized leaderboard aggregation and z-score normalised. It powers the intelligence-per-dollar screener (P1). Models without available benchmark data are excluded from that screener but remain in the published ACPI price index.",
-            ],
-          },
-          {
-            num: "03",
-            title: "Data sources",
-            paras: [
-              `Benchmarks: HELM-aligned composite (MMLU, coding, math, reasoning) via standardized leaderboard aggregation. Token pricing: provider documentation, verified daily. GPU pricing: Lambda Labs H100 SXM5 market median. Throughput: Hyperstack vLLM benchmark, Llama 3.1 70B.`,
-              "Market-health signal from provider ARR estimates, API accessibility and funding stability. Full methodology at tokenixindex.com/methodology.",
-            ],
-          },
-        ].map(({ num, title, paras }) => (
-          <div key={num}>
-            <div
-              style={{
-                fontFamily: "var(--serif)",
-                fontSize: 13,
-                color: "var(--accent)",
-                marginBottom: 14,
-              }}
-            >
-              {num}
-            </div>
-            <h3
-              style={{
-                fontFamily: "var(--serif)",
-                fontSize: 18,
-                fontWeight: 500,
-                color: "var(--text)",
-                marginBottom: 14,
-                paddingBottom: 12,
-                borderBottom: "1px solid var(--border)",
-              }}
-            >
-              {title}
-            </h3>
-            {paras.map((p, i) => (
-              <p
-                key={i}
-                style={{
-                  fontSize: 12,
-                  color: "var(--text2)",
-                  lineHeight: 1.95,
-                  marginTop: i > 0 ? 12 : 0,
-                }}
-              >
-                {p}
-              </p>
-            ))}
-          </div>
-        ))}
-      </section>
+      <MethodologySection
+        modelCount={acpiData?.model_count ?? rows.length}
+        providerCount={acpiData?.provider_count ?? providerCount}
+      />
 
       <Footer />
     </div>

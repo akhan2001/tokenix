@@ -36,7 +36,7 @@ export default function CalculatorPage() {
             <h1
               style={{
                 margin: 0,
-                fontFamily: "var(--serif)",
+                fontFamily: "var(--sans)",
                 fontSize: 34,
                 fontWeight: 500,
                 letterSpacing: "-0.015em",

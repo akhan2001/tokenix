@@ -59,7 +59,7 @@ export function BarList({ rows, max }: { rows: BarRow[]; max?: number }) {
             >
               <span
                 style={{
-                  fontFamily: "var(--serif)",
+                  fontFamily: "var(--sans)",
                   fontSize: 14,
                   color: "var(--text)",
                   overflow: "hidden",

@@ -1,6 +1,6 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
-import { Playfair_Display, DM_Mono } from "next/font/google";
+import { Playfair_Display, DM_Mono, Inter } from "next/font/google";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -9,6 +9,16 @@ const playfair = Playfair_Display({
   display: "swap",
   style: ["normal", "italic"],
   weight: ["400", "500", "600", "700"],
+});
+
+// Swiss grotesque for headlines, carried at light weights (200/300). The
+// headline/data contrast is grotesque vs mono; Playfair stays loaded only for
+// the few places still asking for a serif.
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+  weight: ["200", "300", "400", "500", "600"],
 });
 
 const dmMono = DM_Mono({
@@ -34,7 +44,7 @@ export default function RootLayout({
     // set on it. It only supplies session context — it gates nothing, and
     // neither does proxy.ts. app/(app)/layout.tsx is what protects the
     // product area.
-    <html lang="en" className={`${playfair.variable} ${dmMono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${playfair.variable} ${dmMono.variable}`}>
       <body className="min-h-full flex flex-col">
         <ClerkProvider>{children}</ClerkProvider>
       </body>

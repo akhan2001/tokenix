@@ -23,7 +23,7 @@ export function Header({ page = "index" }: HeaderProps) {
       <a
         href="/"
         style={{
-          fontFamily: "var(--serif)",
+          fontFamily: "var(--sans)",
           fontSize: 18,
           fontWeight: 700,
           letterSpacing: "0.04em",

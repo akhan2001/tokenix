@@ -237,7 +237,7 @@ export default async function InsightsPage() {
           <div className="sec-kicker">Detail</div>
           <div
             style={{
-              fontFamily: "var(--serif)",
+              fontFamily: "var(--sans)",
               fontSize: 22,
               fontWeight: 500,
               color: "var(--text)",
@@ -289,7 +289,7 @@ export default async function InsightsPage() {
                       <td style={{ padding: "14px 16px" }}>
                         <div
                           style={{
-                            fontFamily: "var(--serif)",
+                            fontFamily: "var(--sans)",
                             fontSize: 15,
                             color: "var(--text)",
                           }}
@@ -329,7 +329,7 @@ export default async function InsightsPage() {
 }
 
 const panelTitle: React.CSSProperties = {
-  fontFamily: "var(--serif)",
+  fontFamily: "var(--sans)",
   fontSize: 19,
   fontWeight: 500,
   color: "var(--text)",

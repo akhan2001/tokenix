@@ -31,7 +31,7 @@ export function StatCard({ label, value, sub, tone = "plain" }: StatCardProps) {
       </div>
       <div
         style={{
-          fontFamily: "var(--serif)",
+          fontFamily: "var(--sans)",
           fontSize: 26,
           fontWeight: 500,
           color: tone === "gold" ? "var(--accent)" : "var(--text)",
@@ -82,7 +82,7 @@ export function EmptyState({ title, body }: { title: string; body: ReactNode }) 
     >
       <div
         style={{
-          fontFamily: "var(--serif)",
+          fontFamily: "var(--sans)",
           fontSize: 19,
           color: "var(--text)",
           marginBottom: 10,

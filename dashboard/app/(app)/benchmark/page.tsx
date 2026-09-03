@@ -219,7 +219,7 @@ export default async function BenchmarkPage() {
                   </div>
                   <div
                     style={{
-                      fontFamily: "var(--serif)",
+                      fontFamily: "var(--sans)",
                       fontSize: 27,
                       fontWeight: 500,
                       color,
@@ -291,7 +291,7 @@ export default async function BenchmarkPage() {
                         <td style={{ padding: "14px 16px" }}>
                           <div
                             style={{
-                              fontFamily: "var(--serif)",
+                              fontFamily: "var(--sans)",
                               fontSize: 15,
                               color: "var(--text)",
                             }}
@@ -355,7 +355,7 @@ export default async function BenchmarkPage() {
               <div className="sec-kicker">Where the money is</div>
               <div
                 style={{
-                  fontFamily: "var(--serif)",
+                  fontFamily: "var(--sans)",
                   fontSize: 22,
                   fontWeight: 500,
                   color: "var(--text)",
@@ -384,7 +384,7 @@ export default async function BenchmarkPage() {
                     </div>
                     <div
                       style={{
-                        fontFamily: "var(--serif)",
+                        fontFamily: "var(--sans)",
                         fontSize: 24,
                         color: "var(--accent)",
                         whiteSpace: "nowrap",

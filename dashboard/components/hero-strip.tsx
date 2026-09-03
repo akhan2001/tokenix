@@ -43,7 +43,7 @@ export function HeroStrip({ minInput, maxInput, medianInput, avgOutput, provider
             <div
               className="hero-value"
               style={{
-                fontFamily: "var(--serif)",
+                fontFamily: "var(--sans)",
                 fontWeight: 500,
                 color: item.tone,
                 letterSpacing: "-0.01em",
