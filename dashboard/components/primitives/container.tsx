@@ -6,17 +6,19 @@ import type { CSSProperties, ReactNode } from "react";
  * every dashboard page, the homepage). This makes that de-facto standard
  * explicit so it stops being re-typed.
  *
- * The mockups mostly ran full-bleed off --pad-x, with one 1080px outlier in
- * tokenix-methodology.html. That outlier reconciles up to 1200, not the other
- * way round: matching it would mean re-laying-out the 20 shipped call sites.
+ * 1080 is the default because it is the measure that was reviewed and approved
+ * on the methodology section; every landing section now shares it so their left
+ * edges line up. 1200 survives as "wide" for the product screens and the ACPI
+ * chart, which were laid out against it.
  *
  * "narrow" is the prose/form tier, standing in for the 620/640/660 values the
  * shipped pages use for readable measure.
  */
-export type ContainerWidth = "default" | "narrow" | "full";
+export type ContainerWidth = "default" | "wide" | "narrow" | "full";
 
 const WIDTHS: Record<ContainerWidth, number | undefined> = {
-  default: 1200,
+  default: 1080,
+  wide: 1200,
   narrow: 640,
   full: undefined,
 };

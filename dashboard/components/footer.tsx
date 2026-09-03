@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Container } from "@/components/primitives";
 
 /**
  * Ported to the two-row form from data/tokenix-cta-footer.html: identity and
@@ -20,9 +21,10 @@ export function Footer() {
       className="home-footer"
       style={{
         borderTop: "1px solid var(--line)",
-        padding: "var(--space-section-sm) var(--pad-x) var(--space-section-xs)",
+        padding: "var(--space-section-lg) var(--pad-x)",
       }}
     >
+      <Container>
       <div
         className="footer-top"
         style={{
@@ -71,6 +73,7 @@ export function Footer() {
         <span>© 2026 Tokenix</span>
         <span>ACPI recalculated hourly · prices in USD per million tokens</span>
       </div>
+      </Container>
     </footer>
   );
 }

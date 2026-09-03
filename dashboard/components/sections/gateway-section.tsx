@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { Container } from "@/components/primitives";
 
 /**
  * Landing-page teaser for the gateway: what a month costs at the ACPI market
@@ -64,10 +65,11 @@ export function GatewaySection({
     <section
       id="gateway"
       style={{
-        padding: "var(--space-section-md) var(--pad-x) var(--space-section-lg)",
+        padding: "var(--space-section-lg) var(--pad-x)",
         borderTop: "1px solid var(--line)",
       }}
     >
+      <Container>
       <div style={{ maxWidth: 640, marginBottom: 44 }}>
         <h2
           style={{
@@ -285,6 +287,7 @@ export function GatewaySection({
           </Link>
         </div>
       </div>
+      </Container>
     </section>
   );
 }

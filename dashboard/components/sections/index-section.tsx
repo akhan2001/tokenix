@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { PriceRow } from "@/lib/data";
+import { Container } from "@/components/primitives";
 
 /**
  * Landing-page teaser for the index. Intro copy plus a glimpse of real rows,
@@ -93,10 +94,11 @@ export function IndexSection({
     <section
       id="index"
       style={{
-        padding: "var(--space-section-md) var(--pad-x) var(--space-section-lg)",
+        padding: "var(--space-section-lg) var(--pad-x)",
         borderTop: "1px solid var(--line)",
       }}
     >
+      <Container>
       <div style={{ maxWidth: 640, marginBottom: 44 }}>
         <h2
           style={{
@@ -254,6 +256,7 @@ export function IndexSection({
           }}
         />
       </div>
+      </Container>
     </section>
   );
 }

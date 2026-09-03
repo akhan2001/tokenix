@@ -20,7 +20,7 @@ export function CtaSection() {
       style={{
         position: "relative",
         minHeight: 300,
-        padding: "var(--space-section-md) 0",
+        padding: "var(--space-section-lg) var(--pad-x)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",

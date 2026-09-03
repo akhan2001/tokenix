@@ -62,7 +62,7 @@ export function MethodologySection({
         borderTop: "1px solid var(--line)",
       }}
     >
-      <Container width="default" style={{ maxWidth: 1080 }}>
+      <Container>
         <div style={{ marginBottom: 48 }}>
           <div
             style={{

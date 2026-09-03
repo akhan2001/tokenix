@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AsciiCurtain, PANEL_CURTAIN } from "@/components/ascii-curtain";
-import { Eyebrow } from "@/components/primitives";
+import { Container, Eyebrow } from "@/components/primitives";
 
 /**
  * The problem statement plus the three-era timeline.
@@ -48,7 +48,7 @@ function TimelineColumn({
       className="tl-col"
       style={{
         borderRight: "1px solid var(--line)",
-        padding: "22px var(--pad-x) 0",
+        padding: "22px clamp(16px,2vw,28px) 0",
       }}
     >
       <div
@@ -100,19 +100,15 @@ export function ProblemSection({
           color: "var(--ink-dim)",
         }}
       >
-        <span style={{ color: "var(--amber-hot)" }}>ACPI</span>
-        &nbsp;recalculates hourly across {modelCount} models and {providerCount} providers — the
-        reference rate nobody had before.
+        <Container>
+          <span style={{ color: "var(--amber-hot)" }}>ACPI</span>
+          &nbsp;recalculates hourly across {modelCount} models and {providerCount} providers — the
+          reference rate nobody had before.
+        </Container>
       </div>
 
-      <section
-        className="problem-grid"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "220px 1fr",
-          padding: "var(--space-section-md) var(--pad-x) var(--space-section-sm)",
-        }}
-      >
+      <section style={{ padding: "var(--space-section-lg) var(--pad-x)" }}>
+        <Container className="problem-grid" style={{ display: "grid", gridTemplateColumns: "220px 1fr" }}>
         <Eyebrow>PROBLEM</Eyebrow>
         <div>
           <h2
@@ -162,6 +158,7 @@ export function ProblemSection({
             See how ACPI works
           </Link>
         </div>
+        </Container>
       </section>
 
       <div className="timeline-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.6fr" }}>

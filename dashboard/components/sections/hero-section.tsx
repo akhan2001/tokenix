@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Container } from "@/components/primitives";
 import { AsciiCurtain, HERO_CURTAIN } from "@/components/ascii-curtain";
 import type { AcpiData, AcpiHistoryPoint } from "@/lib/data";
 
@@ -92,6 +93,7 @@ export function HeroSection({
           flex: 1,
         }}
       >
+        <Container style={{ display: "flex", flexDirection: "column", flex: 1 }}>
         <div className="hero-main-row">
           <div style={{ maxWidth: 460 }}>
             <div style={{ width: 64, height: 1, background: "var(--line)", marginBottom: 26 }} />
@@ -200,6 +202,7 @@ export function HeroSection({
             </div>
           </div>
         </div>
+        </Container>
       </div>
     </div>
   );
