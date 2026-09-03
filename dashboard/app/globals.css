@@ -401,7 +401,8 @@
   /* CTA stacks on mobile */
   .const-cta { flex-direction: column !important; align-items: flex-start !important; gap: 18px !important; }
   .cw-hide { display: none !important; }
-  .home-footer { padding: var(--space-section-xs) 20px !important; flex-direction: column !important; text-align: center !important; }
+  .home-footer { padding: var(--space-section-xs) 20px !important; }
+  .footer-top { flex-direction: column; align-items: flex-start !important; gap: 18px !important; }
 }
 
 /* ── Calculator responsive ───────────────────────────────── */

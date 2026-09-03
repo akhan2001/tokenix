@@ -3,6 +3,7 @@ import { Header } from "@/components/header";
 import { HeroSection } from "@/components/sections/hero-section";
 import { ProblemSection } from "@/components/sections/problem-section";
 import { MethodologySection } from "@/components/sections/methodology-section";
+import { CtaSection } from "@/components/sections/cta-section";
 import { Footer } from "@/components/footer";
 import { AcpiChart } from "@/components/acpi-chart";
 
@@ -327,6 +328,8 @@ export default function Home() {
         modelCount={acpiData?.model_count ?? rows.length}
         providerCount={acpiData?.provider_count ?? providerCount}
       />
+
+      <CtaSection />
 
       <Footer />
     </div>
