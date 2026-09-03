@@ -1,6 +1,7 @@
 import { loadPrices, loadAcpi, loadAcpiHistory } from "@/lib/data";
 import { Header } from "@/components/header";
 import { HeroSection } from "@/components/sections/hero-section";
+import { ProblemSection } from "@/components/sections/problem-section";
 import { Footer } from "@/components/footer";
 import { AcpiChart } from "@/components/acpi-chart";
 
@@ -64,6 +65,12 @@ export default function Home() {
     <div style={{ background: "var(--bg)", color: "var(--text)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       {/* ── HERO ─────────────────────────────────────────────── */}
       <HeroSection acpi={acpiData} history={acpiHistory} nav={<Header page="index" />} />
+
+      {/* ── PROBLEM ──────────────────────────────────────────── */}
+      <ProblemSection
+        modelCount={acpiData?.model_count ?? rows.length}
+        providerCount={acpiData?.provider_count ?? providerCount}
+      />
 
       {/* ── CHART ─────────────────────────────────────────────── */}
       <AcpiChart history={acpiHistory} modelCount={acpiData?.model_count} />
