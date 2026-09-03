@@ -19,7 +19,7 @@ export function AppNav({ page, connected = false }: AppNavProps) {
   return (
     <div
       style={{
-        maxWidth: 1200,
+        maxWidth: 1080,
         margin: "0 auto",
         width: "100%",
         padding: "0 var(--pad-x)",

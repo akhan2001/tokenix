@@ -1,3 +1,5 @@
+import { Container } from "@/components/primitives";
+
 interface HeaderProps {
   /** Which nav item to highlight. "index" = homepage, "screener" = screener page. */
   page?: "index" | "screener" | "calculator" | "methodology";
@@ -7,9 +9,6 @@ export function Header({ page = "index" }: HeaderProps) {
   return (
     <nav
       style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
         padding: "18px var(--pad-x)",
         borderBottom: "1px solid var(--border)",
         position: "sticky",
@@ -19,6 +18,9 @@ export function Header({ page = "index" }: HeaderProps) {
         backdropFilter: "blur(16px)",
       }}
     >
+      <Container
+        style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+      >
       {/* Logo */}
       <a
         href="/"
@@ -71,6 +73,7 @@ export function Header({ page = "index" }: HeaderProps) {
           </a>
         )}
       </div>
+      </Container>
     </nav>
   );
 }
