@@ -56,8 +56,18 @@
   --text3: #57544d;
   --accent: #ff7a1a;
   --accent-dim: #ffd9a6;
-  --green: #4ade80;
+  --green: #2dd4bf;
   --red: #f87171;
+
+  /* Data-series colours. Lifted out of the chart components so the four
+     call sites cannot drift apart again. Validated in this file's header
+     comment; see components/spend-chart.tsx for the method. */
+  --series-1: #ffc46b;
+  --series-2: #5eb0ff;
+  --tier-s: #ffd08a;
+  --tier-a: #5eb0ff;
+  --tier-b: #c9d1e0;
+  --tier-c: #7a8296;
   --header-bg: rgba(7,7,10,0.88);
   --serif: var(--font-playfair), Georgia, serif;
   --mono: var(--font-dm-mono), 'DM Mono', 'Courier New', monospace;

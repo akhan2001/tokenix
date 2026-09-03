@@ -18,7 +18,7 @@ export interface DailyBar {
  * Anchored at zero — spend is a magnitude, and a truncated baseline would
  * exaggerate the day-to-day movement that this chart exists to show.
  */
-const FILL = "#9a7b2e";
+const FILL = "var(--series-1)";
 const W = 560;
 const H = 170;
 const PAD = { t: 14, b: 26, l: 4, r: 4 };

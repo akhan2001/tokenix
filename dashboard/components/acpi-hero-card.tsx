@@ -51,13 +51,13 @@ function MiniSpark() {
     svg.innerHTML = `
       <defs>
         <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#4caf7d" stop-opacity="0.22"/>
-          <stop offset="100%" stop-color="#4caf7d" stop-opacity="0"/>
+          <stop offset="0%" stop-color="var(--green)" stop-opacity="0.22"/>
+          <stop offset="100%" stop-color="var(--green)" stop-opacity="0"/>
         </linearGradient>
       </defs>
       <path d="${area}" fill="url(#sg)"/>
-      <path d="${line}" fill="none" stroke="#4caf7d" stroke-width="1.5"/>
-      <circle cx="${x(data.length - 1)}" cy="${y(data[data.length - 1])}" r="2.5" fill="#4caf7d"/>
+      <path d="${line}" fill="none" stroke="var(--green)" stroke-width="1.5"/>
+      <circle cx="${x(data.length - 1)}" cy="${y(data[data.length - 1])}" r="2.5" fill="var(--green)"/>
     `;
   }, []);
 
@@ -136,7 +136,7 @@ export function AcpiHeroCard({ acpi }: { acpi: AcpiData | null }) {
               letterSpacing: "0.16em",
               textTransform: "uppercase",
               color: "var(--green)",
-              border: "1px solid rgba(76,175,125,0.3)",
+              border: "1px solid color-mix(in srgb, var(--green) 30%, transparent)",
               padding: "3px 8px",
             }}
           >

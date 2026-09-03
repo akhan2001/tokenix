@@ -15,12 +15,18 @@ export interface SpendPoint {
  * Two series on ONE axis — both are USD for the same traffic, so they share a
  * scale. (A second y-axis would let any shape be manufactured at will.)
  *
- * Series colours are validated against the light surface #f5f2ec:
- * gold #9a7b2e + blue #2b6ea8 → CVD ΔE 20.2, both above the chroma floor and
- * 3:1 contrast.
+ * Colours are tokens (--series-1 / --series-2), not literals; they are
+ * defined once in app/globals.css so the chart call sites cannot drift.
+ *
+ * Validated against the dark surface #07070a. Method: Vienot 1999 dichromat
+ * simulation (sRGB D65), difference reported as CIEDE2000.
+ *   --series-1 #ffc46b  12.80:1   --series-2 #5eb0ff  8.75:1
+ *   separation  dE00 49.2 normal / 62.4 deuteranope / 57.1 protanope
+ * Both clear 3:1 against the surface and sit well above the confusion floor
+ * under both dichromacies, so colour alone carries the series distinction.
  */
-const SPEND = "#9a7b2e";
-const BENCH = "#2b6ea8";
+const SPEND = "var(--series-1)";
+const BENCH = "var(--series-2)";
 
 const W = 1100;
 const H = 300;

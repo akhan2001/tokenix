@@ -20,11 +20,13 @@ function getTier(inp: number) {
   return "C";
 }
 
+/* Tier badge colours — see components/price-table.tsx for the validation
+   method and figures. Tokens, so the two call sites cannot drift apart. */
 const TIER_COLORS: Record<string, string> = {
-  S: "#c8a96e",
-  A: "#6e9fc8",
-  B: "#4caf7d",
-  C: "#8a96a8",
+  S: "var(--tier-s)",
+  A: "var(--tier-a)",
+  B: "var(--tier-b)",
+  C: "var(--tier-c)",
 };
 
 export default function Home() {

@@ -22,7 +22,7 @@ export interface BarRow {
  * Each bar is directly labelled, so the chart is legible without the hover
  * layer and the whole list doubles as its own table.
  */
-const FILL = "#9a7b2e";
+const FILL = "var(--series-1)";
 const BAR_H = 9;
 
 export function BarList({ rows, max }: { rows: BarRow[]; max?: number }) {

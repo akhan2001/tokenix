@@ -5,13 +5,21 @@ import { useMemo, useState } from "react";
 /**
  * Twelve-month projection, current trajectory versus an optimised one.
  *
- * Both series are cumulative USD on one shared axis. Colours validated against
- * surface #f5f2ec: gold #9a7b2e + blue #2b6ea8 → CVD ΔE 20.2, both clear the
- * chroma floor and 3:1 contrast. Two series, so a legend is always present and
- * both lines are directly labelled at their end point.
+ * Both series are cumulative USD on one shared axis. Two series, so a legend
+ * is always present and both lines are directly labelled at their end point.
+ *
+ * Colours are tokens (--series-1 / --series-2), not literals; they are
+ * defined once in app/globals.css so the chart call sites cannot drift.
+ *
+ * Validated against the dark surface #07070a. Method: Vienot 1999 dichromat
+ * simulation (sRGB D65), difference reported as CIEDE2000.
+ *   --series-1 #ffc46b  12.80:1   --series-2 #5eb0ff  8.75:1
+ *   separation  dE00 49.2 normal / 62.4 deuteranope / 57.1 protanope
+ * Both clear 3:1 against the surface and sit well above the confusion floor
+ * under both dichromacies, so colour alone carries the series distinction.
  */
-const CURRENT = "#9a7b2e";
-const OPTIMIZED = "#2b6ea8";
+const CURRENT = "var(--series-1)";
+const OPTIMIZED = "var(--series-2)";
 
 const W = 1100;
 const H = 300;
