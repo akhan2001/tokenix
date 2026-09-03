@@ -130,7 +130,7 @@ export default async function ConnectPage() {
 
       <section
         className="app-wrap"
-        style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "48px 48px 64px" }}
+        style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "var(--space-section-sm) 48px var(--space-section-md)" }}
       >
         <div className="sec-kicker">Onboarding</div>
         <h1

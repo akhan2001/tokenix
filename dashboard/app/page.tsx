@@ -71,7 +71,7 @@ export default function Home() {
           maxWidth: 1200,
           margin: "0 auto",
           width: "100%",
-          padding: "78px 48px 64px",
+          padding: "var(--space-section-lg) 48px var(--space-section-md)",
           display: "grid",
           gridTemplateColumns: "1.05fr 0.95fr",
           gap: 64,
@@ -208,7 +208,7 @@ export default function Home() {
           maxWidth: 1200,
           margin: "0 auto",
           width: "100%",
-          padding: "60px 48px",
+          padding: "var(--space-section-md) 48px",
           borderBottom: "1px solid var(--border)",
         }}
       >
@@ -402,7 +402,7 @@ export default function Home() {
           maxWidth: 1200,
           margin: "0 auto",
           width: "100%",
-          padding: "56px 48px",
+          padding: "var(--space-section-md) 48px",
           borderBottom: "1px solid var(--border)",
           display: "grid",
           gridTemplateColumns: "1fr 1fr 1fr",

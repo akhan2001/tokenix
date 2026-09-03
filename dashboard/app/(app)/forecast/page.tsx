@@ -24,7 +24,7 @@ export default async function ForecastPage() {
     return (
       <>
         <AppNav page="forecast" connected />
-        <section style={{ maxWidth: 1200, margin: "0 auto", padding: "56px 48px" }}>
+        <section style={{ maxWidth: 1200, margin: "0 auto", padding: "var(--space-section-md) 48px" }}>
           <EmptyState
             title="Could not load the forecast"
             body={
@@ -49,7 +49,7 @@ export default async function ForecastPage() {
 
       <section
         className="app-wrap"
-        style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "40px 48px 22px" }}
+        style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "var(--space-section-sm) 48px var(--space-section-xs)" }}
       >
         <div className="sec-kicker">Projections</div>
         <h1
@@ -142,7 +142,7 @@ export default async function ForecastPage() {
           maxWidth: 1200,
           margin: "0 auto",
           width: "100%",
-          padding: "40px 48px 48px",
+          padding: "var(--space-section-sm) 48px var(--space-section-sm)",
           borderBottom: "1px solid var(--border)",
         }}
       >
@@ -162,7 +162,7 @@ export default async function ForecastPage() {
 
       <section
         className="app-wrap"
-        style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "40px 48px 64px" }}
+        style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "var(--space-section-sm) 48px var(--space-section-md)" }}
       >
         <div className="sec-kicker">How this is calculated</div>
         <div

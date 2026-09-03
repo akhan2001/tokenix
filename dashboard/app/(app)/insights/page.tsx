@@ -54,7 +54,7 @@ export default async function InsightsPage() {
     return (
       <>
         <AppNav page="insights" connected />
-        <section style={{ maxWidth: 1200, margin: "0 auto", padding: "56px 48px" }}>
+        <section style={{ maxWidth: 1200, margin: "0 auto", padding: "var(--space-section-md) 48px" }}>
           <EmptyState
             title="Could not load your spend"
             body={
@@ -80,7 +80,7 @@ export default async function InsightsPage() {
 
       <section
         className="app-wrap"
-        style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "40px 48px 22px" }}
+        style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "var(--space-section-sm) 48px var(--space-section-xs)" }}
       >
         <h1 className="sr-only">Insights</h1>
         <HeadlineFigure
@@ -172,7 +172,7 @@ export default async function InsightsPage() {
           maxWidth: 1200,
           margin: "0 auto",
           width: "100%",
-          padding: "40px 48px 48px",
+          padding: "var(--space-section-sm) 48px var(--space-section-sm)",
           borderBottom: "1px solid var(--border)",
         }}
       >
@@ -202,7 +202,7 @@ export default async function InsightsPage() {
       {models.models.length > 0 && (
         <section
           className="app-wrap"
-          style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "40px 48px 64px" }}
+          style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "var(--space-section-sm) 48px var(--space-section-md)" }}
         >
           <div className="app-duo" style={{ marginBottom: 46 }}>
             <div>

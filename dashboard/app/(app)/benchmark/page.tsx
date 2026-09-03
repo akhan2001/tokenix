@@ -100,7 +100,7 @@ export default async function BenchmarkPage() {
     return (
       <>
         <AppNav page="benchmark" connected />
-        <section style={{ maxWidth: 1200, margin: "0 auto", padding: "56px 48px" }}>
+        <section style={{ maxWidth: 1200, margin: "0 auto", padding: "var(--space-section-md) 48px" }}>
           <EmptyState
             title="Could not load the benchmark"
             body={
@@ -126,7 +126,7 @@ export default async function BenchmarkPage() {
 
       <section
         className="app-wrap"
-        style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "40px 48px 30px" }}
+        style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "var(--space-section-sm) 48px var(--space-section-xs)" }}
       >
         <h1 className="sr-only">Benchmark</h1>
         <HeadlineFigure

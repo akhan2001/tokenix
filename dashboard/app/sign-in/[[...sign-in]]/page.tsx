@@ -13,7 +13,7 @@ export default function SignInPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "64px 20px",
+        padding: "var(--space-section-md) 20px",
       }}
     >
       <SignIn />

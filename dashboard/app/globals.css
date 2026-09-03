@@ -85,6 +85,15 @@
   --panel-2: var(--s2);
   --pad-x: clamp(24px, 5vw, 80px);
 
+  /* Vertical rhythm. Four steps, not three: the product screens run a tighter
+     density (22-64px) than the marketing sections (64-100px), and collapsing
+     both into one three-step scale would have forced the dashboard to become
+     as airy as the landing page. Product uses xs/sm/md; marketing uses md/lg. */
+  --space-section-xs: clamp(20px, 3vh, 30px);
+  --space-section-sm: clamp(32px, 5vh, 48px);
+  --space-section-md: clamp(48px, 7vh, 72px);
+  --space-section-lg: clamp(64px, 10vh, 100px);
+
   /* shadcn compat aliases */
   --background: #07070a;
   --foreground: #f5f2ec;
@@ -374,25 +383,25 @@
 
 /* ── Homepage responsive ─────────────────────────────────── */
 @media (max-width: 900px) {
-  .home-hero { grid-template-columns: 1fr !important; gap: 36px !important; padding: 44px 20px 40px !important; }
-  .home-chart-sec { padding: 36px 20px !important; }
+  .home-hero { grid-template-columns: 1fr !important; gap: 36px !important; padding: var(--space-section-sm) 20px var(--space-section-sm) !important; }
+  .home-chart-sec { padding: var(--space-section-sm) 20px !important; }
   /* 2-col stats on mobile */
   .home-stats { grid-template-columns: repeat(2, 1fr) !important; }
   .home-stats .stat { border-bottom: 1px solid var(--border) !important; }
   .home-stats .stat:nth-child(even) { border-right: none !important; }
   .home-stats .stat:last-child { grid-column: 1 / -1; border-right: none !important; border-bottom: none !important; }
   /* sections padding */
-  .home-const-sec { padding: 40px 20px !important; }
-  .home-meth { grid-template-columns: 1fr !important; gap: 28px !important; padding: 40px 20px !important; }
+  .home-const-sec { padding: var(--space-section-sm) 20px !important; }
+  .home-meth { grid-template-columns: 1fr !important; gap: 28px !important; padding: var(--space-section-sm) 20px !important; }
   /* CTA stacks on mobile */
   .const-cta { flex-direction: column !important; align-items: flex-start !important; gap: 18px !important; }
   .cw-hide { display: none !important; }
-  .home-footer { padding: 22px 20px !important; flex-direction: column !important; text-align: center !important; }
+  .home-footer { padding: var(--space-section-xs) 20px !important; flex-direction: column !important; text-align: center !important; }
 }
 
 /* ── Calculator responsive ───────────────────────────────── */
 @media (max-width: 900px) {
-  .calc-wrap { padding: 32px 20px 48px !important; }
+  .calc-wrap { padding: var(--space-section-sm) 20px var(--space-section-sm) !important; }
   .calc-config-grid { grid-template-columns: 1fr !important; }
 }
 

@@ -76,7 +76,7 @@ export function EmptyState({ title, body }: { title: string; body: ReactNode }) 
       style={{
         border: "1px solid var(--border)",
         background: "linear-gradient(180deg, var(--s1), transparent)",
-        padding: "44px 32px",
+        padding: "var(--space-section-sm) 32px",
         textAlign: "center",
       }}
     >

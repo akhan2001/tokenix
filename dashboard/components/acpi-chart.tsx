@@ -250,7 +250,7 @@ export function AcpiChart({
   return (
     <section
       className="home-chart-sec"
-      style={{ padding: "54px 48px", borderBottom: "1px solid var(--border)" }}
+      style={{ padding: "var(--space-section-md) 48px", borderBottom: "1px solid var(--border)" }}
     >
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         {/* Header row */}
