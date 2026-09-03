@@ -7,7 +7,6 @@ import { GatewaySection } from "@/components/sections/gateway-section";
 import { MethodologySection } from "@/components/sections/methodology-section";
 import { CtaSection } from "@/components/sections/cta-section";
 import { Footer } from "@/components/footer";
-import { AcpiChart } from "@/components/acpi-chart";
 
 export const dynamic = "force-dynamic";
 
@@ -42,9 +41,6 @@ export default function Home() {
         modelCount={acpiData?.model_count ?? rows.length}
         providerCount={acpiData?.provider_count ?? providerCount}
       />
-
-      {/* ── CHART ─────────────────────────────────────────────── */}
-      <AcpiChart history={acpiHistory} modelCount={acpiData?.model_count} />
 
       {/* ── INDEX ────────────────────────────────────────────── */}
       <IndexSection

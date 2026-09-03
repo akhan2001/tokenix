@@ -474,15 +474,8 @@
 }
 
 /* ── Problem section (ported from data/tokenix-problem.html) ── */
-.timeline-grid > .tl-col:last-child { border-right: none; }
 @media (max-width: 900px) {
   .problem-grid { grid-template-columns: 1fr !important; gap: 20px; }
-  .timeline-grid { grid-template-columns: 1fr !important; }
-  .timeline-grid > .tl-col {
-    border-right: none;
-    border-bottom: 1px solid var(--line);
-    padding-bottom: 24px;
-  }
 }
 
 /* ── Section stack: flex column with a responsive gap ───── */
