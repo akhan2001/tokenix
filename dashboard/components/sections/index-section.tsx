@@ -16,7 +16,30 @@ import type { PriceRow } from "@/lib/data";
  * A quality number on an arbitrary sample would have been invented. It is
  * replaced with the 75/25 input:output blended rate, which is the figure ACPI
  * is actually built from and is derivable for every row.
+ *
+ * Layout is inline, deliberately. The first version put the column widths in
+ * global CSS classes and rendered as an unstyled text dump whenever the
+ * stylesheet was stale — price-table.tsx never had that failure because it
+ * styles inline, which is also the house convention. Structure is inline here;
+ * the stylesheet carries only hover and responsive overrides, so losing it
+ * costs polish rather than the whole table.
  */
+
+const COL = {
+  model: { flex: "1 1 auto", minWidth: 0, paddingRight: 12 },
+  provider: { width: 130, fontFamily: "var(--mono)", fontSize: 12, color: "var(--ink-dim)" },
+  price: { width: 110, fontFamily: "var(--mono)", fontSize: 12.5 },
+  blended: { width: 110, fontFamily: "var(--mono)", fontSize: 12.5 },
+  context: { width: 90, fontFamily: "var(--mono)", fontSize: 12, color: "var(--ink-dim)" },
+  updated: { width: 90, fontFamily: "var(--mono)", fontSize: 12, color: "var(--ink-dim)" },
+} as const;
+
+const ROW = {
+  display: "flex",
+  alignItems: "flex-start",
+  padding: "12px 16px",
+  borderBottom: "1px solid var(--line)",
+} as const;
 
 const PREVIEW_ROWS = 8;
 
@@ -160,13 +183,24 @@ export function IndexSection({
             </div>
           </div>
 
-          <div className="idx-row idx-colhead">
-            <div className="idx-c-model">Model</div>
-            <div className="idx-c-provider">Provider</div>
-            <div className="idx-c-price">Input / 1M</div>
-            <div className="idx-c-blended">Blended / 1M</div>
-            <div className="idx-c-context">Context</div>
-            <div className="idx-c-updated">Updated</div>
+          <div
+            style={{
+              ...ROW,
+              alignItems: "center",
+              height: 38,
+              padding: "0 16px",
+              fontFamily: "var(--mono)",
+              fontSize: 11,
+              color: "var(--ink-faint)",
+              letterSpacing: "0.02em",
+            }}
+          >
+            <div style={COL.model}>Model</div>
+            <div style={{ ...COL.provider, color: "inherit" }}>Provider</div>
+            <div style={COL.price}>Input / 1M</div>
+            <div className="idx-hide-sm" style={COL.blended}>Blended / 1M</div>
+            <div className="idx-hide-sm" style={{ ...COL.context, color: "inherit" }}>Context</div>
+            <div className="idx-hide-sm" style={{ ...COL.updated, color: "inherit" }}>Updated</div>
           </div>
 
           {preview.length === 0 ? (
@@ -175,8 +209,8 @@ export function IndexSection({
             </div>
           ) : (
             preview.map((r) => (
-              <div key={r.model_id} className="idx-row idx-datarow">
-                <div className="idx-c-model">
+              <div key={r.model_id} className="idx-datarow" style={ROW}>
+                <div style={COL.model}>
                   <div style={{ fontSize: 13.5, color: "var(--ink)", marginBottom: 3 }}>
                     {r.model_name || r.model_id}
                   </div>
@@ -192,15 +226,15 @@ export function IndexSection({
                     {r.model_id}
                   </div>
                 </div>
-                <div className="idx-c-provider">{r.provider || "—"}</div>
-                <div className="idx-c-price" style={{ color: "var(--ink)" }}>
+                <div style={COL.provider}>{r.provider || "—"}</div>
+                <div style={{ ...COL.price, color: "var(--ink)" }}>
                   {fmt(r.input_per_million_usd)}
                 </div>
-                <div className="idx-c-blended" style={{ color: "var(--amber-hot)" }}>
+                <div className="idx-hide-sm" style={{ ...COL.blended, color: "var(--amber-hot)" }}>
                   {fmt(blended(r))}
                 </div>
-                <div className="idx-c-context">{fmtContext(r.context_length)}</div>
-                <div className="idx-c-updated">{relative(r.timestamp)}</div>
+                <div className="idx-hide-sm" style={COL.context}>{fmtContext(r.context_length)}</div>
+                <div className="idx-hide-sm" style={COL.updated}>{relative(r.timestamp)}</div>
               </div>
             ))
           )}

@@ -115,7 +115,15 @@ export function GatewaySection({
           overflow: "hidden",
         }}
       >
-        <div className="gw-top" style={{ padding: "30px clamp(20px,3vw,40px) 10px" }}>
+        <div
+          className="gw-top"
+          style={{
+            display: "flex",
+            alignItems: "flex-end",
+            gap: "clamp(24px, 4vw, 56px)",
+            padding: "30px clamp(20px,3vw,40px) 10px",
+          }}
+        >
           <div style={{ flex: 1, minWidth: 0 }}>
             <div
               style={{
@@ -185,7 +193,7 @@ export function GatewaySection({
             </div>
           </div>
 
-          <div className="gw-price">
+          <div className="gw-price" style={{ flexShrink: 0, textAlign: "right" }}>
             <div
               style={{
                 fontFamily: "var(--mono)",

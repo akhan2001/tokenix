@@ -7,6 +7,10 @@ import { Eyebrow } from "@/components/primitives";
  *
  * Ported from data/tokenix-problem.html. Notes on the departures:
  *
+ * - The mockup wraps both static panels in opacity 0.5/0.55. Measured against
+ *   the #0a0a0c panel that puts the ledger text at 1.48:1 and the rack borders
+ *   at 1.57:1 — rendering, but invisible, which reads as two empty boxes. The
+ *   opacity is dropped and the colour raised to --ink-dim (5.60:1).
  * - The mockup's rack panel lights units with Math.random(), which would
  *   produce a server/client hydration mismatch. Replaced with a fixed pattern
  *   that preserves the intended density (roughly 40% lit) and is stable.
@@ -171,7 +175,6 @@ export function ProblemSection({
               justifyContent: "center",
               gap: 9,
               padding: "0 22px",
-              opacity: 0.5,
             }}
           >
             {LEDGER_ROWS.map((r) => (
@@ -182,8 +185,8 @@ export function ProblemSection({
                   justifyContent: "space-between",
                   fontFamily: "var(--mono)",
                   fontSize: 10.5,
-                  color: "var(--ink-faint)",
-                  borderBottom: "1px dashed rgba(255,255,255,0.05)",
+                  color: "var(--ink-dim)",
+                  borderBottom: "1px dashed rgba(255,255,255,0.09)",
                   paddingBottom: 8,
                 }}
               >
@@ -203,7 +206,6 @@ export function ProblemSection({
               alignItems: "center",
               justifyContent: "center",
               gap: 14,
-              opacity: 0.55,
             }}
           >
             {RACK.map((col, ci) => (
@@ -215,7 +217,7 @@ export function ProblemSection({
                       width: 30,
                       height: 6,
                       borderRadius: 1,
-                      border: `1px solid ${on ? "var(--amber)" : "var(--ink-faint)"}`,
+                      border: `1px solid ${on ? "var(--amber)" : "var(--ink-dim)"}`,
                       background: on ? "rgba(255,122,26,0.14)" : "transparent",
                     }}
                   />
