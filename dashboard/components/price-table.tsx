@@ -299,6 +299,15 @@ export function PriceTable({ rows, providers }: { rows: PriceRow[]; providers: s
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(50);
 
+  const hasFilters = search !== "" || providerFilter !== "all" || tierFilter !== "all";
+
+  function clearFilters() {
+    setSearch("");
+    setProviderFilter("all");
+    setTierFilter("all");
+    setPage(1);
+  }
+
   function toggleSort(key: SortKey) {
     setSort((s) =>
       s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }
@@ -564,7 +573,43 @@ export function PriceTable({ rows, providers }: { rows: PriceRow[]; providers: s
                   colSpan={7}
                   style={{ padding: 40, textAlign: "center", color: "var(--text3)" }}
                 >
-                  No models match the current filter.
+                  {rows.length === 0 ? (
+                    /* No data at all is a pipeline failure, not a filter miss.
+                       Saying "no match" here blames the user for an outage. */
+                    <>
+                      <div style={{ color: "var(--text2)", marginBottom: 6 }}>
+                        Price data is unavailable.
+                      </div>
+                      <div style={{ fontSize: 11 }}>
+                        The hourly snapshot has not been written yet. It refreshes on the hour.
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div style={{ marginBottom: hasFilters ? 12 : 0 }}>
+                        No models match the current filter.
+                      </div>
+                      {hasFilters && (
+                        <button
+                          type="button"
+                          onClick={clearFilters}
+                          style={{
+                            fontFamily: "var(--mono)",
+                            fontSize: 11,
+                            letterSpacing: "0.1em",
+                            textTransform: "uppercase",
+                            color: "var(--accent)",
+                            background: "none",
+                            border: "1px solid var(--border)",
+                            padding: "7px 12px",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Clear filters
+                        </button>
+                      )}
+                    </>
+                  )}
                 </td>
               </tr>
             )}
