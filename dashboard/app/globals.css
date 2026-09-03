@@ -39,53 +39,70 @@
   --radius-lg: var(--radius);
 }
 
-/* ── Tokenix design tokens (light "paper ledger" theme) ── */
+/* ── Tokenix design tokens (dark "amber terminal" theme) ── */
+/* Canonical names are the ones the app already speaks (--bg, --text,
+   --accent, --border). The mockup vocabulary (--ink, --line, --amber) is
+   aliased onto them below so ported sections compile unchanged. Reverting
+   the theme means restoring the values in this block, nothing else. */
 :root {
-  color-scheme: light;
-  --bg: #f5f2ec;
-  --s1: #fdfcf9;
-  --s2: #efeae0;
-  --border: #e3ddd0;
-  --border2: #cfc8b6;
-  --text: #1a1c20;
-  --text2: #565f6e;
-  --text3: #8b8576;
-  --accent: #9a7b2e;
-  --accent-dim: #c3a663;
-  --green: #2f8f5b;
-  --red: #c0392b;
-  --header-bg: rgba(245,242,236,0.88);
+  color-scheme: dark;
+  --bg: #07070a;
+  --s1: #0b0b0e;
+  --s2: #101014;
+  --border: rgba(255,180,110,0.14);
+  --border2: rgba(255,180,110,0.26);
+  --text: #f5f2ec;
+  --text2: #8c887f;
+  --text3: #57544d;
+  --accent: #ff7a1a;
+  --accent-dim: #ffd9a6;
+  --green: #4ade80;
+  --red: #f87171;
+  --header-bg: rgba(7,7,10,0.88);
   --serif: var(--font-playfair), Georgia, serif;
   --mono: var(--font-dm-mono), 'DM Mono', 'Courier New', monospace;
 
+  /* Mockup vocabulary → canonical tokens. Bridge layer for the ported
+     marketing/screener sections; not a second source of truth. */
+  --ink: var(--text);
+  --ink-dim: var(--text2);
+  --ink-faint: var(--text3);
+  --line: var(--border);
+  --line-strong: var(--border2);
+  --amber: var(--accent);
+  --amber-hot: var(--accent-dim);
+  --panel: var(--s1);
+  --panel-2: var(--s2);
+  --pad-x: clamp(24px, 5vw, 80px);
+
   /* shadcn compat aliases */
-  --background: #f5f2ec;
-  --foreground: #1a1c20;
-  --card: #fdfcf9;
-  --card-foreground: #1a1c20;
-  --popover: #fdfcf9;
-  --popover-foreground: #1a1c20;
-  --primary: #9a7b2e;
-  --primary-foreground: #fdfcf9;
-  --secondary: #e3ddd0;
-  --secondary-foreground: #1a1c20;
-  --muted-tw: #efeae0;
-  --muted-foreground: #565f6e;
-  --accent-tw: #e3ddd0;
-  --accent-foreground: #1a1c20;
-  --destructive: #c0392b;
-  --border-tw: #e3ddd0;
-  --input: #e3ddd0;
-  --ring: #9a7b2e;
+  --background: #07070a;
+  --foreground: #f5f2ec;
+  --card: #0b0b0e;
+  --card-foreground: #f5f2ec;
+  --popover: #0b0b0e;
+  --popover-foreground: #f5f2ec;
+  --primary: #ff7a1a;
+  --primary-foreground: #07070a;
+  --secondary: #101014;
+  --secondary-foreground: #f5f2ec;
+  --muted-tw: #101014;
+  --muted-foreground: #8c887f;
+  --accent-tw: #101014;
+  --accent-foreground: #f5f2ec;
+  --destructive: #f87171;
+  --border-tw: rgba(255,180,110,0.14);
+  --input: rgba(255,180,110,0.14);
+  --ring: #ff7a1a;
   --radius: 0rem;
-  --sidebar: #fdfcf9;
-  --sidebar-foreground: #1a1c20;
-  --sidebar-primary: #9a7b2e;
-  --sidebar-primary-foreground: #fdfcf9;
-  --sidebar-accent: #e3ddd0;
-  --sidebar-accent-foreground: #1a1c20;
-  --sidebar-border: #e3ddd0;
-  --sidebar-ring: #9a7b2e;
+  --sidebar: #0b0b0e;
+  --sidebar-foreground: #f5f2ec;
+  --sidebar-primary: #ff7a1a;
+  --sidebar-primary-foreground: #07070a;
+  --sidebar-accent: #101014;
+  --sidebar-accent-foreground: #f5f2ec;
+  --sidebar-border: rgba(255,180,110,0.14);
+  --sidebar-ring: #ff7a1a;
 }
 
 @layer base {
@@ -131,8 +148,8 @@
 
 /* ── Pulse dot (screener) ───────────────────────────────── */
 @keyframes pulse-dot {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(200,169,110,0.5); opacity: 1; }
-  50% { box-shadow: 0 0 0 5px rgba(200,169,110,0); opacity: 0.8; }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,122,26,0.5); opacity: 1; }
+  50% { box-shadow: 0 0 0 5px rgba(255,122,26,0); opacity: 0.8; }
 }
 .pulse-dot {
   width: 6px;
@@ -230,7 +247,7 @@
   border: none;
   cursor: pointer;
 }
-.btn-primary:hover { background: #d9bd84; }
+.btn-primary:hover { background: var(--accent-dim); }
 
 .btn-text {
   font-size: 11px;
@@ -247,7 +264,7 @@
 
 /* ── Ledger grid (hero background) ─────────────────────── */
 .ledger {
-  background-image: linear-gradient(to right, rgba(40,48,63,0.18) 1px, transparent 1px);
+  background-image: linear-gradient(to right, var(--line) 1px, transparent 1px);
   background-size: calc(100% / 6) 100%;
 }
 
