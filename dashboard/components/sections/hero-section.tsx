@@ -104,7 +104,7 @@ export function HeroSection({
               intelligence.
             </h1>
             <Button
-              href="/connect"
+              href="/dashboard/connect"
               variant="text"
               style={{ borderTop: "1px solid var(--line)", paddingTop: 16, color: "var(--ink-dim)" }}
             >

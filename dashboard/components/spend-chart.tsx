@@ -45,7 +45,20 @@ function fmtDay(iso: string): string {
   return d.toLocaleString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 }
 
-export function SpendChart({ points }: { points: SpendPoint[] }) {
+/**
+ * `stepped` draws the series as held levels joined by vertical jumps rather
+ * than as sloped segments. ACPI is a series of recalculated snapshots, not a
+ * continuously varying quantity, so a diagonal between two days implies
+ * intermediate values that were never computed. Off by default: /insights was
+ * laid out and reviewed against the sloped reading.
+ */
+export function SpendChart({
+  points,
+  stepped = false,
+}: {
+  points: SpendPoint[];
+  stepped?: boolean;
+}) {
   const [hover, setHover] = useState<number | null>(null);
 
   const geom = useMemo(() => {
@@ -61,10 +74,22 @@ export function SpendChart({ points }: { points: SpendPoint[] }) {
       PAD.l + (points.length === 1 ? innerW / 2 : (i / (points.length - 1)) * innerW);
     const yAt = (v: number) => PAD.t + (1 - v / yMax) * innerH;
 
-    const path = (pick: (p: SpendPoint) => number) =>
-      points
-        .map((p, i) => `${i === 0 ? "M" : "L"}${xAt(i).toFixed(1)} ${yAt(pick(p)).toFixed(1)}`)
-        .join(" ");
+    const path = (pick: (p: SpendPoint) => number) => {
+      if (!stepped) {
+        return points
+          .map((p, i) => `${i === 0 ? "M" : "L"}${xAt(i).toFixed(1)} ${yAt(pick(p)).toFixed(1)}`)
+          .join(" ");
+      }
+      // Hold the previous level to the next x, then jump. Each segment is a
+      // value that was actually measured; nothing is drawn between samples.
+      const parts = [`M${xAt(0).toFixed(1)} ${yAt(pick(points[0])).toFixed(1)}`];
+      for (let i = 1; i < points.length; i += 1) {
+        const x = xAt(i).toFixed(1);
+        parts.push(`L${x} ${yAt(pick(points[i - 1])).toFixed(1)}`);
+        parts.push(`L${x} ${yAt(pick(points[i])).toFixed(1)}`);
+      }
+      return parts.join(" ");
+    };
 
     const spendPath = path((p) => p.cost_usd);
     const areaPath =
@@ -82,7 +107,7 @@ export function SpendChart({ points }: { points: SpendPoint[] }) {
       areaPath,
       benchPath: path((p) => p.acpi_bench_usd),
     };
-  }, [points]);
+  }, [points, stepped]);
 
   if (points.length < 2) return null;
 

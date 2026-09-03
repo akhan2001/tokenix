@@ -1,12 +1,15 @@
 import { SignOutButton } from "@clerk/nextjs";
 
-export type AppPage = "connect" | "insights" | "benchmark" | "forecast";
+export type AppPage = "overview" | "connect" | "insights" | "benchmark" | "forecast";
 
 const TABS: { label: string; href: string; key: AppPage }[] = [
-  { label: "Insights", href: "/insights", key: "insights" },
-  { label: "Benchmark", href: "/benchmark", key: "benchmark" },
-  { label: "Forecast", href: "/forecast", key: "forecast" },
-  { label: "Connect", href: "/connect", key: "connect" },
+  // Overview leads: it is the post-onboarding home, and the only tab that
+  // answers "are we overpaying" without the reader picking a lens first.
+  { label: "Overview", href: "/dashboard", key: "overview" },
+  { label: "Insights", href: "/dashboard/insights", key: "insights" },
+  { label: "Benchmark", href: "/dashboard/benchmark", key: "benchmark" },
+  { label: "Forecast", href: "/dashboard/forecast", key: "forecast" },
+  { label: "Connect", href: "/dashboard/connect", key: "connect" },
 ];
 
 interface AppNavProps {

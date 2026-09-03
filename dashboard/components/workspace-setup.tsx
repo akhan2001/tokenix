@@ -7,7 +7,7 @@ import {
   createWorkspaceAction,
   linkKeyAction,
   type ConnectState,
-} from "@/app/(app)/connect-actions";
+} from "@/app/(app)/dashboard/connect-actions";
 import { WorkspaceKey } from "@/components/workspace-key";
 
 /**

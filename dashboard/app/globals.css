@@ -309,11 +309,24 @@
 
 /* ── Section kicker ─────────────────────────────────────── */
 .sec-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-size: 10px;
   letter-spacing: 0.26em;
   text-transform: uppercase;
   color: var(--accent);
   margin-bottom: 10px;
+}
+/* The marker from data/tokenix-problem.html's .eyebrow, which never made it
+   into the port. Its own letter-spacing is zeroed so the 0.26em tracking on
+   the label does not push the square away from the text it belongs to. */
+.sec-kicker::before {
+  content: "■";
+  font-size: 7px;
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--amber);
 }
 
 /* ── Range tabs (chart) ─────────────────────────────────── */
@@ -458,9 +471,6 @@
   .app-stats > * { border-bottom: 1px solid var(--border); }
   .app-stats > *:nth-child(even) { border-right: none; }
   .app-stats > *:nth-child(n + 3) { border-bottom: none; }
-  .connect-grid { grid-template-columns: 1fr !important; gap: 36px !important; }
-  /* The sign-in panel is sticky on desktop; stacked, it must scroll away. */
-  .connect-grid > div:last-child { position: static !important; }
   .bench-headline { grid-template-columns: 1fr !important; gap: 22px !important; }
   .forecast-meth { grid-template-columns: 1fr !important; gap: 24px !important; }
   .app-duo { grid-template-columns: 1fr !important; gap: 34px !important; }

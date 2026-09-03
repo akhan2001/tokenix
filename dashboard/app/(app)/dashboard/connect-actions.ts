@@ -32,7 +32,7 @@ export async function linkKeyAction(
           : "Could not link that key right now. Try again in a moment.",
     };
   }
-  redirect("/insights");
+  redirect("/dashboard/insights");
 }
 
 /**

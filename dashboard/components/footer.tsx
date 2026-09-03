@@ -9,10 +9,10 @@ import { Container, WORDMARK_SM, LABEL } from "@/components/primitives";
  * "Contact Us" becomes /connect, since that is where a visitor actually lands.
  */
 const LINKS = [
-  { label: "Index", href: "/" },
+  // { label: "Index", href: "/" },
   { label: "Screener", href: "/screener" },
   { label: "Methodology", href: "/#methodology" },
-  { label: "Connect", href: "/connect" },
+  { label: "Connect", href: "/dashboard/connect" },
 ];
 
 export function Footer() {

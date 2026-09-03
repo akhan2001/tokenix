@@ -65,7 +65,7 @@ export function GatewaySection({
       id="gateway"
       style={{
         padding: "var(--space-section-lg) var(--pad-x)",
-        borderTop: "1px solid var(--line)",
+        // borderTop: "1px solid var(--line)",
       }}
     >
       <Container>
@@ -84,7 +84,7 @@ export function GatewaySection({
           One line of code. No per-model SKUs, no annual commit to unlock visibility, no waiting on
           finance to reconcile the bill.
         </p>
-        <Button href="/connect" variant="text" style={{ marginTop: 10 }}>Connect your stack</Button>
+        <Button href="/dashboard/connect" variant="text" style={{ marginTop: 10 }}>Connect your stack</Button>
       </div>
 
       <div

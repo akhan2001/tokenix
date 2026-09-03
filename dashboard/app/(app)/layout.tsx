@@ -2,8 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+import { AppHeader } from "@/components/app-header";
 
 /**
  * Shell for the authenticated product area, and its gate.
@@ -24,7 +23,10 @@ import { Footer } from "@/components/footer";
  */
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
+  // /signup, not /sign-in: it is the passwordless front door, and it carries a
+  // "Sign in" link for anyone who already has an account. Sending a stranger
+  // to a sign-in card first asks them to remember an account they never made.
+  if (!userId) redirect("/signup");
 
   return (
     <div
@@ -36,9 +38,8 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         flexDirection: "column",
       }}
     >
-      <Header page="index" />
+      <AppHeader />
       <div style={{ flex: 1 }}>{children}</div>
-      <Footer />
     </div>
   );
 }

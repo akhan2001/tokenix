@@ -19,12 +19,12 @@ export function CtaSection() {
     <section
       style={{
         position: "relative",
-        minHeight: 300,
+        minHeight: 400,
         padding: "var(--space-section-lg) var(--pad-x)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        borderTop: "1px solid var(--line)",
+        // borderTop: "1px solid var(--line)",
         borderBottom: "1px solid var(--line)",
         overflow: "hidden",
       }}
@@ -38,8 +38,7 @@ export function CtaSection() {
           position: "absolute",
           inset: 0,
           pointerEvents: "none",
-          background:
-            "radial-gradient(ellipse 480px 220px at 50% 50%, rgba(7,7,10,0.7), rgba(7,7,10,0.92) 70%)",
+          background: "radial-gradient(ellipse 480px 220px at 50% 50%, rgba(7,7,10,0.3), rgba(7,7,10,0.5) 50%)",
         }}
       />
 
@@ -54,7 +53,7 @@ export function CtaSection() {
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <Button href="/screener" variant="secondary">See the index</Button>
-          <Button href="/connect" variant="primary">Connect your stack</Button>
+          <Button href="/dashboard/connect" variant="primary">Connect your stack</Button>
         </div>
       </div>
     </section>

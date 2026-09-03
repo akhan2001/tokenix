@@ -1,6 +1,20 @@
 import Link from "next/link";
+import { Show } from "@clerk/nextjs";
 import { Container, WORDMARK } from "@/components/primitives";
 
+/**
+ * The public site's nav.
+ *
+ * This is marketing chrome and belongs only to anonymous traffic — the product
+ * area under app/(app) carries <AppHeader> instead. What it does owe a
+ * signed-in visitor is a way back: someone who already pays for this landing on
+ * the homepage should see "Dashboard", not a pitch for the screener they are
+ * already entitled to.
+ *
+ * <Show> is the Core 3 replacement for <SignedIn>/<SignedOut>, which v7 removed
+ * — the old names typecheck fine and then throw at prerender, so the build is
+ * the only thing that catches them.
+ */
 interface HeaderProps {
   /** Which nav item to highlight. "index" = homepage, "screener" = screener page. */
   page?: "index" | "screener" | "calculator" | "methodology";
@@ -39,7 +53,7 @@ export function Header({ page = "index" }: HeaderProps) {
       >
         {(
           [
-            { label: "Index",       href: "/",           key: "index" },
+            // { label: "Index",       href: "/",           key: "index" },
             { label: "Screener",    href: "/screener",   key: "screener" },
             { label: "Calculator",  href: "/calculator", key: "calculator" },
             { label: "Methodology", href: "/#methodology", key: "methodology" },
@@ -58,16 +72,24 @@ export function Header({ page = "index" }: HeaderProps) {
 
       {/* Right: status + CTA */}
       <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-        {page !== "screener" && (
-          <Link href="/screener" className="nav-cta">
-            Live Screener <span className="arr">→</span>
+        <Show
+          when="signed-in"
+          fallback={
+            page === "screener" ? (
+              <Link href="/" className="nav-cta">
+                ← Index
+              </Link>
+            ) : (
+              <Link href="/screener" className="nav-cta">
+                Live Screener <span className="arr">→</span>
+              </Link>
+            )
+          }
+        >
+          <Link href="/dashboard" className="nav-cta">
+            Dashboard <span className="arr">→</span>
           </Link>
-        )}
-        {page === "screener" && (
-          <Link href="/" className="nav-cta">
-            ← Index
-          </Link>
-        )}
+        </Show>
       </div>
       </Container>
     </nav>

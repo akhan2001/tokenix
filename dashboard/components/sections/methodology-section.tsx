@@ -58,7 +58,7 @@ export function MethodologySection({
       id="methodology"
       style={{
         padding: "var(--space-section-lg) var(--pad-x)",
-        borderTop: "1px solid var(--line)",
+        // borderTop: "1px solid var(--line)",
       }}
     >
       <Container>
