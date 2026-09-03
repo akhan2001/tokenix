@@ -1,7 +1,7 @@
 import { loadPrices, loadAcpi, loadAcpiHistory } from "@/lib/data";
 import { Header } from "@/components/header";
+import { HeroSection } from "@/components/sections/hero-section";
 import { Footer } from "@/components/footer";
-import { AcpiHeroCard } from "@/components/acpi-hero-card";
 import { AcpiChart } from "@/components/acpi-chart";
 
 export const dynamic = "force-dynamic";
@@ -62,88 +62,8 @@ export default function Home() {
 
   return (
     <div style={{ background: "var(--bg)", color: "var(--text)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      <Header page="index" />
-
       {/* ── HERO ─────────────────────────────────────────────── */}
-      <section
-        className="home-hero"
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          width: "100%",
-          padding: "var(--space-section-lg) 48px var(--space-section-md)",
-          display: "grid",
-          gridTemplateColumns: "1.05fr 0.95fr",
-          gap: 64,
-          alignItems: "center",
-          borderBottom: "1px solid var(--border)",
-        }}
-      >
-        <div>
-          <div
-            style={{
-              fontSize: 10,
-              letterSpacing: "0.3em",
-              textTransform: "uppercase",
-              color: "var(--accent)",
-              marginBottom: 22,
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-            }}
-          >
-            <span style={{ width: 28, height: 1, background: "var(--accent-dim)", display: "inline-block", flexShrink: 0 }} />
-            World&apos;s first · AI Compute Price Index
-          </div>
-          <h1
-            style={{
-              fontFamily: "var(--serif)",
-              fontSize: "clamp(36px, 4.4vw, 60px)",
-              fontWeight: 500,
-              lineHeight: 1.16,
-              letterSpacing: "-0.012em",
-              color: "var(--text)",
-              marginBottom: 24,
-              margin: "0 0 24px",
-            }}
-          >
-            The standard measure
-            <br />
-            of{" "}
-            <em style={{ fontStyle: "italic", color: "var(--accent)" }}>
-              AI compute
-            </em>{" "}
-            value
-          </h1>
-          <p
-            style={{
-              fontSize: 13,
-              color: "var(--text2)",
-              lineHeight: 1.95,
-              maxWidth: 440,
-              marginBottom: 30,
-            }}
-          >
-            Tokenix tracks what one unit of AI intelligence actually costs —
-            quality-adjusted and risk-adjusted — across every major model and
-            provider in the market. One number, updated daily.
-          </p>
-          <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-            <a href="/screener" className="btn-primary">
-              Explore the screener <span>→</span>
-            </a>
-            <a href="/connect" className="btn-text">
-              Connect your stack <span className="arr">→</span>
-            </a>
-            <a href="#methodology" className="btn-text">
-              Read methodology <span className="arr">↓</span>
-            </a>
-          </div>
-        </div>
-
-        {/* Hero right: ACPI card — passes real computed value when available */}
-        <AcpiHeroCard acpi={acpiData} />
-      </section>
+      <HeroSection acpi={acpiData} history={acpiHistory} nav={<Header page="index" />} />
 
       {/* ── CHART ─────────────────────────────────────────────── */}
       <AcpiChart history={acpiHistory} modelCount={acpiData?.model_count} />

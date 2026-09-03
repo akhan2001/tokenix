@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tokenix — CTA / Footer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #07070a;
+    --ink: #F5F2EC;
+    --ink-dim: #8C887F;
+    --ink-faint: #4E4B45;
+    --line: rgba(255,180,110,0.14);
+    --amber: #FF7A1A;
+    --amber-hot: #FFD9A6;
+    --pad-x: clamp(24px, 5vw, 80px);
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background:var(--bg); }
+  body{ color: var(--ink); font-family:'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+
+  /* ---- CTA ---- */
+  .cta{
+    position: relative;
+    overflow: hidden;
+    height: 300px;
+    display:flex; align-items:center; justify-content:center;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  #ctaCanvas{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+  .cta-scrim{
+    position:absolute; inset:0;
+    background: radial-gradient(ellipse 480px 220px at 50% 50%, rgba(7,7,10,0.7), rgba(7,7,10,0.92) 70%);
+    pointer-events:none;
+  }
+  .cta-content{
+    position: relative; z-index: 2;
+    text-align: center;
+    padding: 0 24px;
+  }
+  .cta-content h2{
+    font-family:'Inter', sans-serif;
+    font-weight: 200;
+    font-size: clamp(28px, 3.6vw, 42px);
+    letter-spacing: -0.005em;
+    margin: 0 0 14px;
+  }
+  .cta-content p{
+    font-size: 15px; color: var(--ink-dim);
+    margin: 0 0 26px;
+  }
+  .cta-btns{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .btn{
+    font-family:'Inter', sans-serif; font-size: 14.5px; font-weight: 500;
+    padding: 12px 22px; border-radius: 3px;
+    text-decoration:none; display:inline-block;
+    transition: opacity .15s ease;
+  }
+  .btn:hover{ opacity:.85; }
+  .btn-primary{ background: var(--amber); color: #0A0B0D; }
+  .btn-secondary{
+    background: transparent; color: var(--ink);
+    border: 1px solid var(--line);
+  }
+
+  /* ---- footer ---- */
+  footer{ padding: 40px var(--pad-x) 32px; }
+  .footer-top{
+    display:flex; align-items:center; justify-content:space-between;
+    flex-wrap: wrap; gap: 20px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 20px;
+  }
+  .f-logo{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 500; letter-spacing: 0.08em;
+  }
+  .f-links{ display:flex; gap: 28px; flex-wrap: wrap; }
+  .f-links a{
+    color: var(--ink-dim); text-decoration:none;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px; letter-spacing: 0.02em;
+  }
+  .f-links a:hover{ color: var(--ink); }
+
+  .footer-bottom{
+    display:flex; align-items:center; justify-content:space-between;
+    flex-wrap: wrap; gap: 12px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11.5px; color: var(--ink-faint);
+  }
+</style>
+</head>
+<body>
+
+<section class="cta">
+  <canvas id="ctaCanvas" aria-hidden="true"></canvas>
+  <div class="cta-scrim"></div>
+  <div class="cta-content">
+    <h2>Know the price before you pay it.</h2>
+    <p>One line of code. Free to start.</p>
+    <div class="cta-btns">
+      <a class="btn btn-secondary" href="#index">See the index</a>
+      <a class="btn btn-primary" href="#gateway">Connect your stack</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-top">
+    <div class="f-logo">TOKENIX</div>
+    <div class="f-links">
+      <a href="#index">Index</a>
+      <a href="#gateway">Gateway</a>
+      <a href="#methodology">Methodology</a>
+      <a href="#contact">Contact Us</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Tokenix</span>
+    <span>ACPI recalculated hourly</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const canvas = document.getElementById('ctaCanvas');
+  const ctx = canvas.getContext('2d');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W=0,H=0,dpr=Math.min(window.devicePixelRatio||1,2);
+
+  function resize(){
+    const r = canvas.getBoundingClientRect();
+    W=r.width; H=r.height;
+    canvas.width=Math.floor(W*dpr); canvas.height=Math.floor(H*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const cellW=13, cellH=19;
+  const chars=['.', "'", ':', '¦', '|'];
+
+  function colorFor(b){
+    b=Math.max(0,Math.min(1,b));
+    const stops=[[0.00,18,9,3],[0.45,120,52,4],[0.75,225,96,18],[1.00,255,200,140]];
+    let a=stops[0], c=stops[stops.length-1];
+    for(let i=0;i<stops.length-1;i++){ if(b>=stops[i][0] && b<=stops[i+1][0]){ a=stops[i]; c=stops[i+1]; break; } }
+    const span=(c[0]-a[0])||1, f=span===0?0:(b-a[0])/span;
+    const r=Math.round(a[1]+(c[1]-a[1])*f), g=Math.round(a[2]+(c[2]-a[2])*f), bl=Math.round(a[3]+(c[3]-a[3])*f);
+    return `rgb(${r},${g},${bl})`;
+  }
+
+  // simplified: fold pattern only, no diagonal beam sweep — quieter, smaller-scale accent
+  let t0=performance.now();
+  function draw(now){
+    const t = reduceMotion ? 4 : (now-t0)/1000;
+    ctx.clearRect(0,0,W,H);
+    ctx.font = `${cellH-5}px 'JetBrains Mono', monospace`;
+    ctx.textBaseline='top';
+
+    const cols=Math.ceil(W/cellW)+1, rows=Math.ceil(H/cellH)+1;
+
+    for(let cx=0;cx<cols;cx++){
+      const x=cx*cellW;
+      const fold = 0.30
+        + 0.22*Math.sin(cx*0.26 + t*0.10)
+        + 0.12*Math.sin(cx*0.06 - t*0.04);
+
+      for(let cy=0;cy<rows;cy++){
+        const y=cy*cellH;
+        const vign = 1 - Math.abs((cy/rows)-0.5)*0.7;
+        let b = fold * vign;
+        b = Math.max(0, Math.min(1,b));
+        if(b<0.06) continue;
+        const idx=Math.min(chars.length-1, Math.floor(b*chars.length));
+        ctx.fillStyle = colorFor(b);
+        ctx.fillText(chars[idx], x, y);
+      }
+    }
+    if(!reduceMotion) requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+
+</body>
+</html>

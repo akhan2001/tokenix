@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tokenix — Methodology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #07070a;
+    --panel: #0B0B0E;
+    --ink: #F5F2EC;
+    --ink-dim: #8C887F;
+    --ink-faint: #57544D;
+    --line: rgba(255,180,110,0.16);
+    --line-strong: rgba(255,180,110,0.26);
+    --amber: #FF7A1A;
+    --amber-hot: #FFD9A6;
+    --pad-x: clamp(24px, 5vw, 80px);
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background:var(--bg); }
+  body{ color: var(--ink); font-family:'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+
+  .section{ padding: clamp(72px,10vh,120px) var(--pad-x) 100px; }
+
+  .intro{
+    max-width: 640px;
+    margin: 0 auto 52px;
+    text-align: center;
+    display:flex; flex-direction:column; align-items:center;
+  }
+  .eyebrow-pill{
+    display:inline-flex;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.08em;
+    color: var(--ink-dim);
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    padding: 5px 10px;
+    margin-bottom: 22px;
+  }
+  .intro h2{
+    font-family:'Inter', sans-serif;
+    font-weight: 200;
+    font-size: clamp(30px, 3.8vw, 46px);
+    line-height: 1.15;
+    letter-spacing: -0.005em;
+    margin: 0 0 18px;
+  }
+  .intro p{
+    font-size: 15px; line-height: 1.65;
+    color: var(--ink-dim);
+    margin: 0;
+    max-width: 54ch;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+    max-width: 1080px;
+    margin: 0 auto 56px;
+  }
+
+  .step{ display:flex; flex-direction:column; }
+
+  .img-slot{
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border: 1px dashed var(--line-strong);
+    border-radius: 10px;
+    background: var(--panel);
+    display:flex; align-items:center; justify-content:center;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .img-slot img{ width:100%; height:100%; object-fit: cover; display:block; }
+  .img-slot .placeholder{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.04em;
+    color: var(--ink-faint);
+    text-align:center; line-height:1.6;
+    padding: 0 16px;
+  }
+  .img-slot .placeholder b{ color: var(--ink-dim); display:block; font-size:12px; margin-bottom:4px; }
+
+  .step-title{
+    font-size: 17px; font-weight: 500;
+    margin: 0 0 8px;
+  }
+  .step-desc{
+    font-size: 13.5px; line-height: 1.6;
+    color: var(--ink-dim);
+    margin: 0;
+  }
+
+  /* ---- compact formula strip ---- */
+  .formula-strip{
+    max-width: 1080px;
+    margin: 0 auto;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    background: #08080B;
+    padding: 20px 26px;
+    display:flex; align-items:center; justify-content:space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .formula-strip .formula{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow-x: auto;
+  }
+  .formula-strip .formula .acpi{ color: var(--amber-hot); }
+  .formula-strip .formula .op{ color: var(--ink-faint); }
+  .formula-strip .link{
+    display:inline-flex; align-items:center; gap:6px;
+    color: var(--amber-hot); text-decoration:none;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    flex-shrink: 0;
+  }
+  .formula-strip .link:hover{ opacity: 0.85; }
+
+  @media (max-width: 900px){
+    .grid{ grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<section class="section">
+  <div class="intro">
+    <div class="eyebrow-pill">METHODOLOGY</div>
+    <h2>How ACPI is priced.</h2>
+    <p>ACPI blends live pricing across every tracked model, weighted by benchmark-derived quality and provider volume — not a flat average of list prices.</p>
+  </div>
+
+  <div class="grid">
+    <div class="step">
+      <div class="img-slot"><span class="placeholder"><b>ICON 01</b>pricing inputs</span></div>
+      <div class="step-title">1. Pricing Inputs</div>
+      <div class="step-desc">Live rates pulled hourly from 56 providers, public and metered.</div>
+    </div>
+
+    <div class="step">
+      <div class="img-slot"><span class="placeholder"><b>ICON 02</b>quality adjustment</span></div>
+      <div class="step-title">2. Quality Adjustment</div>
+      <div class="step-desc">Each price is weighted against benchmark performance, not averaged flat.</div>
+    </div>
+
+    <div class="step">
+      <div class="img-slot"><span class="placeholder"><b>ICON 03</b>blending</span></div>
+      <div class="step-title">3. Blending</div>
+      <div class="step-desc">332 models collapse into one reference number — the market rate.</div>
+    </div>
+  </div>
+
+  <div class="formula-strip">
+    <div class="formula"><span class="acpi">ACPI(t)</span> <span class="op">=</span> Σ [ P_i(t) × Q_i × W_i ] <span class="op">/</span> Σ W_i</div>
+    <a class="link" href="#methodology-full">Read the full methodology →</a>
+  </div>
+</section>
+
+</body>
+</html>

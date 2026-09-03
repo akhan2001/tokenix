@@ -452,3 +452,17 @@
 
 /* ── CRT scanlines (optional, subtle) ───────────────────── */
 .scanlines { position: relative; }
+
+/* ── Hero section (ported from data/tokenix-hero.html) ──── */
+.hero-main-row {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(24px, 6vw, 100px);
+}
+@media (max-width: 820px) {
+  .hero-main-row { flex-direction: column; align-items: flex-start; gap: 48px; }
+  .hero-quote { text-align: left !important; }
+  .hero-quote > div:first-child { margin-left: 0 !important; }
+}

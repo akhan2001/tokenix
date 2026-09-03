@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tokenix — Hero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #07070a;
+    --ink: #F5F2EC;
+    --ink-dim: #928E85;
+    --line: rgba(255,180,110,0.18);
+    --amber-hot: #FFD9A6;
+    --green: #4ADE80;
+
+    --pad-x: clamp(24px, 5vw, 80px);
+    --pad-y: clamp(28px, 5vh, 56px);
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background:var(--bg); }
+  body{
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .hero{
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+    background: var(--bg);
+    display:flex; flex-direction:column;
+  }
+
+  #asciiCanvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    display:block;
+  }
+
+  .scrim-bottom{
+    position:absolute; inset:0;
+    background: linear-gradient(180deg, rgba(7,7,10,0.35) 0%, rgba(7,7,10,0) 18%, rgba(7,7,10,0) 78%, rgba(7,7,10,0.5) 100%);
+    pointer-events:none;
+  }
+
+  /* ---- structure: flex column with generous, consistent gaps ---- */
+  .section{
+    position: relative;
+    z-index: 3;
+    display:flex;
+    flex-direction:column;
+    gap: clamp(28px, 6vh, 56px);
+    padding: var(--pad-y) var(--pad-x);
+    flex: 1;
+  }
+
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .logo{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 500; letter-spacing: 0.08em;
+  }
+  .navlinks{ display:flex; gap:34px; }
+  .navlinks a{
+    color: var(--ink-dim); text-decoration:none;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px; letter-spacing: 0.04em;
+    transition: color .15s ease;
+  }
+  .navlinks a:hover{ color: var(--ink); }
+
+  /* ---- main row, vertically centered ---- */
+  .main-row{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: clamp(24px, 6vw, 100px);
+  }
+
+  .left{ max-width: 460px; }
+  .top-rule{
+    width: 64px; height:1px;
+    background: var(--line);
+    margin-bottom: 26px;
+  }
+  h1{
+    font-family: 'Inter', sans-serif;
+    font-weight: 200;
+    font-size: clamp(40px, 5.2vw, 72px);
+    line-height: 1.04;
+    letter-spacing: 0.002em;
+    margin: 0 0 30px;
+  }
+  .talk-link{
+    display:inline-flex; align-items:center; gap:8px;
+    color: var(--ink-dim); text-decoration:none;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12.5px; letter-spacing: 0.03em;
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+  }
+  .talk-link:hover{ color: var(--ink); }
+
+  /* ---- ACPI quote block ---- */
+  .quote{
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .quote .top-rule{
+    margin-left: auto;
+    margin-bottom: 20px;
+  }
+  .quote-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px; letter-spacing: 0.06em;
+    color: var(--ink-dim);
+    margin-bottom: 6px;
+  }
+  .quote-time{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.04em;
+    color: var(--ink-dim);
+    opacity: 0.7;
+    margin-bottom: 22px;
+  }
+  .quote-price{
+    font-family: 'Inter', sans-serif;
+    font-weight: 200;
+    font-size: clamp(52px, 6.4vw, 88px);
+    line-height: 1;
+    letter-spacing: -0.01em;
+    margin-bottom: 14px;
+  }
+  .quote-unit{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px; letter-spacing: 0.06em;
+    color: var(--ink-dim);
+    margin-bottom: 10px;
+  }
+  .quote-delta{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13px; letter-spacing: 0.02em;
+    color: var(--green);
+  }
+
+  @media (max-width: 820px){
+    .main-row{ flex-direction:column; align-items:flex-start; gap: 48px; }
+    .quote{ text-align:left; }
+    .quote .top-rule{ margin-left:0; }
+    .navlinks{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <canvas id="asciiCanvas" aria-hidden="true"></canvas>
+  <div class="scrim-bottom"></div>
+
+  <div class="section">
+    <nav>
+      <div class="logo">TOKENIX</div>
+      <div class="navlinks">
+        <a href="#index">Index</a>
+        <a href="#gateway">Gateway</a>
+        <a href="#methodology">Methodology</a>
+        <a href="#contact">Contact Us</a>
+      </div>
+    </nav>
+
+    <div class="main-row">
+      <div class="left">
+        <div class="top-rule"></div>
+        <h1>The price of<br>intelligence.</h1>
+        <a class="talk-link" href="#contact">Talk to our team →</a>
+      </div>
+
+      <div class="quote">
+        <div class="top-rule"></div>
+        <div class="quote-label">ACPI · AI COMPUTE PRICE INDEX</div>
+        <div class="quote-time">&lt; 29 AUG, 08:00 PM UTC &gt;</div>
+        <div class="quote-price">$4.99</div>
+        <div class="quote-unit">PER 1M BLENDED TOKENS</div>
+        <div class="quote-delta">▲ 1.42% · 24H</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const canvas = document.getElementById('asciiCanvas');
+  const ctx = canvas.getContext('2d');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let W = 0, H = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+  function resize(){
+    const rect = canvas.getBoundingClientRect();
+    W = rect.width; H = rect.height;
+    canvas.width = Math.floor(W * dpr);
+    canvas.height = Math.floor(H * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const cellW = 13, cellH = 19;
+  const chars = ['.', "'", ':', '¦', '|', '‡', '#'];
+
+  function colorFor(b){
+    b = Math.max(0, Math.min(1, b));
+    const stops = [
+      [0.00, 18, 9, 3],
+      [0.40, 150, 62, 4],
+      [0.70, 255, 106, 20],
+      [1.00, 255, 217, 166]
+    ];
+    let a = stops[0], c = stops[stops.length-1];
+    for(let i=0;i<stops.length-1;i++){
+      if(b >= stops[i][0] && b <= stops[i+1][0]){ a = stops[i]; c = stops[i+1]; break; }
+    }
+    const span = (c[0]-a[0]) || 1;
+    const f = span === 0 ? 0 : (b - a[0]) / span;
+    const r = Math.round(a[1] + (c[1]-a[1])*f);
+    const g = Math.round(a[2] + (c[2]-a[2])*f);
+    const bl = Math.round(a[3] + (c[3]-a[3])*f);
+    return `rgb(${r},${g},${bl})`;
+  }
+
+  let t0 = performance.now();
+
+  function draw(now){
+    const t = reduceMotion ? 4 : (now - t0) / 1000;
+
+    ctx.clearRect(0,0,W,H);
+    ctx.font = `${cellH-5}px 'JetBrains Mono', monospace`;
+    ctx.textBaseline = 'top';
+
+    const cols = Math.ceil(W / cellW) + 1;
+    const rows = Math.ceil(H / cellH) + 1;
+
+    const beam1 = ((t * 130) % (W + H)) - H;
+    const beam2 = ((t * 78 + (W+H)*0.45) % (W + H)) - H;
+
+    for(let cx = 0; cx < cols; cx++){
+      const x = cx * cellW;
+
+      // left-to-right ramp: dark curtain on the left, bright on the right — Ornn's composition
+      const ramp = 0.12 + 0.88 * (cx / cols);
+
+      const fold = 0.42
+        + 0.30 * Math.sin(cx * 0.30 + t * 0.12)
+        + 0.18 * Math.sin(cx * 0.07 - t * 0.05);
+
+      for(let cy = 0; cy < rows; cy++){
+        const y = cy * cellH;
+
+        const d = x - y * 0.72;
+        const bw = 46;
+        let beamB = 0;
+        const db1 = d - beam1;
+        beamB += Math.exp(-(db1*db1)/(2*bw*bw)) * 0.85;
+        const db2 = d - beam2;
+        beamB += Math.exp(-(db2*db2)/(2*bw*bw)) * 0.45;
+
+        const vign = 1 - Math.abs((cy/rows) - 0.42) * 0.55;
+
+        let b = (fold * 0.5 * ramp + beamB * (0.3 + 0.7*ramp)) * vign;
+        b = Math.max(0, Math.min(1, b));
+
+        if(b < 0.05) continue;
+
+        const idx = Math.min(chars.length - 1, Math.floor(b * chars.length));
+        ctx.fillStyle = colorFor(b);
+        ctx.fillText(chars[idx], x, y);
+      }
+    }
+
+    if(!reduceMotion) requestAnimationFrame(draw);
+  }
+
+  requestAnimationFrame(draw);
+})();
+</script>
+
+</body>
+</html>
