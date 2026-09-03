@@ -23,9 +23,14 @@ export function Header({ page = "index" }: HeaderProps) {
         style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
       >
       {/* Logo */}
-      <Link href="/" style={{ ...WORDMARK, color: "var(--text)" }}>
+      {/* <Link href="/" style={{ ...WORDMARK, color: "var(--text)" }}>
         Token<span style={{ color: "var(--accent)" }}>ix</span>
-      </Link>
+      </Link> */}
+      <div
+        style={{ ...WORDMARK, color: "var(--ink)" }}
+      >
+        TOKENIX
+      </div>
 
       {/* Nav links — hidden on mobile */}
       <ul
