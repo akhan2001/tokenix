@@ -1,60 +1,49 @@
 import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
+import { LINK } from "./type";
 
 /**
- * One button, three variants, replacing the per-file redefinitions.
+ * One button. Three variants, one radius, one type treatment.
  *
- * Typography follows the shipped app (uppercase DM Mono, square corners via
- * --radius: 0rem), not the mockups. The mockups specify Inter at 14.5px with
- * 3px radius in tokenix-cta-footer.html and 999px pills in
- * tokenix-problem.html — reproducing that needs Inter loaded in layout.tsx and
- * --radius changed, which is a typographic decision for the whole app rather
- * than something to smuggle in through a button. Flagged, not decided here.
+ * Before this the page carried eleven clickable elements in almost as many
+ * shapes: a white 999px pill in the problem section, a 5px bordered box in the
+ * index, 3px filled and bordered pairs in the CTA, bare amber text links in
+ * three more places, and a square nav CTA inherited from the shipped app.
  *
- * The variants mirror .btn-primary / .btn-text already in globals.css, plus a
- * bordered secondary the mockups use for their second CTA.
+ *   primary   — amber fill, for the single main action in a section
+ *   secondary — bordered, for the alternative alongside a primary
+ *   text      — amber inline link with an arrow, for "read more" affordances
+ *
+ * `arrow` appends the trailing glyph so call sites stop hand-rolling it.
  */
 export type ButtonVariant = "primary" | "secondary" | "text";
 
 const BASE: CSSProperties = {
-  fontFamily: "var(--mono)",
-  fontSize: 11,
-  letterSpacing: "0.12em",
-  textTransform: "uppercase",
-  fontWeight: 500,
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 10,
-  transition: "all 0.2s",
+  ...LINK,
   cursor: "pointer",
-  textDecoration: "none",
   whiteSpace: "nowrap",
+  transition: "opacity 0.15s ease, border-color 0.15s ease, background 0.15s ease",
+};
+
+const BOX: CSSProperties = {
+  padding: "12px 22px",
+  borderRadius: "var(--radius-control)",
 };
 
 const VARIANTS: Record<ButtonVariant, CSSProperties> = {
-  primary: {
-    color: "#0b0c0e",
-    background: "var(--accent)",
-    padding: "13px 22px",
-    border: "none",
-  },
-  secondary: {
-    color: "var(--text)",
-    background: "transparent",
-    padding: "13px 22px",
-    border: "1px solid var(--border2)",
-  },
-  text: {
-    color: "var(--text2)",
-    background: "none",
-    padding: 0,
-    border: "none",
-    gap: 8,
-  },
+  primary: { ...BOX, background: "var(--amber)", color: "#0a0b0d", border: "1px solid var(--amber)" },
+  secondary: { ...BOX, background: "transparent", color: "var(--ink)", border: "1px solid var(--line-strong)" },
+  text: { background: "none", border: "none", padding: 0, color: "var(--amber-hot)" },
 };
 
-type Common = {
+type Props = {
   variant?: ButtonVariant;
+  href?: string;
+  onClick?: () => void;
+  type?: "button" | "submit";
+  disabled?: boolean;
+  /** Trailing glyph. Defaults to an arrow on the text variant. */
+  arrow?: string | false;
   children: ReactNode;
   style?: CSSProperties;
   className?: string;
@@ -66,21 +55,24 @@ export function Button({
   onClick,
   type = "button",
   disabled,
+  arrow,
   children,
   style,
   className,
-}: Common & {
-  href?: string;
-  onClick?: () => void;
-  type?: "button" | "submit";
-  disabled?: boolean;
-}) {
+}: Props) {
+  const glyph = arrow === false ? null : (arrow ?? (variant === "text" ? "→" : null));
   const css = { ...BASE, ...VARIANTS[variant], ...style };
+  const body = (
+    <>
+      {children}
+      {glyph && <span aria-hidden>{glyph}</span>}
+    </>
+  );
 
   if (href) {
     return (
       <Link href={href} className={className} style={css}>
-        {children}
+        {body}
       </Link>
     );
   }
@@ -92,7 +84,7 @@ export function Button({
       className={className}
       style={{ ...css, opacity: disabled ? 0.5 : 1 }}
     >
-      {children}
+      {body}
     </button>
   );
 }

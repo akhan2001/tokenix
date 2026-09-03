@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
-import { Container, H2, BODY, LINK, LABEL, LABEL_SM, FIGURE_SM, DATA } from "@/components/primitives";
+import { Button, Container, H2, BODY, LABEL, LABEL_SM, FIGURE_SM, DATA } from "@/components/primitives";
 
 /**
  * Landing-page teaser for the gateway: what a month costs at the ACPI market
@@ -85,22 +84,13 @@ export function GatewaySection({
           One line of code. No per-model SKUs, no annual commit to unlock visibility, no waiting on
           finance to reconcile the bill.
         </p>
-        <Link
-          href="/connect"
-          style={{
-            ...LINK,
-            color: "var(--amber-hot)",
-            marginTop: 10,
-          }}
-        >
-          Connect your stack <span aria-hidden>→</span>
-        </Link>
+        <Button href="/connect" variant="text" style={{ marginTop: 10 }}>Connect your stack</Button>
       </div>
 
       <div
         style={{
           border: "1px solid var(--line-strong)",
-          borderRadius: 10,
+          borderRadius: "var(--radius-panel)",
           background: "var(--panel)",
           overflow: "hidden",
         }}
@@ -121,7 +111,7 @@ export function GatewaySection({
                 ...LABEL,
                 color: "var(--ink)",
                 border: "1px solid var(--line-strong)",
-                borderRadius: 999,
+                borderRadius: "var(--radius-control)",
                 padding: "5px 12px",
                 marginBottom: 18,
               }}
@@ -248,16 +238,7 @@ export function GatewaySection({
               </div>
             ))
           )}
-          <Link
-            href="/calculator"
-            style={{
-              ...LINK,
-              color: "var(--amber-hot)",
-              marginTop: 18,
-            }}
-          >
-            Model your own workload <span aria-hidden>→</span>
-          </Link>
+          <Button href="/calculator" variant="text" style={{ marginTop: 18 }}>Model your own workload</Button>
         </div>
       </div>
       </Container>

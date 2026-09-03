@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { AsciiCurtain, FOOTER_CURTAIN } from "@/components/ascii-curtain";
-import { H2, BODY, LINK } from "@/components/primitives";
+import { Button, H2, BODY } from "@/components/primitives";
 
 /**
  * Closing CTA, backed by the quietest of the three curtains.
@@ -54,31 +53,8 @@ export function CtaSection() {
           One line of code. Free to start.
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-          <Link
-            href="/screener"
-            style={{
-              ...LINK,
-              padding: "12px 22px",
-              borderRadius: 3,
-              background: "transparent",
-              color: "var(--ink)",
-              border: "1px solid var(--line)",
-            }}
-          >
-            See the index
-          </Link>
-          <Link
-            href="/connect"
-            style={{
-              ...LINK,
-              padding: "12px 22px",
-              borderRadius: 3,
-              background: "var(--amber)",
-              color: "#0a0b0d",
-            }}
-          >
-            Connect your stack
-          </Link>
+          <Button href="/screener" variant="secondary">See the index</Button>
+          <Button href="/connect" variant="primary">Connect your stack</Button>
         </div>
       </div>
     </section>

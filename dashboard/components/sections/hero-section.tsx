@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { Container, DISPLAY, FIGURE, LABEL } from "@/components/primitives";
+import { Button, Container, DISPLAY, FIGURE, LABEL } from "@/components/primitives";
 import { AsciiCurtain, HERO_CURTAIN } from "@/components/ascii-curtain";
 import type { AcpiData, AcpiHistoryPoint } from "@/lib/data";
 
@@ -104,21 +103,13 @@ export function HeroSection({
               <br />
               intelligence.
             </h1>
-            <Link
+            <Button
               href="/connect"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                color: "var(--ink-dim)",
-                textDecoration: "none",
-                ...LABEL,
-                borderTop: "1px solid var(--line)",
-                paddingTop: 16,
-              }}
+              variant="text"
+              style={{ borderTop: "1px solid var(--line)", paddingTop: 16, color: "var(--ink-dim)" }}
             >
-              Talk to our team <span aria-hidden>→</span>
-            </Link>
+              Talk to our team
+            </Button>
           </div>
 
           <div className="hero-quote" style={{ textAlign: "right", flexShrink: 0 }}>

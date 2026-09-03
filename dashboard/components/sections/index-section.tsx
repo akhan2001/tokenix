@@ -1,6 +1,5 @@
-import Link from "next/link";
 import type { PriceRow } from "@/lib/data";
-import { Container, H2, BODY, LINK, LABEL, DATA } from "@/components/primitives";
+import { Button, Container, H2, BODY, LABEL, DATA } from "@/components/primitives";
 
 /**
  * Landing-page teaser for the index. Intro copy plus a glimpse of real rows,
@@ -113,23 +112,14 @@ export function IndexSection({
           No bundled SKUs, no vendor-quoted rate cards. Filter, sort, and compare the same numbers
           your team uses to decide what to actually run.
         </p>
-        <Link
-          href="/screener"
-          style={{
-            ...LINK,
-            color: "var(--amber-hot)",
-            marginTop: 10,
-          }}
-        >
-          Explore the full screener <span aria-hidden>→</span>
-        </Link>
+        <Button href="/screener" variant="text" style={{ marginTop: 10 }}>Explore the full screener</Button>
       </div>
 
       <div style={{ position: "relative" }}>
         <div
           style={{
             border: "1px solid var(--line-strong)",
-            borderRadius: 10,
+            borderRadius: "var(--radius-panel)",
             overflow: "hidden",
             background: "var(--panel)",
           }}
@@ -152,23 +142,13 @@ export function IndexSection({
               <span className="idx-stat" style={{ color: "var(--ink-faint)", fontSize: 11 }}>
                 {modelCount} MODELS · {providerCount} PROVIDERS
               </span>
-              <Link
+              <Button
                 href="/screener"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  ...LINK,
-                  fontSize: 12,
-                  color: "var(--ink)",
-                  border: "1px solid var(--line-strong)",
-                  padding: "6px 10px",
-                  borderRadius: 5,
-                  textDecoration: "none",
-                }}
+                variant="secondary"
+                style={{ fontSize: 12, padding: "6px 10px" }}
               >
                 Open full screener
-              </Link>
+              </Button>
             </div>
           </div>
 
@@ -237,7 +217,7 @@ export function IndexSection({
             height: "46%",
             background: "linear-gradient(180deg, transparent, var(--panel) 92%)",
             pointerEvents: "none",
-            borderRadius: "0 0 10px 10px",
+            borderRadius: "0 0 var(--radius-panel) var(--radius-panel)",
           }}
         />
       </div>

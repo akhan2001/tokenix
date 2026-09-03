@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { Container, H2, H3, BODY, BODY_SM, LINK, LABEL, DATA } from "@/components/primitives";
+import { Button, Container, H2, H3, BODY, BODY_SM, LABEL, DATA } from "@/components/primitives";
 
 /**
  * How ACPI is priced — the three inputs and the formula.
@@ -64,19 +63,6 @@ export function MethodologySection({
     >
       <Container>
         <div style={{ marginBottom: 48 }}>
-          <div
-            style={{
-              display: "inline-flex",
-              ...LABEL,
-              color: "var(--ink-dim)",
-              border: "1px solid var(--line-strong)",
-              borderRadius: 4,
-              padding: "5px 10px",
-              marginBottom: 22,
-            }}
-          >
-            METHODOLOGY
-          </div>
           <h2
             style={{ ...H2, marginBottom: 18, color: "var(--ink)" }}
           >
@@ -105,7 +91,7 @@ export function MethodologySection({
                   position: "relative",
                   aspectRatio: "1 / 1",
                   border: "1px dashed var(--line-strong)",
-                  borderRadius: 10,
+                  borderRadius: "var(--radius-panel)",
                   background: "var(--panel)",
                   display: "flex",
                   alignItems: "center",
@@ -139,11 +125,11 @@ export function MethodologySection({
           ))}
         </div>
 
-        <div
+        {/* <div
           className="formula-strip"
           style={{
             border: "1px solid var(--line-strong)",
-            borderRadius: 8,
+            borderRadius: "var(--radius-panel)",
             background: "#08080b",
             padding: "20px 26px",
             display: "flex",
@@ -168,17 +154,8 @@ export function MethodologySection({
             <span style={{ color: "var(--ink-faint)" }}>+</span> ½·⟨P⟩
             <span style={{ color: "var(--ink-faint)" }}>commodity</span>
           </div>
-          <Link
-            href="/methodology"
-            style={{
-              ...LINK,
-              color: "var(--amber-hot)",
-              flexShrink: 0,
-            }}
-          >
-            Read the full methodology <span aria-hidden>→</span>
-          </Link>
-        </div>
+          <Button href="/methodology" variant="text">Read the full methodology</Button>
+        </div> */}
       </Container>
     </section>
   );

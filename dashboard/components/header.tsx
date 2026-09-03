@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Container, WORDMARK } from "@/components/primitives";
 
 interface HeaderProps {
@@ -22,12 +23,9 @@ export function Header({ page = "index" }: HeaderProps) {
         style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
       >
       {/* Logo */}
-      <a
-        href="/"
-        style={{ ...WORDMARK, color: "var(--text)" }}
-      >
+      <Link href="/" style={{ ...WORDMARK, color: "var(--text)" }}>
         Token<span style={{ color: "var(--accent)" }}>ix</span>
-      </a>
+      </Link>
 
       {/* Nav links — hidden on mobile */}
       <ul
@@ -43,12 +41,12 @@ export function Header({ page = "index" }: HeaderProps) {
           ] as const
         ).map(({ label, href, key }) => (
           <li key={key}>
-            <a
+            <Link
               href={href}
               className={`nav-link${page === key ? " active" : ""}`}
             >
               {label}
-            </a>
+            </Link>
           </li>
         ))}
       </ul>
@@ -56,14 +54,14 @@ export function Header({ page = "index" }: HeaderProps) {
       {/* Right: status + CTA */}
       <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
         {page !== "screener" && (
-          <a href="/screener" className="nav-cta">
+          <Link href="/screener" className="nav-cta">
             Live Screener <span className="arr">→</span>
-          </a>
+          </Link>
         )}
         {page === "screener" && (
-          <a href="/" className="nav-cta">
+          <Link href="/" className="nav-cta">
             ← Index
-          </a>
+          </Link>
         )}
       </div>
       </Container>

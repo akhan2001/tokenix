@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { Container, H2, BODY, LINK, LABEL } from "@/components/primitives";
+import { Button, Container, H2, BODY, LABEL } from "@/components/primitives";
 
 /**
  * The problem statement.
@@ -61,18 +60,7 @@ export function ProblemSection({
               you if the price is fair.
             </strong>
           </p>
-          <Link
-            href="/#methodology"
-            style={{
-              ...LINK,
-              background: "var(--ink)",
-              color: "#0a0b0d",
-              padding: "12px 22px",
-              borderRadius: 999,
-            }}
-          >
-            See how ACPI works
-          </Link>
+          <Button href="/#methodology" variant="primary">See how ACPI works</Button>
         </div>
         </Container>
       </section>
