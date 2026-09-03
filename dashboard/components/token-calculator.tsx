@@ -594,7 +594,7 @@ export function TokenCalculator() {
   // ── States ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div style={{ padding: "var(--space-section-lg) 48px", textAlign: "center", color: "var(--text3)", fontSize: 12, letterSpacing: "0.06em" }}>
+      <div style={{ padding: "var(--space-section-lg) var(--pad-x)", textAlign: "center", color: "var(--text3)", fontSize: 12, letterSpacing: "0.06em" }}>
         Loading live prices…
       </div>
     );
@@ -602,7 +602,7 @@ export function TokenCalculator() {
 
   if (error || !data) {
     return (
-      <div style={{ padding: "var(--space-section-lg) 48px", textAlign: "center" }}>
+      <div style={{ padding: "var(--space-section-lg) var(--pad-x)", textAlign: "center" }}>
         <div style={{ fontFamily: "var(--sans)", fontSize: 20, color: "var(--text)", marginBottom: 8 }}>
           Prices unavailable
         </div>
@@ -612,7 +612,7 @@ export function TokenCalculator() {
   }
 
   return (
-    <div className="calc-wrap" style={{ padding: "var(--space-section-sm) 48px var(--space-section-md)" }}>
+    <div className="calc-wrap" style={{ padding: "var(--space-section-sm) var(--pad-x) var(--space-section-md)" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: "column", gap: 34 }}>
         {/* ── Scenario presets ───────────────────────────────────────────── */}
         <section>

@@ -344,8 +344,8 @@
 }
 
 /* ── Screener layout ─────────────────────────────────────── */
-.screener-wrap { padding: 0 20px 24px; }
-@media (min-width: 768px) { .screener-wrap { padding: 0 32px 32px; } }
+.screener-wrap { padding: 0 var(--pad-x) 24px; }
+
 
 .screener-header {
   display: flex;
@@ -388,26 +388,26 @@
 
 /* ── Homepage responsive ─────────────────────────────────── */
 @media (max-width: 900px) {
-  .home-hero { grid-template-columns: 1fr !important; gap: 36px !important; padding: var(--space-section-sm) 20px var(--space-section-sm) !important; }
-  .home-chart-sec { padding: var(--space-section-sm) 20px !important; }
+  .home-hero { grid-template-columns: 1fr !important; gap: 36px !important; }
+  
   /* 2-col stats on mobile */
   .home-stats { grid-template-columns: repeat(2, 1fr) !important; }
   .home-stats .stat { border-bottom: 1px solid var(--border) !important; }
   .home-stats .stat:nth-child(even) { border-right: none !important; }
   .home-stats .stat:last-child { grid-column: 1 / -1; border-right: none !important; border-bottom: none !important; }
   /* sections padding */
-  .home-const-sec { padding: var(--space-section-sm) 20px !important; }
-  .home-meth { grid-template-columns: 1fr !important; gap: 28px !important; padding: var(--space-section-sm) 20px !important; }
+  
+  .home-meth { grid-template-columns: 1fr !important; gap: 28px !important; }
   /* CTA stacks on mobile */
   .const-cta { flex-direction: column !important; align-items: flex-start !important; gap: 18px !important; }
   .cw-hide { display: none !important; }
-  .home-footer { padding: var(--space-section-xs) 20px !important; }
+  
   .footer-top { flex-direction: column; align-items: flex-start !important; gap: 18px !important; }
 }
 
 /* ── Calculator responsive ───────────────────────────────── */
 @media (max-width: 900px) {
-  .calc-wrap { padding: var(--space-section-sm) 20px var(--space-section-sm) !important; }
+  
   .calc-config-grid { grid-template-columns: 1fr !important; }
 }
 
@@ -438,7 +438,7 @@
 .app-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
 
 @media (max-width: 900px) {
-  .app-wrap { padding-left: 20px !important; padding-right: 20px !important; }
+  
   .app-stats { grid-template-columns: repeat(2, 1fr) !important; }
   .app-stats > * { border-bottom: 1px solid var(--border); }
   .app-stats > *:nth-child(even) { border-right: none; }

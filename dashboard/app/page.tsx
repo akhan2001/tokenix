@@ -65,8 +65,10 @@ export default function Home() {
 
   return (
     <div style={{ background: "var(--bg)", color: "var(--text)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      <Header page="index" />
+
       {/* ── HERO ─────────────────────────────────────────────── */}
-      <HeroSection acpi={acpiData} history={acpiHistory} nav={<Header page="index" />} />
+      <HeroSection acpi={acpiData} history={acpiHistory} />
 
       {/* ── PROBLEM ──────────────────────────────────────────── */}
       <ProblemSection
@@ -137,7 +139,7 @@ export default function Home() {
           maxWidth: 1200,
           margin: "0 auto",
           width: "100%",
-          padding: "var(--space-section-md) 48px",
+          padding: "var(--space-section-md) var(--pad-x)",
           borderBottom: "1px solid var(--border)",
         }}
       >

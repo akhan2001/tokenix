@@ -10,7 +10,7 @@ export function Header({ page = "index" }: HeaderProps) {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        padding: "18px 48px",
+        padding: "18px var(--pad-x)",
         borderBottom: "1px solid var(--border)",
         position: "sticky",
         top: 0,

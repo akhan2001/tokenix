@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import Link from "next/link";
 import { AsciiCurtain, HERO_CURTAIN } from "@/components/ascii-curtain";
 import type { AcpiData, AcpiHistoryPoint } from "@/lib/data";
@@ -12,9 +11,10 @@ import type { AcpiData, AcpiHistoryPoint } from "@/lib/data";
  *    index, and headline-figure.tsx already establishes up = --red / down =
  *    --green across the app. Rising compute prices are not good news, so the
  *    shipped convention wins over the mockup's colouring.
- * 2. The mockup carries its own <nav>. The app has <Header>, so nav is a slot
- *    rather than a second implementation — the page passes its header in and it
- *    renders over the curtain.
+ * 2. The mockup carries its own <nav>. The app has a sticky <Header>, which
+ *    stays at page level: nesting it here double-padded it (its own --pad-x
+ *    inside this section's) and confined position:sticky to a 100vh block, so
+ *    the nav scrolled away. Persistent nav beats the overlay effect.
  *
  * Values are real: $4.99 and "1.42%" in the mockup were placeholders.
  */
@@ -45,11 +45,9 @@ function delta24h(history: AcpiHistoryPoint[], current: number): number | null {
 export function HeroSection({
   acpi,
   history,
-  nav,
 }: {
   acpi: AcpiData | null;
   history: AcpiHistoryPoint[];
-  nav?: ReactNode;
 }) {
   const value = acpi?.acpi ?? null;
   const change = value !== null ? delta24h(history, value) : null;
@@ -94,8 +92,6 @@ export function HeroSection({
           flex: 1,
         }}
       >
-        {nav}
-
         <div className="hero-main-row">
           <div style={{ maxWidth: 460 }}>
             <div style={{ width: 64, height: 1, background: "var(--line)", marginBottom: 26 }} />

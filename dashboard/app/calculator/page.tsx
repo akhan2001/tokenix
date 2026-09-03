@@ -26,7 +26,7 @@ export default function CalculatorPage() {
         {/* Page masthead — the calculator itself loads its own data client-side */}
         <section
           style={{
-            padding: "var(--space-section-sm) 48px 0",
+            padding: "var(--space-section-sm) var(--pad-x) 0",
             borderBottom: "1px solid var(--border)",
           }}
           className="calc-wrap"

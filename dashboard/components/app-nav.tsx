@@ -22,7 +22,7 @@ export function AppNav({ page, connected = false }: AppNavProps) {
         maxWidth: 1200,
         margin: "0 auto",
         width: "100%",
-        padding: "0 48px",
+        padding: "0 var(--pad-x)",
         borderBottom: "1px solid var(--border)",
         display: "flex",
         justifyContent: "space-between",

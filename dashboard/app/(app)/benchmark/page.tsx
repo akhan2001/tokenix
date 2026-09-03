@@ -100,7 +100,7 @@ export default async function BenchmarkPage() {
     return (
       <>
         <AppNav page="benchmark" connected />
-        <section style={{ maxWidth: 1200, margin: "0 auto", padding: "var(--space-section-md) 48px" }}>
+        <section style={{ maxWidth: 1200, margin: "0 auto", padding: "var(--space-section-md) var(--pad-x)" }}>
           <EmptyState
             title="Could not load the benchmark"
             body={
@@ -126,7 +126,7 @@ export default async function BenchmarkPage() {
 
       <section
         className="app-wrap"
-        style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "var(--space-section-sm) 48px var(--space-section-xs)" }}
+        style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "var(--space-section-sm) var(--pad-x) var(--space-section-xs)" }}
       >
         <h1 className="sr-only">Benchmark</h1>
         <HeadlineFigure
@@ -168,7 +168,7 @@ export default async function BenchmarkPage() {
       </section>
 
       {data.models.length === 0 ? (
-        <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 48px 64px" }}>
+        <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 var(--pad-x) 64px" }}>
           <EmptyState
             title="Nothing to benchmark yet"
             body="Once priced traffic flows through the gateway, this page compares it with the market rate model by model."
@@ -179,7 +179,7 @@ export default async function BenchmarkPage() {
           {/* Headline ledger line */}
           <section
             className="app-wrap"
-            style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "0 48px 40px" }}
+            style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "0 var(--pad-x) 40px" }}
           >
             <div
               className="bench-headline"
@@ -247,7 +247,7 @@ export default async function BenchmarkPage() {
           {/* Per-model table */}
           <section
             className="app-wrap"
-            style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "0 48px 48px" }}
+            style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "0 var(--pad-x) var(--space-section-sm)" }}
           >
             <div style={{ overflowX: "auto" }}>
               <table
@@ -350,7 +350,7 @@ export default async function BenchmarkPage() {
           {data.opportunities.length > 0 && (
             <section
               className="app-wrap"
-              style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "0 48px 64px" }}
+              style={{ maxWidth: 1200, margin: "0 auto", width: "100%", padding: "0 var(--pad-x) 64px" }}
             >
               <div className="sec-kicker">Where the money is</div>
               <div
