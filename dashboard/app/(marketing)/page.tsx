@@ -1,12 +1,10 @@
 import { loadPrices, loadAcpi, loadAcpiHistory } from "@/lib/data";
-import { Header } from "@/components/header";
 import { HeroSection } from "@/components/sections/hero-section";
 import { ProblemSection } from "@/components/sections/problem-section";
 import { IndexSection } from "@/components/sections/index-section";
 import { GatewaySection } from "@/components/sections/gateway-section";
 import { MethodologySection } from "@/components/sections/methodology-section";
 import { CtaSection } from "@/components/sections/cta-section";
-import { Footer } from "@/components/footer";
 
 export const dynamic = "force-dynamic";
 
@@ -30,9 +28,7 @@ export default function Home() {
   const providerCount = new Set(rows.map((r) => r.provider).filter(Boolean)).size;
 
   return (
-    <div style={{ background: "var(--bg)", color: "var(--text)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      <Header page="index" />
-
+    <>
       {/* ── HERO ─────────────────────────────────────────────── */}
       <HeroSection acpi={acpiData} history={acpiHistory} />
 
@@ -59,8 +55,6 @@ export default function Home() {
       />
 
       <CtaSection />
-
-      <Footer />
-    </div>
+    </>
   );
 }

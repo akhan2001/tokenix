@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import { TokenCalculator } from "@/components/token-calculator";
 
 export const metadata: Metadata = {
@@ -11,18 +9,7 @@ export const metadata: Metadata = {
 
 export default function CalculatorPage() {
   return (
-    <div
-      style={{
-        background: "var(--bg)",
-        color: "var(--text)",
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <Header page="calculator" />
-
-      <main style={{ flex: 1 }}>
+    <main style={{ flex: 1 }}>
         {/* Page masthead — the calculator itself loads its own data client-side */}
         <section
           style={{
@@ -62,9 +49,6 @@ export default function CalculatorPage() {
         </section>
 
         <TokenCalculator />
-      </main>
-
-      <Footer />
-    </div>
+    </main>
   );
 }

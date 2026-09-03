@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Show } from "@clerk/nextjs";
 import { Container, WORDMARK } from "@/components/primitives";
 
@@ -14,13 +17,26 @@ import { Container, WORDMARK } from "@/components/primitives";
  * <Show> is the Core 3 replacement for <SignedIn>/<SignedOut>, which v7 removed
  * — the old names typecheck fine and then throw at prerender, so the build is
  * the only thing that catches them.
+ *
+ * Active state used to be a `page` prop threaded in by every marketing page
+ * individually. Since app/(marketing)/layout.tsx now mounts this once for all
+ * three pages, there is no per-page call site left to pass one — so it reads
+ * its own pathname instead. This is a client component for that reason alone;
+ * everything else here is static.
  */
-interface HeaderProps {
-  /** Which nav item to highlight. "index" = homepage, "screener" = screener page. */
-  page?: "index" | "screener" | "calculator" | "methodology";
+type NavKey = "screener" | "calculator";
+
+function activeKey(pathname: string): NavKey | null {
+  if (pathname.startsWith("/screener")) return "screener";
+  if (pathname.startsWith("/calculator")) return "calculator";
+  return null;
 }
 
-export function Header({ page = "index" }: HeaderProps) {
+export function Header() {
+  const pathname = usePathname();
+  const active = activeKey(pathname);
+  const onScreener = active === "screener";
+
   return (
     <nav
       style={{
@@ -62,7 +78,7 @@ export function Header({ page = "index" }: HeaderProps) {
           <li key={key}>
             <Link
               href={href}
-              className={`nav-link${page === key ? " active" : ""}`}
+              className={`nav-link${active === key ? " active" : ""}`}
             >
               {label}
             </Link>
@@ -75,7 +91,7 @@ export function Header({ page = "index" }: HeaderProps) {
         <Show
           when="signed-in"
           fallback={
-            page === "screener" ? (
+            onScreener ? (
               <Link href="/" className="nav-cta">
                 ← Index
               </Link>
