@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AsciiCurtain, FOOTER_CURTAIN } from "@/components/ascii-curtain";
+import { H2, BODY, LINK } from "@/components/primitives";
 
 /**
  * Closing CTA, backed by the quietest of the three curtains.
@@ -45,31 +46,20 @@ export function CtaSection() {
 
       <div style={{ position: "relative", zIndex: 2, textAlign: "center", padding: "0 24px" }}>
         <h2
-          style={{
-            fontFamily: "var(--sans)",
-            fontWeight: 200,
-            fontSize: "clamp(28px, 3.6vw, 42px)",
-            letterSpacing: "-0.005em",
-            margin: "0 0 14px",
-            color: "var(--ink)",
-          }}
+          style={{ ...H2, marginBottom: 14, color: "var(--ink)" }}
         >
           Know the price before you pay it.
         </h2>
-        <p style={{ fontSize: 15, color: "var(--ink-dim)", margin: "0 0 26px" }}>
+        <p style={{ ...BODY, color: "var(--ink-dim)", marginBottom: 26 }}>
           One line of code. Free to start.
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <Link
             href="/screener"
             style={{
-              fontFamily: "var(--sans)",
-              fontSize: 14.5,
-              fontWeight: 500,
+              ...LINK,
               padding: "12px 22px",
               borderRadius: 3,
-              textDecoration: "none",
-              display: "inline-block",
               background: "transparent",
               color: "var(--ink)",
               border: "1px solid var(--line)",
@@ -80,13 +70,9 @@ export function CtaSection() {
           <Link
             href="/connect"
             style={{
-              fontFamily: "var(--sans)",
-              fontSize: 14.5,
-              fontWeight: 500,
+              ...LINK,
               padding: "12px 22px",
               borderRadius: 3,
-              textDecoration: "none",
-              display: "inline-block",
               background: "var(--amber)",
               color: "#0a0b0d",
             }}

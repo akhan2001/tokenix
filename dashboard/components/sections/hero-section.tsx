@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Container } from "@/components/primitives";
+import { Container, DISPLAY, FIGURE, LABEL } from "@/components/primitives";
 import { AsciiCurtain, HERO_CURTAIN } from "@/components/ascii-curtain";
 import type { AcpiData, AcpiHistoryPoint } from "@/lib/data";
 
@@ -98,15 +98,7 @@ export function HeroSection({
           <div style={{ maxWidth: 460 }}>
             <div style={{ width: 64, height: 1, background: "var(--line)", marginBottom: 26 }} />
             <h1
-              style={{
-                fontFamily: "var(--sans)",
-                fontWeight: 300,
-                fontSize: "clamp(40px, 5.2vw, 72px)",
-                lineHeight: 1.04,
-                letterSpacing: "0.002em",
-                margin: "0 0 30px",
-                color: "var(--ink)",
-              }}
+              style={{ ...DISPLAY, marginBottom: 30, color: "var(--ink)" }}
             >
               The price of
               <br />
@@ -120,9 +112,7 @@ export function HeroSection({
                 gap: 8,
                 color: "var(--ink-dim)",
                 textDecoration: "none",
-                fontFamily: "var(--mono)",
-                fontSize: 12.5,
-                letterSpacing: "0.03em",
+                ...LABEL,
                 borderTop: "1px solid var(--line)",
                 paddingTop: 16,
               }}
@@ -143,9 +133,7 @@ export function HeroSection({
             />
             <div
               style={{
-                fontFamily: "var(--mono)",
-                fontSize: 12,
-                letterSpacing: "0.06em",
+                ...LABEL,
                 color: "var(--ink-dim)",
                 marginBottom: 6,
               }}
@@ -154,9 +142,7 @@ export function HeroSection({
             </div>
             <div
               style={{
-                fontFamily: "var(--mono)",
-                fontSize: 11,
-                letterSpacing: "0.04em",
+                ...LABEL,
                 color: "var(--ink-dim)",
                 opacity: 0.7,
                 marginBottom: 22,
@@ -166,11 +152,7 @@ export function HeroSection({
             </div>
             <div
               style={{
-                fontFamily: "var(--sans)",
-                fontWeight: 300,
-                fontSize: "clamp(52px, 6.4vw, 88px)",
-                lineHeight: 1,
-                letterSpacing: "-0.01em",
+                ...FIGURE,
                 marginBottom: 14,
                 color: "var(--ink)",
               }}
@@ -179,9 +161,7 @@ export function HeroSection({
             </div>
             <div
               style={{
-                fontFamily: "var(--mono)",
-                fontSize: 12,
-                letterSpacing: "0.06em",
+                ...LABEL,
                 color: "var(--ink-dim)",
                 marginBottom: 10,
               }}
@@ -190,9 +170,7 @@ export function HeroSection({
             </div>
             <div
               style={{
-                fontFamily: "var(--mono)",
-                fontSize: 13,
-                letterSpacing: "0.02em",
+                ...LABEL,
                 color: toneColor,
               }}
             >

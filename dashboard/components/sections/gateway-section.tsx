@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Container } from "@/components/primitives";
+import { Container, H2, BODY, LINK, LABEL, LABEL_SM, FIGURE_SM, DATA } from "@/components/primitives";
 
 /**
  * Landing-page teaser for the gateway: what a month costs at the ACPI market
@@ -72,36 +72,24 @@ export function GatewaySection({
       <Container>
       <div style={{ maxWidth: 640, marginBottom: 44 }}>
         <h2
-          style={{
-            fontFamily: "var(--sans)",
-            fontWeight: 600,
-            fontSize: "clamp(30px, 3.4vw, 42px)",
-            letterSpacing: "-0.01em",
-            margin: "0 0 20px",
-            color: "var(--ink)",
-          }}
+          style={{ ...H2, marginBottom: 20, color: "var(--ink)" }}
         >
           Price it before you spend it.
         </h2>
-        <p style={{ fontSize: 15.5, lineHeight: 1.7, color: "var(--ink-dim)", margin: "0 0 14px" }}>
+        <p style={{ ...BODY, color: "var(--ink-dim)", marginBottom: 14 }}>
           Route through the gateway and every request is benchmarked against ACPI in real time — no
           blended contract to renegotiate, no dashboard that only shows the damage after the invoice
           lands.
         </p>
-        <p style={{ fontSize: 15.5, lineHeight: 1.7, color: "var(--ink-dim)", margin: "0 0 14px" }}>
+        <p style={{ ...BODY, color: "var(--ink-dim)", marginBottom: 14 }}>
           One line of code. No per-model SKUs, no annual commit to unlock visibility, no waiting on
           finance to reconcile the bill.
         </p>
         <Link
           href="/connect"
           style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
+            ...LINK,
             color: "var(--amber-hot)",
-            textDecoration: "none",
-            fontSize: 14.5,
-            fontWeight: 500,
             marginTop: 10,
           }}
         >
@@ -130,8 +118,7 @@ export function GatewaySection({
             <div
               style={{
                 display: "inline-flex",
-                fontFamily: "var(--mono)",
-                fontSize: 12,
+                ...LABEL,
                 color: "var(--ink)",
                 border: "1px solid var(--line-strong)",
                 borderRadius: 999,
@@ -181,8 +168,7 @@ export function GatewaySection({
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                fontFamily: "var(--mono)",
-                fontSize: 10.5,
+                ...LABEL_SM,
                 color: "var(--ink-faint)",
                 marginTop: 6,
               }}
@@ -198,10 +184,7 @@ export function GatewaySection({
           <div className="gw-price" style={{ flexShrink: 0, textAlign: "right" }}>
             <div
               style={{
-                fontFamily: "var(--mono)",
-                fontSize: 11,
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
+                ...LABEL_SM,
                 color: "var(--ink-dim)",
                 marginBottom: 8,
               }}
@@ -210,17 +193,14 @@ export function GatewaySection({
             </div>
             <div
               style={{
-                fontFamily: "var(--sans)",
-                fontWeight: 300,
-                fontSize: "clamp(34px, 4vw, 48px)",
-                lineHeight: 1,
+                ...FIGURE_SM,
                 color: "var(--ink)",
                 marginBottom: 8,
               }}
             >
               {fmtUsd(spend)}
             </div>
-            <div style={{ fontFamily: "var(--mono)", fontSize: 11.5, color: "var(--ink-faint)" }}>
+            <div style={{ ...LABEL, color: "var(--ink-faint)" }}>
               at the ACPI market rate · {fmtUsd(acpiRate)}/1M blended
             </div>
           </div>
@@ -234,9 +214,7 @@ export function GatewaySection({
         >
           <div
             style={{
-              fontFamily: "var(--mono)",
-              fontSize: 10.5,
-              letterSpacing: "0.1em",
+              ...LABEL_SM,
               color: "var(--ink-faint)",
               marginBottom: 16,
             }}
@@ -263,7 +241,7 @@ export function GatewaySection({
               >
                 <span style={{ color: "var(--ink-dim)" }}>{m.name}</span>
                 <span
-                  style={{ fontFamily: "var(--mono)", color: "var(--ink)", whiteSpace: "nowrap" }}
+                  style={{ ...DATA, color: "var(--ink)", whiteSpace: "nowrap" }}
                 >
                   {fmtUsd(millions * m.blended)}
                 </span>
@@ -273,13 +251,8 @@ export function GatewaySection({
           <Link
             href="/calculator"
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
+              ...LINK,
               color: "var(--amber-hot)",
-              textDecoration: "none",
-              fontSize: 13.5,
-              fontWeight: 500,
               marginTop: 18,
             }}
           >

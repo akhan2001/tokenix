@@ -99,6 +99,14 @@
   /* Stack rhythm between blocks inside a section — Axiom's gap-8 / sm:gap-12. */
   --stack-gap: 32px;
 
+  /* Section heading. One definition; every h2 reads these rather than
+     redeclaring locally. Before this the five landing sections ran weight
+     200/300/600 across five size, line-height and tracking combinations. */
+  --h2-weight: 300;
+  --h2-size: clamp(30px, 3.6vw, 46px);
+  --h2-leading: 1.15;
+  --h2-tracking: -0.005em;
+
   /* shadcn compat aliases */
   --background: #07070a;
   --foreground: #f5f2ec;
@@ -215,8 +223,8 @@
 .nav-link {
   display: inline-flex;
   align-items: center;
-  font-size: 11px;
-  letter-spacing: 0.14em;
+  font-size: 13px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text3);
   padding: 6px 14px;
@@ -229,8 +237,8 @@
 
 /* ── Nav CTA button ─────────────────────────────────────── */
 .nav-cta {
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text);
   padding: 9px 16px;

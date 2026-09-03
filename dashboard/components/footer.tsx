@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Container } from "@/components/primitives";
+import { Container, WORDMARK_SM, LABEL } from "@/components/primitives";
 
 /**
  * Ported to the two-row form from data/tokenix-cta-footer.html: identity and
@@ -39,13 +39,7 @@ export function Footer() {
         }}
       >
         <div
-          style={{
-            fontFamily: "var(--mono)",
-            fontSize: 13,
-            fontWeight: 500,
-            letterSpacing: "0.08em",
-            color: "var(--ink)",
-          }}
+          style={{ ...WORDMARK_SM, color: "var(--ink)" }}
         >
           TOKENIX
         </div>
@@ -65,8 +59,7 @@ export function Footer() {
           justifyContent: "space-between",
           flexWrap: "wrap",
           gap: 12,
-          fontFamily: "var(--mono)",
-          fontSize: 11.5,
+          ...LABEL,
           color: "var(--ink-faint)",
         }}
       >

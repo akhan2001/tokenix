@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { PriceRow } from "@/lib/data";
-import { Container } from "@/components/primitives";
+import { Container, H2, BODY, LINK, LABEL, DATA } from "@/components/primitives";
 
 /**
  * Landing-page teaser for the index. Intro copy plus a glimpse of real rows,
@@ -28,11 +28,11 @@ import { Container } from "@/components/primitives";
 
 const COL = {
   model: { flex: "1 1 auto", minWidth: 0, paddingRight: 12 },
-  provider: { width: 130, fontFamily: "var(--mono)", fontSize: 12, color: "var(--ink-dim)" },
-  price: { width: 110, fontFamily: "var(--mono)", fontSize: 12.5 },
-  blended: { width: 110, fontFamily: "var(--mono)", fontSize: 12.5 },
-  context: { width: 90, fontFamily: "var(--mono)", fontSize: 12, color: "var(--ink-dim)" },
-  updated: { width: 90, fontFamily: "var(--mono)", fontSize: 12, color: "var(--ink-dim)" },
+  provider: { width: 130, ...DATA, color: "var(--ink-dim)" },
+  price: { width: 110, ...DATA },
+  blended: { width: 110, ...DATA },
+  context: { width: 90, ...DATA, color: "var(--ink-dim)" },
+  updated: { width: 90, ...DATA, color: "var(--ink-dim)" },
 } as const;
 
 const ROW = {
@@ -101,35 +101,23 @@ export function IndexSection({
       <Container>
       <div style={{ maxWidth: 640, marginBottom: 44 }}>
         <h2
-          style={{
-            fontFamily: "var(--sans)",
-            fontWeight: 600,
-            fontSize: "clamp(30px, 3.4vw, 42px)",
-            letterSpacing: "-0.01em",
-            margin: "0 0 20px",
-            color: "var(--ink)",
-          }}
+          style={{ ...H2, marginBottom: 20, color: "var(--ink)" }}
         >
           No model priced blind.
         </h2>
-        <p style={{ fontSize: 15.5, lineHeight: 1.7, color: "var(--ink-dim)", margin: "0 0 14px" }}>
+        <p style={{ ...BODY, color: "var(--ink-dim)", marginBottom: 14 }}>
           Every model tracked by ACPI, in one table — live price per million tokens, provider,
           blended rate, and context window, refreshed hourly from {providerCount} sources.
         </p>
-        <p style={{ fontSize: 15.5, lineHeight: 1.7, color: "var(--ink-dim)", margin: "0 0 14px" }}>
+        <p style={{ ...BODY, color: "var(--ink-dim)", marginBottom: 14 }}>
           No bundled SKUs, no vendor-quoted rate cards. Filter, sort, and compare the same numbers
           your team uses to decide what to actually run.
         </p>
         <Link
           href="/screener"
           style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
+            ...LINK,
             color: "var(--amber-hot)",
-            textDecoration: "none",
-            fontSize: 14.5,
-            fontWeight: 500,
             marginTop: 10,
           }}
         >
@@ -154,8 +142,7 @@ export function IndexSection({
               height: 46,
               padding: "0 16px",
               borderBottom: "1px solid var(--line)",
-              fontFamily: "var(--mono)",
-              fontSize: 12.5,
+              ...LABEL,
             }}
           >
             <span style={{ color: "var(--ink-dim)" }}>Screener</span>
@@ -171,7 +158,7 @@ export function IndexSection({
                   display: "flex",
                   alignItems: "center",
                   gap: 6,
-                  fontFamily: "var(--sans)",
+                  ...LINK,
                   fontSize: 12,
                   color: "var(--ink)",
                   border: "1px solid var(--line-strong)",
@@ -191,10 +178,8 @@ export function IndexSection({
               alignItems: "center",
               height: 38,
               padding: "0 16px",
-              fontFamily: "var(--mono)",
-              fontSize: 11,
+              ...LABEL,
               color: "var(--ink-faint)",
-              letterSpacing: "0.02em",
             }}
           >
             <div style={COL.model}>Model</div>

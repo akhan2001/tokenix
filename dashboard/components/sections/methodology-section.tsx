@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Container } from "@/components/primitives";
+import { Container, H2, H3, BODY, BODY_SM, LINK, LABEL, DATA } from "@/components/primitives";
 
 /**
  * How ACPI is priced — the three inputs and the formula.
@@ -67,9 +67,7 @@ export function MethodologySection({
           <div
             style={{
               display: "inline-flex",
-              fontFamily: "var(--mono)",
-              fontSize: 11,
-              letterSpacing: "0.08em",
+              ...LABEL,
               color: "var(--ink-dim)",
               border: "1px solid var(--line-strong)",
               borderRadius: 4,
@@ -80,15 +78,7 @@ export function MethodologySection({
             METHODOLOGY
           </div>
           <h2
-            style={{
-              fontFamily: "var(--sans)",
-              fontWeight: 300,
-              fontSize: "clamp(30px, 3.8vw, 46px)",
-              lineHeight: 1.15,
-              letterSpacing: "-0.005em",
-              margin: "0 0 18px",
-              color: "var(--ink)",
-            }}
+            style={{ ...H2, marginBottom: 18, color: "var(--ink)" }}
           >
             How ACPI is priced.
           </h2>
@@ -126,9 +116,7 @@ export function MethodologySection({
               >
                 <span
                   style={{
-                    fontFamily: "var(--mono)",
-                    fontSize: 11,
-                    letterSpacing: "0.04em",
+                    ...LABEL,
                     color: "var(--ink-faint)",
                     textAlign: "center",
                     lineHeight: 1.6,
@@ -141,10 +129,10 @@ export function MethodologySection({
                   {s.slot}
                 </span>
               </div>
-              <div style={{ fontSize: 17, fontWeight: 500, margin: "0 0 8px", color: "var(--ink)" }}>
+              <div style={{ ...H3, marginBottom: 8, color: "var(--ink)" }}>
                 {s.title}
               </div>
-              <p style={{ fontSize: 13.5, lineHeight: 1.6, color: "var(--ink-dim)", margin: 0 }}>
+              <p style={{ ...BODY_SM, color: "var(--ink-dim)" }}>
                 {s.desc(providerCount, modelCount)}
               </p>
             </div>
@@ -167,7 +155,7 @@ export function MethodologySection({
         >
           <div
             style={{
-              fontFamily: "var(--mono)",
+              ...DATA,
               fontSize: 13.5,
               color: "var(--ink)",
               whiteSpace: "nowrap",
@@ -183,13 +171,8 @@ export function MethodologySection({
           <Link
             href="/methodology"
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
+              ...LINK,
               color: "var(--amber-hot)",
-              textDecoration: "none",
-              fontFamily: "var(--mono)",
-              fontSize: 12.5,
               flexShrink: 0,
             }}
           >

@@ -1,4 +1,4 @@
-import { Container } from "@/components/primitives";
+import { Container, WORDMARK } from "@/components/primitives";
 
 interface HeaderProps {
   /** Which nav item to highlight. "index" = homepage, "screener" = screener page. */
@@ -10,7 +10,7 @@ export function Header({ page = "index" }: HeaderProps) {
     <nav
       style={{
         padding: "18px var(--pad-x)",
-        borderBottom: "1px solid var(--border)",
+        // borderBottom: "1px solid var(--border)",
         position: "sticky",
         top: 0,
         zIndex: 100,
@@ -24,14 +24,7 @@ export function Header({ page = "index" }: HeaderProps) {
       {/* Logo */}
       <a
         href="/"
-        style={{
-          fontFamily: "var(--sans)",
-          fontSize: 18,
-          fontWeight: 700,
-          letterSpacing: "0.04em",
-          color: "var(--text)",
-          textDecoration: "none",
-        }}
+        style={{ ...WORDMARK, color: "var(--text)" }}
       >
         Token<span style={{ color: "var(--accent)" }}>ix</span>
       </a>
