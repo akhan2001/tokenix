@@ -8,7 +8,7 @@ import {
   linkKeyAction,
   type ConnectState,
 } from "@/app/(app)/dashboard/connect-actions";
-import { WorkspaceKey } from "@/components/workspace-key";
+import { WorkspaceKey, primaryButton } from "@/components/workspace-key";
 
 /**
  * First-run choice: claim an existing workspace, or start a new one.
@@ -26,8 +26,8 @@ import { WorkspaceKey } from "@/components/workspace-key";
 function LinkButton() {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" className="btn-primary" disabled={pending} style={{ border: "none" }}>
-      {pending ? "Linking…" : "Link this key"} <span>→</span>
+    <button type="submit" disabled={pending} style={{ ...primaryButton, opacity: pending ? 0.6 : 1 }}>
+      {pending ? "Linking…" : "Link this key →"}
     </button>
   );
 }
@@ -37,11 +37,18 @@ function CreateButton() {
   return (
     <button
       type="submit"
-      className="btn-text"
       disabled={pending}
-      style={{ border: "none", background: "none", cursor: "pointer", padding: 0 }}
+      style={{
+        border: "none",
+        background: "none",
+        cursor: "pointer",
+        padding: 0,
+        fontSize: 13,
+        color: "var(--accent)",
+        opacity: pending ? 0.6 : 1,
+      }}
     >
-      {pending ? "Creating…" : "Create a new workspace"} <span className="arr">→</span>
+      {pending ? "Creating…" : "Create a new workspace →"}
     </button>
   );
 }
@@ -83,15 +90,16 @@ export function WorkspaceSetup({ mode = "setup" }: { mode?: "setup" | "relink" }
             fontFamily: "var(--mono)",
             fontSize: 13,
             padding: "12px 14px",
-            background: "var(--s1)",
-            border: `1px solid ${linkState.error ? "var(--red)" : "var(--border2)"}`,
+            borderRadius: "var(--dash-radius-control)",
+            background: "var(--s2)",
+            border: `1px solid ${linkState.error ? "var(--red)" : "var(--border)"}`,
             color: "var(--text)",
             outline: "none",
             width: "100%",
           }}
         />
         {linkState.error && !showKey && (
-          <div role="alert" style={{ fontSize: 11, color: "var(--red)", lineHeight: 1.7 }}>
+          <div role="alert" style={{ fontSize: 12, color: "var(--red)", lineHeight: 1.7 }}>
             {linkState.error}
           </div>
         )}
@@ -101,40 +109,36 @@ export function WorkspaceSetup({ mode = "setup" }: { mode?: "setup" | "relink" }
       </form>
 
       {mode === "setup" && (
-      <div style={{ borderTop: "1px solid var(--border)", paddingTop: 22 }}>
-        <div style={labelStyle}>New here?</div>
-        <p style={helpStyle}>
-          We will issue a workspace and its key. The key is shown once and cannot be recovered
-          afterwards.
-        </p>
-        <form action={createAction}>
-          <CreateButton />
-        </form>
-        {createState.error && (
-          <div
-            role="alert"
-            style={{ fontSize: 11, color: "var(--red)", lineHeight: 1.7, marginTop: 10 }}
-          >
-            {createState.error}
-          </div>
-        )}
-      </div>
+        <div style={{ borderTop: "1px solid var(--border)", paddingTop: 22 }}>
+          <div style={labelStyle}>New here?</div>
+          <p style={helpStyle}>
+            We will issue a workspace and its key. The key is shown once and cannot be recovered
+            afterwards.
+          </p>
+          <form action={createAction}>
+            <CreateButton />
+          </form>
+          {createState.error && (
+            <div role="alert" style={{ fontSize: 12, color: "var(--red)", lineHeight: 1.7, marginTop: 10 }}>
+              {createState.error}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
 }
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 9,
-  letterSpacing: "0.2em",
-  textTransform: "uppercase",
-  color: "var(--text3)",
+  fontSize: 12,
+  fontWeight: 500,
+  color: "var(--text)",
   marginBottom: 8,
 };
 
 const helpStyle: React.CSSProperties = {
-  fontSize: 11,
-  color: "var(--text3)",
-  lineHeight: 1.85,
+  fontSize: 12,
+  color: "var(--text2)",
+  lineHeight: 1.75,
   margin: "0 0 6px",
 };

@@ -9,10 +9,10 @@ import { Container, WORDMARK } from "@/components/primitives";
  * The public site's nav.
  *
  * This is marketing chrome and belongs only to anonymous traffic — the product
- * area under app/(app) carries <AppHeader> instead. What it does owe a
- * signed-in visitor is a way back: someone who already pays for this landing on
- * the homepage should see "Dashboard", not a pitch for the screener they are
- * already entitled to.
+ * area under app/(app) carries its own icon-rail <Sidebar> instead, with no
+ * top bar at all. What this header does owe a signed-in visitor is a way
+ * back: someone who already pays for this landing on the homepage should see
+ * "Dashboard", not a pitch for the screener they are already entitled to.
  *
  * <Show> is the Core 3 replacement for <SignedIn>/<SignedOut>, which v7 removed
  * — the old names typecheck fine and then throw at prerender, so the build is

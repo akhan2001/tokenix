@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
-import { AppNav } from "@/components/app-nav";
-import { StepTag } from "@/components/onboarding/step-tag";
+import { DashPageHeader } from "@/components/dashboard/dash-page-header";
+import { DashCard } from "@/components/dashboard/dash-card";
+import { ProviderConnections } from "@/components/dashboard/provider-connections";
 import { CodeBlock, type Snippet } from "@/components/code-block";
-import { Container, H2, H3, BODY_SM, DATA } from "@/components/primitives";
 import { WorkspaceKey } from "@/components/workspace-key";
 import { WorkspaceSetup } from "@/components/workspace-setup";
 import { requireClerkUser } from "@/lib/require-key";
@@ -19,88 +19,67 @@ export const metadata: Metadata = {
 const GATEWAY_URL =
   process.env.NEXT_PUBLIC_TOKENIX_GATEWAY_URL ?? "https://gateway.tokenixindex.com";
 
-const SNIPPETS: Snippet[] = [
-  {
-    id: "python",
-    label: "Python",
-    lang: "python",
-    code: `from openai import OpenAI
+function buildSnippets(key: string): Snippet[] {
+  const base = `${GATEWAY_URL}/openai/v1`;
+  return [
+    {
+      id: "python",
+      label: "Python",
+      lang: "python",
+      code: ["from openai import OpenAI", "", "client = OpenAI(", `    api_key="${key}",`, `    base_url="${base}",`, ")"].join("\n"),
+    },
+    {
+      id: "typescript",
+      label: "TypeScript",
+      lang: "typescript",
+      code: [
+        'import OpenAI from "openai";',
+        "",
+        "const client = new OpenAI({",
+        `  apiKey: "${key}",`,
+        `  baseURL: "${base}",`,
+        "});",
+      ].join("\n"),
+    },
+    {
+      id: "curl",
+      label: "cURL",
+      lang: "bash",
+      // Joined rather than written as one template literal: a trailing
+      // backslash before a newline is a line continuation in JS, so the
+      // shell's own continuations get eaten and the command collapses onto
+      // one line.
+      code: [
+        `curl ${base}/chat/completions \\`,
+        `  -H "Authorization: Bearer ${key}" \\`,
+        '  -H "Content-Type: application/json" \\',
+        `  -d '{"model":"gpt-4o-mini","messages":[{"role":"user","content":"hi"}]}'`,
+      ].join("\n"),
+    },
+  ];
+}
 
-client = OpenAI(
-    api_key="txk-your-tokenix-key",
-    base_url="${GATEWAY_URL}/openai/v1",
-)`,
-  },
-  {
-    id: "typescript",
-    label: "TypeScript",
-    lang: "typescript",
-    code: `import OpenAI from "openai";
-
-const client = new OpenAI({
-  apiKey: "txk-your-tokenix-key",
-  baseURL: "${GATEWAY_URL}/openai/v1",
-});`,
-  },
-  {
-    id: "curl",
-    label: "cURL",
-    lang: "bash",
-    // Joined rather than written as one template literal: a trailing backslash
-    // before a newline is a line continuation in JS, so the shell's own
-    // continuations get eaten and the command collapses onto a single line.
-    code: [
-      `curl ${GATEWAY_URL}/openai/v1/chat/completions \\`,
-      `  -H "Authorization: Bearer txk-your-tokenix-key" \\`,
-      `  -H "Content-Type: application/json" \\`,
-      `  -d '{"model":"gpt-4o-mini","messages":[{"role":"user","content":"hi"}]}'`,
-    ].join("\n"),
-  },
+const STEPS = [
+  { title: "Take your key" },
+  { title: "Add provider credentials" },
+  { title: "Change the base URL" },
 ];
 
 /**
- * Steps, tightened to one claim each.
+ * Onboarding for an existing workspace, on the same Card/Inter system as
+ * Overview — DashCard surfaces, one header row, no `.sec-kicker`/`■`
+ * mono-caps labels. Two earlier passes at this page restyled individual
+ * pieces within the marketing system rather than moving it onto the actual
+ * dashboard tokens; this rebuild does the latter.
  *
- * They were three-paragraph prose blocks in a 38px-gutter list. Nobody reads
- * three paragraphs to find out that they change a base URL, and at four steps
- * of that length the left column ran roughly twice the height of the panel
- * beside it — which is what made the page look unbalanced and left the sticky
- * card stranded in dead space near the bottom.
- *
- * Three steps in an equal grid instead, with the detail that actually needs
- * space — the code — promoted out into its own full-width panel below.
+ * The snippet's key stays a fixed placeholder rather than tracking the key
+ * card's Reveal toggle. `provisionWorkspace` returns the plaintext exactly
+ * once, at mint time — that moment is KeyRevealModal, which already
+ * substitutes the real key into an identical snippet. Once minted, the
+ * server holds only a SHA-256 hash and the 12-character prefix returned
+ * here as `keyPrefix`, so this page's Reveal toggle can only ever unmask
+ * that prefix — there is no full key anywhere for the snippet to adopt.
  */
-const STEPS = [
-  {
-    title: "Take your key",
-    body: (
-      <>
-        It looks like <code style={{ fontFamily: "var(--mono)" }}>txk-…</code> and is issued once.
-        It is not recoverable afterwards — lose it and you issue a new one.
-      </>
-    ),
-  },
-  {
-    title: "Add your provider credentials",
-    body: (
-      <>
-        Your own OpenAI, Anthropic or Google keys, encrypted at rest and decrypted only for the
-        length of one upstream call. You keep your existing accounts and billing.
-      </>
-    ),
-  },
-  {
-    title: "Change the base URL",
-    body: (
-      <>
-        Nothing else about your code moves. Use <code style={{ fontFamily: "var(--mono)" }}>/anthropic/v1</code>{" "}
-        or <code style={{ fontFamily: "var(--mono)" }}>/google/v1</code> to reach those providers
-        through the same SDK.
-      </>
-    ),
-  },
-];
-
 export default async function ConnectPage() {
   const user = await requireClerkUser();
 
@@ -127,158 +106,103 @@ export default async function ConnectPage() {
         : "Something went wrong preparing your workspace. Try reloading in a moment.";
   }
 
-  const connected = problem === null;
-
   return (
-    <>
-      <AppNav page="connect" connected={connected} />
+    <section style={{ maxWidth: 1280, margin: "0 auto", width: "100%", padding: "30px 34px 34px" }}>
+      <DashPageHeader title="Connect" subtitle="Point your existing SDK at the Tokenix gateway" />
 
-      {/* 1080, matching AppNav. It was 1200 against the nav's 1080, so the tab
-          bar and the page content did not share a left edge. */}
-      <Container
-        style={{ padding: "var(--space-section-sm) var(--pad-x) var(--space-section-md)" }}
-      >
-        <div className="sec-kicker">Onboarding</div>
-        <h1 style={{ ...H2, color: "var(--ink)", marginBottom: 16 }}>Connect your workspace.</h1>
-        <p style={{ ...BODY_SM, color: "var(--ink)", maxWidth: "56ch", marginBottom: 44 }}>
-          Point your existing OpenAI SDK at the Tokenix gateway. Every request keeps working exactly
-          as it does today — and each one gets priced against the ACPI on its way through.
-        </p>
-
-        {/* ── The workspace itself. Full width and first, because it is the
-            thing people come back to this page for. It used to sit in a
-            sticky right-hand column that ran out of content long before the
-            steps beside it did. ─────────────────────────────────────────── */}
-        <div
-          style={{
-            border: "1px solid var(--line-strong)",
-            borderRadius: "var(--radius-panel)",
-            background: "var(--panel)",
-            padding: "clamp(24px, 3vw, 34px)",
-            marginBottom: 64,
-          }}
-        >
-          <div className="sec-kicker">{needsSetup ? "Set up" : "Your workspace"}</div>
-          <h2 style={{ ...H3, color: "var(--ink)", margin: "0 0 10px" }}>
-            {needsSetup ? "Connect a workspace" : "You are connected"}
-          </h2>
-          <p style={{ ...BODY_SM, color: "var(--ink)", maxWidth: "60ch", marginBottom: 26 }}>
-            {problem
-              ? "Your workspace could not be prepared. The details are below."
-              : needsSetup
-                ? "Connect the workspace your traffic already flows through, or start a new one."
-                : "The key below authenticates your traffic through the gateway. It is separate from the account you signed in with."}
+      {problem ? (
+        <DashCard>
+          <div role="alert" style={{ fontSize: 12.5, color: "var(--red)" }}>
+            {problem}
+          </div>
+        </DashCard>
+      ) : needsSetup ? (
+        <DashCard padding="28px 30px">
+          <div style={{ fontSize: 14.5, fontWeight: 500, color: "var(--text)", marginBottom: 6 }}>
+            Connect a workspace
+          </div>
+          <p style={{ fontSize: 12.5, color: "var(--text2)", lineHeight: 1.7, maxWidth: "60ch", marginBottom: 22 }}>
+            Connect the workspace your traffic already flows through, or start a new one.
           </p>
+          <div style={{ maxWidth: 460 }}>
+            <WorkspaceSetup />
+          </div>
+        </DashCard>
+      ) : (
+        <>
+          <DashCard padding="20px 22px" style={{ marginBottom: 18 }}>
+            <WorkspaceKey apiKey={undefined} keyPrefix={keyPrefix} />
+          </DashCard>
 
-          {problem ? (
-            <div
-              role="alert"
-              style={{
-                ...BODY_SM,
-                color: "var(--red)",
-                border: "1px solid var(--red)",
-                borderRadius: "var(--radius-control)",
-                padding: "13px 16px",
-              }}
-            >
-              {problem}
-            </div>
-          ) : needsSetup ? (
-            <div style={{ maxWidth: 460 }}>
-              <WorkspaceSetup />
-            </div>
-          ) : (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-                gap: "clamp(28px, 4vw, 52px)",
-                alignItems: "start",
-              }}
-            >
-              <div>
-                <WorkspaceKey apiKey={undefined} keyPrefix={keyPrefix} />
-                <div style={{ marginTop: 26 }}>
-                  <a href="/dashboard" className="btn-primary">
-                    Open overview <span>→</span>
-                  </a>
-                </div>
-              </div>
-              {/* Anyone auto-provisioned before the setup choice existed already
-                  has a workspace, so they would never see the claim form —
-                  which is precisely who needs it. */}
-              <div>
-                <WorkspaceSetup mode="relink" />
-              </div>
-            </div>
-          )}
-        </div>
+          <div style={{ marginBottom: 24 }}>
+            <ProviderConnections />
+          </div>
 
-        {/* ── 2. How to connect. Equal columns, so nothing runs long. ───── */}
-        <div className="sec-kicker">Integration</div>
-        <h2 style={{ ...H2, fontSize: "clamp(24px, 2.4vw, 32px)", color: "var(--ink)", marginBottom: 36 }}>
-          Three changes, then you are done.
-        </h2>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-            gap: "clamp(24px, 3vw, 40px)",
-            marginBottom: 44,
-          }}
-        >
-          {STEPS.map((step, i) => (
-            <div key={step.title}>
-              <StepTag step={i + 1} total={STEPS.length} />
-              <h3 style={{ ...H3, color: "var(--ink)", margin: "0 0 10px" }}>{step.title}</h3>
-              <p style={{ ...BODY_SM, color: "var(--ink)", margin: 0 }}>{step.body}</p>
-            </div>
-          ))}
-        </div>
-
-        <div style={{ marginBottom: 56 }}>
-          <CodeBlock snippets={SNIPPETS} label="Snippet language" />
-        </div>
-
-        {/* ── 3. Optional, and it should read that way. ─────────────────── */}
-        <div style={{ borderTop: "1px solid var(--line)", paddingTop: 30 }}>
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: "clamp(24px, 4vw, 48px)",
-              alignItems: "start",
+              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+              gap: 14,
+              marginBottom: 24,
             }}
           >
-            <div>
-              <h3 style={{ ...H3, color: "var(--ink-dim)", margin: "0 0 10px" }}>
-                Tag your traffic
-              </h3>
-              <p style={{ ...BODY_SM, color: "var(--ink-faint)", margin: 0, maxWidth: "42ch" }}>
-                Optional. Send these headers to slice spend by product surface and environment on
-                the Insights page.
-              </p>
+            {STEPS.map((step, i) => (
+              <DashCard key={step.title} padding="16px 18px">
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 12, color: "var(--accent)" }}>{i + 1}</span>
+                  <span style={{ fontSize: 13, color: "var(--text)" }}>{step.title}</span>
+                </div>
+              </DashCard>
+            ))}
+          </div>
+
+          <DashCard padding="22px 24px" style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 14.5, fontWeight: 500, color: "var(--text)", marginBottom: 16 }}>
+              Change the base URL
             </div>
+            <CodeBlock snippets={buildSnippets("txk-your-tokenix-key")} label="Snippet language" />
+          </DashCard>
+
+          <DashCard padding="22px 24px" style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 13.5, fontWeight: 500, color: "var(--text2)", marginBottom: 6 }}>
+              Tag your traffic
+            </div>
+            <p style={{ fontSize: 12, color: "var(--text3)", lineHeight: 1.7, margin: "0 0 14px", maxWidth: "56ch" }}>
+              Optional. Send these headers to slice spend by product surface and environment on
+              the Insights page.
+            </p>
             <pre
               style={{
-                ...DATA,
+                fontFamily: "var(--mono)",
                 fontSize: 12.5,
                 lineHeight: 1.85,
-                color: "var(--ink-faint)",
+                color: "var(--text3)",
                 background: "var(--bg)",
-                border: "1px solid var(--line)",
-                borderRadius: "var(--radius-panel)",
-                padding: "16px 18px",
+                border: "1px solid var(--border)",
+                borderRadius: "var(--dash-radius-control)",
+                padding: "14px 16px",
                 margin: 0,
                 overflowX: "auto",
               }}
             >
               {"Tokenix-Feature:  search\nTokenix-Workload: production"}
             </pre>
-          </div>
-        </div>
-      </Container>
-    </>
+          </DashCard>
+
+          <DashCard padding="22px 24px">
+            <div style={{ fontSize: 14.5, fontWeight: 500, color: "var(--text)", marginBottom: 6 }}>
+              Connect a different workspace
+            </div>
+            <p style={{ fontSize: 12, color: "var(--text3)", lineHeight: 1.7, margin: "0 0 18px", maxWidth: "56ch" }}>
+              Anyone auto-provisioned before this setup choice existed already has a workspace, so
+              they would never see the claim form — which is precisely who needs it.
+            </p>
+            <div style={{ maxWidth: 460 }}>
+              <WorkspaceSetup mode="relink" />
+            </div>
+          </DashCard>
+        </>
+      )}
+    </section>
   );
 }

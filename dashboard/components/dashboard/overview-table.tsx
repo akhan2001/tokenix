@@ -8,13 +8,13 @@ import { fmtUsd, fmtPct, shortModel } from "@/lib/tokenix-api";
  * The breakdown, as one table both readers can use.
  *
  * Not two tables and not two dashboards. A CFO reads Spend and Δ vs ACPI and
- * stops; a CTO reads Model and Provider to decide what to route where. Sorting
- * is what lets them share it — each orders by the column they came for instead
- * of needing a view built for them, and neither has to be told which rows the
- * other cared about.
+ * stops; a CTO reads Model and Provider to decide what to route where.
  *
- * Sort state lives here rather than on the server: it is a reading preference,
- * not data, and a round trip per column click would make it feel broken.
+ * Typography: Inter throughout, including the numeric columns — the approved
+ * design (Claude Design "Tokenix Dashboard.dc.html") runs no monospace
+ * anywhere on this page, unlike the marketing site's price-table.tsx, which
+ * this was originally copied from. Only `font-variant-numeric: tabular-nums`
+ * carries over, so figures still align in a column.
  */
 
 export interface OverviewRow {
@@ -38,7 +38,6 @@ const COLUMNS: { key: SortKey; label: string; numeric: boolean }[] = [
   { key: "overpay_usd", label: "Δ vs ACPI", numeric: true },
 ];
 
-/** Matches components/price-table.tsx so the two tables sort alike. */
 function SortArrows({ col, sort }: { col: SortKey; sort: { key: SortKey; dir: SortDir } }) {
   const active = sort.key === col;
   return (
@@ -46,24 +45,8 @@ function SortArrows({ col, sort }: { col: SortKey; sort: { key: SortKey; dir: So
       aria-hidden
       style={{ display: "inline-flex", flexDirection: "column", marginLeft: 6, lineHeight: 1 }}
     >
-      <span
-        style={{
-          fontSize: 7,
-          lineHeight: 1,
-          color: active && sort.dir === "asc" ? "var(--accent)" : "var(--border2)",
-        }}
-      >
-        ▲
-      </span>
-      <span
-        style={{
-          fontSize: 7,
-          lineHeight: 1,
-          color: active && sort.dir === "desc" ? "var(--accent)" : "var(--border2)",
-        }}
-      >
-        ▼
-      </span>
+      <span style={{ fontSize: 7, lineHeight: 1, color: active && sort.dir === "asc" ? "#ffa515" : "#3a3a40" }}>▲</span>
+      <span style={{ fontSize: 7, lineHeight: 1, color: active && sort.dir === "desc" ? "#ffa515" : "#3a3a40" }}>▼</span>
     </span>
   );
 }
@@ -92,14 +75,13 @@ export function OverviewTable({ rows }: { rows: OverviewRow[] }) {
     setSort((current) =>
       current.key === key
         ? { key, dir: current.dir === "asc" ? "desc" : "asc" }
-        : // Numbers open on the largest — the expensive models are the point.
-          { key, dir: COLUMNS.find((c) => c.key === key)?.numeric ? "desc" : "asc" },
+        : { key, dir: COLUMNS.find((c) => c.key === key)?.numeric ? "desc" : "asc" },
     );
   }
 
   if (rows.length === 0) {
     return (
-      <div style={{ padding: "40px 20px", textAlign: "center", fontSize: 13, color: "var(--text3)" }}>
+      <div style={{ padding: "40px 20px", textAlign: "center", fontSize: 13, color: "#6f6f78" }}>
         No priced traffic yet. Once requests flow through the gateway, every model appears here
         with its ACPI reference price.
       </div>
@@ -108,7 +90,7 @@ export function OverviewTable({ rows }: { rows: OverviewRow[] }) {
 
   return (
     <div style={{ overflowX: "auto" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 720 }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
         <thead>
           <tr>
             {COLUMNS.map((col) => (
@@ -116,20 +98,14 @@ export function OverviewTable({ rows }: { rows: OverviewRow[] }) {
                 key={col.key}
                 scope="col"
                 aria-sort={
-                  sort.key === col.key
-                    ? sort.dir === "asc"
-                      ? "ascending"
-                      : "descending"
-                    : "none"
+                  sort.key === col.key ? (sort.dir === "asc" ? "ascending" : "descending") : "none"
                 }
                 style={{
                   textAlign: col.numeric ? "right" : "left",
-                  padding: "12px 16px",
-                  borderBottom: "1px solid var(--border)",
-                  fontSize: 9,
-                  letterSpacing: "0.2em",
-                  textTransform: "uppercase",
-                  color: "var(--text3)",
+                  padding: "0 0 9px",
+                  borderBottom: "1px solid rgba(255,255,255,0.07)",
+                  fontSize: 11,
+                  color: "#6f6f78",
                   fontWeight: 400,
                   whiteSpace: "nowrap",
                 }}
@@ -143,9 +119,7 @@ export function OverviewTable({ rows }: { rows: OverviewRow[] }) {
                     padding: 0,
                     cursor: "pointer",
                     font: "inherit",
-                    letterSpacing: "inherit",
-                    textTransform: "inherit",
-                    color: sort.key === col.key ? "var(--accent)" : "inherit",
+                    color: sort.key === col.key ? "#ffa515" : "inherit",
                     display: "inline-flex",
                     alignItems: "center",
                   }}
@@ -159,33 +133,24 @@ export function OverviewTable({ rows }: { rows: OverviewRow[] }) {
         </thead>
         <tbody>
           {sorted.map((row) => {
-            // Positive overpay = paying above the market reference. The app's
-            // convention throughout is up/over = red, under = green, because
-            // this is a cost index and rising is not good news.
             const over = row.overpay_usd > 0;
             const pct =
               row.acpi_bench_usd > 0 ? (row.overpay_usd / row.acpi_bench_usd) * 100 : null;
             return (
-              <tr key={row.model_id} style={{ borderBottom: "1px solid var(--border)" }}>
-                <td style={{ padding: "14px 16px", fontSize: 13, color: "var(--text)" }}>
+              <tr key={row.model_id} style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                <td style={{ padding: "12.5px 0", fontSize: 12.5, color: "#ededf0" }}>
                   {shortModel(row.model_id)}
                 </td>
-                <td style={{ ...cell, color: "var(--text2)", textAlign: "left" }}>
+                <td style={{ ...cell, color: "#8a8a93", textAlign: "left" }}>
                   {row.provider || "—"}
                 </td>
-                <td style={{ ...cell, color: "var(--text2)" }}>
-                  {row.requests.toLocaleString("en-US")}
-                </td>
-                <td style={{ ...cell, color: "var(--text)" }}>{fmtUsd(row.cost_usd)}</td>
-                <td style={{ ...cell, color: "var(--text2)" }}>{fmtUsd(row.acpi_bench_usd)}</td>
-                <td style={{ ...cell, color: over ? "var(--red)" : "var(--green)" }}>
+                <td style={cell}>{row.requests.toLocaleString("en-US")}</td>
+                <td style={{ ...cell, color: "#ededf0" }}>{fmtUsd(row.cost_usd)}</td>
+                <td style={{ ...cell, color: "#8a8a93" }}>{fmtUsd(row.acpi_bench_usd)}</td>
+                <td style={{ ...cell, color: over ? "#e0644f" : "#4caf7d" }}>
                   {over ? "+" : ""}
                   {fmtUsd(row.overpay_usd)}
-                  {pct !== null && (
-                    <span style={{ color: "var(--text3)", marginLeft: 8 }}>
-                      {fmtPct(pct)}
-                    </span>
-                  )}
+                  {pct !== null && <span style={{ color: "#6f6f78", marginLeft: 8 }}>{fmtPct(pct)}</span>}
                 </td>
               </tr>
             );
@@ -197,10 +162,10 @@ export function OverviewTable({ rows }: { rows: OverviewRow[] }) {
 }
 
 const cell: React.CSSProperties = {
-  padding: "14px 16px",
+  padding: "12.5px 0",
   textAlign: "right",
-  fontFamily: "var(--mono)",
-  fontSize: 13,
+  fontSize: 12.5,
+  color: "#c8c8d0",
   whiteSpace: "nowrap",
   fontVariantNumeric: "tabular-nums",
 };

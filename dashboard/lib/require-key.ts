@@ -56,7 +56,12 @@ export async function requireClerkUser() {
  */
 export async function ensureWorkspace(
   welcome: boolean,
-): Promise<{ workspaceId: string; keyPrefix: string | null; freshKey: string | null }> {
+): Promise<{
+  workspaceId: string;
+  name: string;
+  keyPrefix: string | null;
+  freshKey: string | null;
+}> {
   const user = await currentUser();
   if (!user) redirect("/sign-in");
 
@@ -64,6 +69,7 @@ export async function ensureWorkspace(
   if (existing) {
     return {
       workspaceId: existing.workspace_id,
+      name: existing.name,
       keyPrefix: existing.key_prefix,
       freshKey: null,
     };
@@ -81,6 +87,7 @@ export async function ensureWorkspace(
     );
     return {
       workspaceId: created.workspace_id,
+      name: created.name,
       keyPrefix: created.key_prefix,
       freshKey: created.api_key,
     };

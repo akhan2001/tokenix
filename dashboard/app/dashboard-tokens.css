@@ -1,0 +1,110 @@
+/* ── Dashboard surface tokens ──────────────────────────────────────────────
+ *
+ * The marketing site is a financial instrument: warm cream text, black panels,
+ * hairline amber borders, terminal aesthetic. The dashboard is a tool people
+ * open every day, and the approved design (Claude Design project "Crypto
+ * dashboard homepage design", file `Tokenix Dashboard.dc.html`) answers that
+ * with a genuinely different palette on the same dark base: cooler neutral
+ * greys instead of warm cream/brown, a true green instead of marketing's teal
+ * "--green", and a slightly different amber (#ffa515 vs #ff7a1a) — the design
+ * exposes accent as a swappable theme prop, so this is a deliberate palette
+ * choice for the surface, not a shared value with the landing page.
+ *
+ * Every shadcn primitive in components/ui/ (Card, Tabs, DropdownMenu,
+ * Avatar, Tooltip, Skeleton) reads the SAME root variable set — --card,
+ * --popover, --muted, --accent-tw, --border-tw, --primary, and so on — which
+ * globals.css already defines once for the whole app. Rather than restyle
+ * six components individually, this overrides that variable set inside one
+ * scope class. Nothing outside `.dashboard-scope` sees a different value, and
+ * every current and future shadcn component that lands in the dashboard
+ * picks up this look for free.
+ *
+ * It ALSO overrides --bg/--text/--text2/--text3/--green/--red/--s1/--s2/
+ * --border/--border2/--accent themselves, not just aliases of them. The
+ * pre-existing product pages (Insights, Benchmark, Forecast, Connect,
+ * StatCard, SpendChart, OverviewTable, ...) already read those names
+ * directly — a CSS custom property resolves against the cascaded value in
+ * scope at its point of USE, not at its point of declaration, so this one
+ * file re-themes all of them to the approved design's palette with no edits
+ * to those pages.
+ *
+ * Scoped rather than redefined on `:root` so dropping this class and file
+ * into a future app.tokenixindex.com project is a copy, not a rewrite.
+ */
+
+.dashboard-scope {
+  /* The design's own values — the single source of truth this file derives
+     everything else from. */
+  --surface-0: #0e0e10; /* sidebar */
+  --surface-1: #17171a; /* cards, the sidebar's own dropdown */
+  --surface-2: #212126; /* tooltips, popovers — one step lighter */
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --surface-border-soft: rgba(255, 255, 255, 0.07);
+  --surface-border-hover: rgba(255, 255, 255, 0.14);
+  --surface-hover: rgba(255, 255, 255, 0.07);
+
+  --dash-ink: #ededf0;
+  --dash-ink-dim: #8a8a93;
+  --dash-ink-faint: #6f6f78;
+  --dash-ink-mid: #c8c8d0; /* secondary figures — dimmer than ink, brighter than dim */
+
+  --dash-accent: #ffa515;
+  --dash-accent-hover: #ffb545;
+  --dash-green: #4caf7d;
+  --dash-red: #e0644f;
+
+  --dash-radius-card: 14px;
+  --dash-radius-control: 8px;
+
+  background: #0b0b0c;
+  color: var(--dash-ink);
+
+  /*
+   * html/body sets `font-family: var(--mono)` globally (see the @layer base
+   * rule below in this file's parent, globals.css) — that's the marketing
+   * site's terminal identity, and every page in the product area inherits it
+   * by default unless something overrides it. /dashboard's own page
+   * component happened to set Inter locally, which is why it looked right
+   * while Insights/Forecast/Connect, which never set a font-family of their
+   * own, silently rendered in mono. Setting it once here, on the scope
+   * wrapper every product page renders inside, makes it structural instead
+   * of something each new page has to remember to repeat.
+   */
+  font-family: var(--sans);
+
+  /* Re-point the shared names every existing page and shadcn component
+     already reads. See file header. */
+  --bg: #0b0b0c;
+  --text: var(--dash-ink);
+  --text2: var(--dash-ink-dim);
+  --text3: var(--dash-ink-faint);
+  --accent: var(--dash-accent);
+  --accent-dim: var(--dash-accent-hover);
+  --green: var(--dash-green);
+  --red: var(--dash-red);
+
+  --s1: var(--surface-1);
+  --s2: var(--surface-2);
+  --border: var(--surface-border);
+  --border2: var(--surface-border-hover);
+
+  /* shadcn's variable set, retargeted for this scope only. */
+  --background: var(--bg);
+  --foreground: var(--dash-ink);
+  --card: var(--surface-1);
+  --card-foreground: var(--dash-ink);
+  --popover: var(--surface-2);
+  --popover-foreground: var(--dash-ink);
+  --primary: var(--dash-accent);
+  --primary-foreground: #141416;
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--dash-ink);
+  --muted-tw: var(--surface-2);
+  --muted-foreground: var(--dash-ink-dim);
+  --accent-tw: var(--surface-2);
+  --accent-foreground: var(--dash-ink);
+  --destructive: var(--dash-red);
+  --border-tw: var(--surface-border);
+  --input: var(--surface-border);
+  --ring: var(--dash-accent);
+}

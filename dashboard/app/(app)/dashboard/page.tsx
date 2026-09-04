@@ -1,21 +1,15 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 
-import { AppNav } from "@/components/app-nav";
+import { DashCard } from "@/components/dashboard/dash-card";
+import { PeriodTabs } from "@/components/dashboard/period-tabs";
+import { daysFor, type Period } from "@/lib/period";
+import { SpendBenchmarkChart } from "@/components/dashboard/spend-benchmark-chart";
 import { OverviewTable } from "@/components/dashboard/overview-table";
-import { SpendChart } from "@/components/spend-chart";
+import { ExportMenu } from "@/components/dashboard/export-menu";
 import { EmptyState } from "@/components/stat-card";
 import { KeyRevealModal } from "@/components/onboarding/key-reveal-modal";
 import { ensureWorkspace } from "@/lib/require-key";
-import {
-  ApiError,
-  fetchModels,
-  fetchSummary,
-  fetchUsageSeries,
-  fmtCompact,
-  fmtPct,
-  fmtUsd,
-} from "@/lib/tokenix-api";
+import { ApiError, fetchModels, fetchSummary, fetchUsageSeries, fmtUsd, fmtPct } from "@/lib/tokenix-api";
 
 export const dynamic = "force-dynamic";
 
@@ -24,59 +18,68 @@ export const metadata: Metadata = {
   description: "What you spent, what the market rate was, and the gap between them.",
 };
 
-const DAYS = 30;
-
 const GATEWAY_URL =
   process.env.NEXT_PUBLIC_TOKENIX_GATEWAY_URL ?? "https://gateway.tokenixindex.com";
 
+function isPeriod(v: string | undefined): v is Period {
+  return v === "week" || v === "month" || v === "quarter" || v === "year";
+}
+
+function currentMonth(): string {
+  const now = new Date();
+  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
 /**
- * The post-onboarding home, read by two people who want different things.
+ * The post-onboarding home — rebuilt against the approved Claude Design
+ * project ("Crypto dashboard homepage design", `Tokenix Dashboard.dc.html`),
+ * not the marketing site's visual language the first pass at this page
+ * carried over (mono kickers, tracked-caps labels, a single vertical column
+ * with one bordered box). This version: grey Card surfaces for every
+ * distinct block, Inter throughout, and the design's actual grid — one hero
+ * card, a chart card, then a row of three smaller supporting cards.
  *
- * Layered by depth rather than split by role. A CFO reads the headline row and
- * stops — spend, the ACPI-benchmarked price for the same traffic, and the gap.
- * A CTO keeps going into the per-model breakdown and the connection state at
- * the bottom. Building two dashboards would have doubled the surface for a
- * difference that is really just how far down the page someone reads.
+ * Two departures from the design file worth being explicit about, because
+ * they replace decorative placeholder content with what the backend can
+ * actually answer rather than porting the placeholder as if it were real:
  *
- * The delta is a real figure, not a framing. `acpi_benchmark_usd` is what this
- * exact token volume would have cost at the index rate, so the difference is
- * attributable per model rather than being a headline percentage chosen for
- * effect. Sign convention follows the rest of the app: over the reference is
- * --red, under it is --green, because this is a cost index.
+ * 1. "Recent activity" (a live per-request feed) has no backing endpoint —
+ *    there is no such route in lib/tokenix-api.ts. Rather than fabricate
+ *    request rows, the third supporting card is workspace/connection status,
+ *    which mirrors what the previous version of this page's footer showed
+ *    and is genuinely available.
+ * 2. The headline figures and chart total the SELECTED PERIOD's usage
+ *    series, not `summary.this_month_spend_usd` (which is always calendar-
+ *    month regardless of which period tab is active) — otherwise picking
+ *    "Week" would keep showing the month's number.
  */
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ welcome?: string }>;
+  searchParams: Promise<{ welcome?: string; period?: string }>;
 }) {
-  // `?welcome=1` is set by the signup flow and means "this person is new, mint
-  // for them". It lives here rather than on /dashboard/insights because this is
-  // where onboarding now lands: the overview is the home tab, so the key is
-  // revealed over the page people actually arrive on. Anyone without a
-  // workspace and without that flag is still asked at /dashboard/connect.
-  const { welcome } = await searchParams;
-  const { workspaceId, keyPrefix, freshKey } = await ensureWorkspace(welcome === "1");
+  const { welcome, period: periodParam } = await searchParams;
+  const period: Period = isPeriod(periodParam) ? periodParam : "month";
+  const days = daysFor(period);
 
-  // Rendered over whichever branch below runs: the plaintext key exists only in
-  // this response and cannot be recovered, so an analytics outage must not be
-  // the reason someone never sees it.
-  const keyModal = freshKey ? (
-    <KeyRevealModal apiKey={freshKey} gatewayUrl={GATEWAY_URL} />
-  ) : null;
+  // `?welcome=1` means "this person is new, mint for them" — set by the
+  // signup flow. Anyone else without a workspace is asked at /dashboard/connect.
+  const { workspaceId, name, keyPrefix, freshKey } = await ensureWorkspace(welcome === "1");
+
+  const keyModal = freshKey ? <KeyRevealModal apiKey={freshKey} gatewayUrl={GATEWAY_URL} /> : null;
 
   let summary, usage, models;
   try {
     [summary, usage, models] = await Promise.all([
       fetchSummary(workspaceId),
-      fetchUsageSeries(workspaceId, DAYS),
-      fetchModels(workspaceId, DAYS),
+      fetchUsageSeries(workspaceId, days),
+      fetchModels(workspaceId, days),
     ]);
   } catch (error) {
     return (
       <>
         {keyModal}
-        <AppNav page="overview" connected />
-        <Wrap>
+        <Shell>
           <EmptyState
             title="Could not load your overview"
             body={
@@ -85,147 +88,250 @@ export default async function DashboardPage({
                 : "The analytics API did not respond. Try again in a moment."
             }
           />
-        </Wrap>
+        </Shell>
       </>
     );
   }
 
-  const spend = summary.this_month_spend_usd;
-  const reference = summary.acpi_benchmark_usd;
+  const spend = usage.series.reduce((sum, p) => sum + p.cost_usd, 0);
+  const reference = usage.series.reduce((sum, p) => sum + p.acpi_bench_usd, 0);
+  const totalRequests = usage.series.reduce((sum, p) => sum + p.requests, 0);
   const gap = spend - reference;
   const gapPct = reference > 0 ? (gap / reference) * 100 : null;
   const over = gap > 0;
+  const connected = totalRequests > 0;
+
+  const providerCount = new Set(models.models.map((m) => m.provider).filter(Boolean)).size;
+
+  const periodLabel: Record<Period, string> = {
+    week: "last 7 days",
+    month: "last 30 days",
+    quarter: "last 90 days",
+    year: "last 12 months",
+  };
 
   return (
     <>
       {keyModal}
-      <AppNav page="overview" connected />
-
-      <Wrap>
-        {/* ── 1. The headline row. Finance's stopping point. ───────────── */}
-        <div className="sec-kicker">Last {DAYS} days</div>
+      <Shell>
+        {/* ── Header row ────────────────────────────────────────────── */}
         <div
-          className="dash-headline"
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: 28,
-            alignItems: "end",
-            paddingBottom: 34,
-            borderBottom: "1px solid var(--border)",
-            marginBottom: 40,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 16,
+            marginBottom: 18,
           }}
         >
-          <Figure label="You spent" value={fmtUsd(spend)} tone="var(--text)" big />
-          <Figure
-            label="ACPI reference for the same usage"
-            value={fmtUsd(reference)}
-            tone="var(--text2)"
-          />
-          <Figure
-            label={over ? "Above the market rate" : "Below the market rate"}
-            value={`${over ? "+" : ""}${fmtUsd(gap)}`}
-            tone={over ? "var(--red)" : "var(--green)"}
-            sub={
-              gapPct === null ? "No reference volume yet" : `${fmtPct(gapPct)} vs ACPI`
-            }
-          />
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <h1 style={{ fontSize: 22, fontWeight: 500, letterSpacing: "-0.01em", margin: 0, color: "#ededf0" }}>
+                Overview
+              </h1>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 7,
+                  padding: "4px 10px",
+                  borderRadius: 20,
+                  background: connected ? "rgba(76,175,125,0.1)" : "rgba(138,138,147,0.1)",
+                  border: `1px solid ${connected ? "rgba(76,175,125,0.24)" : "rgba(138,138,147,0.24)"}`,
+                }}
+              >
+                <span
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    background: connected ? "#4caf7d" : "#8a8a93",
+                  }}
+                />
+                <span style={{ fontSize: 11.5, color: connected ? "#4caf7d" : "#8a8a93" }}>
+                  {connected ? "Connected" : "Waiting for traffic"}
+                </span>
+              </div>
+            </div>
+            <div style={{ fontSize: 12.5, color: "#8a8a93", marginTop: 6 }}>
+              {name} workspace · {periodLabel[period]}
+            </div>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <PeriodTabs active={period} />
+            <ExportMenu days={days} month={currentMonth()} />
+          </div>
         </div>
 
-        {/* ── 2. The trend. Both audiences, at a glance. ───────────────── */}
-        <div className="sec-kicker">Spend over time</div>
-        <div style={{ marginBottom: 48 }}>
-          {usage.series.length < 2 ? (
-            <p style={{ fontSize: 12, color: "var(--text3)", lineHeight: 1.9, margin: "8px 0 0" }}>
-              Not enough history to plot yet — a line needs at least two days of priced traffic.
-            </p>
-          ) : (
-            <SpendChart
-              stepped
+        {/* ── Hero card ─────────────────────────────────────────────── */}
+        <DashCard
+          padding="28px 30px"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1.2fr 1fr 1.05fr",
+            gap: 34,
+            alignItems: "end",
+            marginBottom: 18,
+          }}
+        >
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 12, color: "#8a8a93", marginBottom: 12 }}>
+              Spend · {periodLabel[period]}
+            </div>
+            <div style={{ fontSize: "clamp(38px, 5vw, 58px)", fontWeight: 400, letterSpacing: "-0.03em", lineHeight: 1, color: "#ededf0" }}>
+              {fmtUsd(spend)}
+            </div>
+            <div style={{ fontSize: 12.5, color: "#8a8a93", marginTop: 11 }}>
+              {totalRequests.toLocaleString("en-US")} requests
+            </div>
+          </div>
+
+          <div style={{ paddingLeft: 32, borderLeft: "1px solid rgba(255,255,255,0.08)", minWidth: 0 }}>
+            <div style={{ fontSize: 12, color: "#8a8a93", marginBottom: 12 }}>
+              ACPI fair price · same usage
+            </div>
+            <div style={{ fontSize: 34, fontWeight: 400, letterSpacing: "-0.02em", lineHeight: 1, color: "#c8c8d0" }}>
+              {fmtUsd(reference)}
+            </div>
+            <div style={{ fontSize: 12.5, color: "#8a8a93", marginTop: 11 }}>
+              {summary.acpi_benchmark_usd > 0 ? "index-rate reference" : "no reference volume yet"}
+            </div>
+          </div>
+
+          <div style={{ paddingLeft: 32, borderLeft: "1px solid rgba(255,255,255,0.08)", minWidth: 0 }}>
+            <div style={{ fontSize: 12, color: "#8a8a93", marginBottom: 12 }}>Delta to benchmark</div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+              <span style={{ fontSize: 34, fontWeight: 450, letterSpacing: "-0.02em", lineHeight: 1, color: over ? "#e0644f" : "#4caf7d" }}>
+                {gapPct === null ? "—" : `${over ? "+" : ""}${fmtPct(gapPct)}`}
+              </span>
+              {gapPct !== null && (
+                <span style={{ fontSize: 17, color: over ? "#e0644f" : "#4caf7d" }}>
+                  {over ? "↑" : "↓"} {fmtUsd(Math.abs(gap))}
+                </span>
+              )}
+            </div>
+            <div style={{ fontSize: 12.5, color: "#8a8a93", marginTop: 11 }}>
+              {gapPct === null
+                ? "No reference volume yet"
+                : over
+                  ? "Above ACPI fair price for this usage"
+                  : "Below ACPI fair price for this usage"}
+            </div>
+          </div>
+        </DashCard>
+
+        {/* ── Chart card ────────────────────────────────────────────── */}
+        <DashCard padding="24px 28px 20px" style={{ marginBottom: 18, height: 340, display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 8 }}>
+            <div>
+              <div style={{ fontSize: 14.5, fontWeight: 500, color: "#ededf0" }}>Spend vs ACPI benchmark</div>
+              <div style={{ fontSize: 12, color: "#8a8a93", marginTop: 4 }}>
+                Stepped — index recalculated hourly, {periodLabel[period]}
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 18, fontSize: 12, color: "#8a8a93" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                <span style={{ width: 11, height: 2, background: "#ffa515", display: "inline-block" }} />
+                Actual spend
+              </span>
+              <span style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                <span style={{ width: 11, height: 2, background: "#6a6a74", display: "inline-block" }} />
+                ACPI reference
+              </span>
+            </div>
+          </div>
+          <div style={{ flex: 1, minHeight: 0 }}>
+            <SpendBenchmarkChart
               points={usage.series.map((p) => ({
                 day: p.day,
                 cost_usd: p.cost_usd,
                 acpi_bench_usd: p.acpi_bench_usd,
-                requests: p.requests,
               }))}
             />
-          )}
+          </div>
+        </DashCard>
+
+        {/* ── Supporting row ────────────────────────────────────────── */}
+        <div style={{ display: "grid", gridTemplateColumns: "1.35fr 1.35fr 0.85fr", gap: 18 }}>
+          <DashCard style={{ display: "flex", flexDirection: "column", gap: 13 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+              <div style={{ fontSize: 14.5, fontWeight: 500, color: "#ededf0" }}>Top models by spend</div>
+              <div style={{ fontSize: 11.5, color: "#6f6f78" }}>vs ACPI reference</div>
+            </div>
+            <OverviewTable
+              rows={models.models
+                .slice()
+                .sort((a, b) => b.cost_usd - a.cost_usd)
+                .slice(0, 6)
+                .map((m) => ({
+                  model_id: m.model_id,
+                  provider: m.provider,
+                  requests: m.requests,
+                  cost_usd: m.cost_usd,
+                  acpi_bench_usd: m.acpi_bench_usd,
+                  overpay_usd: m.overpay_usd,
+                }))}
+            />
+          </DashCard>
+
+          <DashCard style={{ display: "flex", flexDirection: "column", gap: 13 }}>
+            <div style={{ fontSize: 14.5, fontWeight: 500, color: "#ededf0" }}>Connection</div>
+            <Row label="Workspace key">
+              {keyPrefix ? (
+                <>
+                  <span style={{ color: "#c8c8d0" }}>{keyPrefix}…</span>{" "}
+                  <span style={{ color: connected ? "#4caf7d" : "#8a8a93" }}>
+                    {connected ? "active" : "issued"}
+                  </span>
+                </>
+              ) : (
+                <span style={{ color: "#6f6f78" }}>No key issued</span>
+              )}
+            </Row>
+            <Row label={`Requests · ${periodLabel[period]}`}>{totalRequests.toLocaleString("en-US")}</Row>
+            <Row label="Manage">
+              <a href="/dashboard/connect" style={{ color: "#ffa515" }}>
+                Connect or rotate a key →
+              </a>
+            </Row>
+            <Row label="Reference">
+              <a href="/#methodology" style={{ color: "#ffa515" }}>
+                How ACPI is calculated →
+              </a>
+            </Row>
+          </DashCard>
+
+          <DashCard style={{ display: "flex", flexDirection: "column", gap: 15 }}>
+            <div style={{ fontSize: 13, fontWeight: 500, color: "#c8c8d0" }}>Quick stats</div>
+            <Stat label="Total requests" value={totalRequests.toLocaleString("en-US")} />
+            <Stat label="Active models" value={String(models.models.length)} />
+            <Stat label="Providers connected" value={String(providerCount)} last />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: 11.5, color: "#6f6f78" }}>Connection</span>
+              <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, color: connected ? "#4caf7d" : "#8a8a93" }}>
+                <span style={{ width: 5, height: 5, borderRadius: "50%", background: connected ? "#4caf7d" : "#8a8a93" }} />
+                {connected ? "Healthy" : "No traffic yet"}
+              </span>
+            </div>
+          </DashCard>
         </div>
-
-        {/* ── 3. The breakdown. Same rows, different columns matter. ───── */}
-        <div className="sec-kicker">By model</div>
-        <div
-          style={{
-            border: "1px solid var(--border)",
-            background: "linear-gradient(180deg, var(--s1), transparent)",
-            marginBottom: 56,
-          }}
-        >
-          <OverviewTable
-            rows={models.models.map((m) => ({
-              model_id: m.model_id,
-              provider: m.provider,
-              requests: m.requests,
-              cost_usd: m.cost_usd,
-              acpi_bench_usd: m.acpi_bench_usd,
-              overpay_usd: m.overpay_usd,
-            }))}
-          />
-        </div>
-
-        {/* ── 4. The technical footer. Deliberately quiet. ─────────────── */}
-        <div
-          style={{
-            borderTop: "1px solid var(--border)",
-            paddingTop: 24,
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-            gap: 24,
-          }}
-        >
-          <Minor label="Workspace key">
-            {keyPrefix ? (
-              <>
-                <span style={{ fontFamily: "var(--mono)", color: "var(--text2)" }}>
-                  {keyPrefix}…
-                </span>{" "}
-                <span style={{ color: "var(--green)" }}>active</span>
-              </>
-            ) : (
-              <span style={{ color: "var(--text3)" }}>No key issued</span>
-            )}
-          </Minor>
-
-          <Minor label={`Requests · last ${DAYS} days`}>
-            {fmtCompact(summary.total_requests)}
-          </Minor>
-
-          <Minor label="Connection">
-            <a href="/dashboard/connect" style={{ color: "var(--accent-dim)" }}>
-              Connect or rotate a key →
-            </a>
-          </Minor>
-
-          <Minor label="Reference">
-            <a href="/#methodology" style={{ color: "var(--accent-dim)" }}>
-              How ACPI is calculated →
-            </a>
-          </Minor>
-        </div>
-      </Wrap>
+      </Shell>
     </>
   );
 }
 
-function Wrap({ children }: { children: React.ReactNode }) {
+function Shell({ children }: { children: React.ReactNode }) {
   return (
     <section
-      className="app-wrap"
       style={{
-        maxWidth: 1080,
+        maxWidth: 1280,
         margin: "0 auto",
         width: "100%",
-        padding: "var(--space-section-sm) var(--pad-x) var(--space-section-md)",
+        padding: "30px 34px 34px",
+        fontFamily:
+          "Inter, var(--sans), 'Neue Haas Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif",
       }}
     >
       {children}
@@ -233,69 +339,28 @@ function Wrap({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** One headline number. `big` marks the figure the page is actually about. */
-function Figure({
-  label,
-  value,
-  tone,
-  sub,
-  big = false,
-}: {
-  label: string;
-  value: string;
-  tone: string;
-  sub?: string;
-  big?: boolean;
-}) {
+function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div style={{ minWidth: 0 }}>
-      <div
-        style={{
-          fontSize: 9,
-          letterSpacing: "0.2em",
-          textTransform: "uppercase",
-          color: "var(--text3)",
-          marginBottom: 12,
-        }}
-      >
-        {label}
-      </div>
-      <div
-        style={{
-          fontFamily: "var(--sans)",
-          fontSize: big ? "clamp(38px, 6vw, 58px)" : "clamp(26px, 3.4vw, 34px)",
-          fontWeight: 500,
-          letterSpacing: "-0.022em",
-          lineHeight: 1,
-          color: tone,
-          fontVariantNumeric: "tabular-nums",
-        }}
-      >
-        {value}
-      </div>
-      {sub && (
-        <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 8 }}>{sub}</div>
-      )}
+    <div style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 12.5 }}>
+      <span style={{ color: "#8a8a93" }}>{label}</span>
+      <span>{children}</span>
     </div>
   );
 }
 
-/** The action row's type: smaller and muted, so it never competes upward. */
-function Minor({ label, children }: { label: string; children: React.ReactNode }) {
+function Stat({ label, value, last = false }: { label: string; value: string; last?: boolean }) {
   return (
-    <div>
-      <div
-        style={{
-          fontSize: 9,
-          letterSpacing: "0.2em",
-          textTransform: "uppercase",
-          color: "var(--text3)",
-          marginBottom: 8,
-        }}
-      >
-        {label}
-      </div>
-      <div style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.7 }}>{children}</div>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "baseline",
+        paddingBottom: last ? 0 : 11,
+        borderBottom: last ? "none" : "1px solid rgba(255,255,255,0.06)",
+      }}
+    >
+      <span style={{ fontSize: 12, color: "#8a8a93" }}>{label}</span>
+      <span style={{ fontSize: 15, fontWeight: 450, color: "#ededf0" }}>{value}</span>
     </div>
   );
 }
