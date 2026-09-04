@@ -17,6 +17,80 @@ export interface ProviderKeyState {
   success?: boolean;
 }
 
+export interface TestRequestState {
+  status?: "ok" | "error";
+  message?: string;
+}
+
+/**
+ * Fire one real, minimal request through the gateway using a workspace key,
+ * to prove the setup actually works end to end rather than asking someone to
+ * take it on faith.
+ *
+ * Done server-side rather than as a client-side fetch straight to the
+ * gateway: a browser call from tokenixindex.com to the Railway gateway host
+ * is cross-origin, and this repo has no visibility into that service's CORS
+ * configuration to know whether such a call would even be allowed to land —
+ * a blocked preflight would masquerade as "not working" when the key and
+ * provider credential might be fine. A server-to-server call sidesteps the
+ * question entirely.
+ *
+ * The key is a form field, not looked up from the session, because the one
+ * moment this matters most (right after minting) the plaintext exists only
+ * in the browser's own render of this response — the server already forgot
+ * it. Passing it back is not a new exposure: it is the same value already
+ * displayed on the page in the clear.
+ *
+ * This is a genuine paid request (a handful of tokens against whichever
+ * provider credential is attached) — small on purpose, but not free.
+ */
+export async function testGatewayRequestAction(
+  _prev: TestRequestState,
+  formData: FormData,
+): Promise<TestRequestState> {
+  const apiKey = String(formData.get("api_key") ?? "").trim();
+  if (!apiKey) return { status: "error", message: "No key to test with." };
+
+  const gatewayUrl = process.env.TOKENIX_GATEWAY_URL ?? "http://localhost:8080";
+
+  let response: Response;
+  try {
+    response = await fetch(`${gatewayUrl}/openai/v1/chat/completions`, {
+      method: "POST",
+      headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: "Reply with just: ok" }],
+        max_tokens: 5,
+      }),
+      cache: "no-store",
+    });
+  } catch {
+    return { status: "error", message: `Could not reach the gateway at ${gatewayUrl}.` };
+  }
+
+  if (response.ok) {
+    return { status: "ok", message: "Your key and provider connection both work." };
+  }
+
+  // The gateway's error shape isn't fixed in this repo, so parse
+  // defensively — OpenAI-style {error:{message}}, a bare {message}, or fall
+  // back to the raw body — rather than showing a blank failure.
+  const raw = await response.text();
+  let detail = raw;
+  try {
+    const parsed = JSON.parse(raw) as { error?: { message?: string } | string; message?: string };
+    const errorField = parsed.error;
+    detail =
+      (typeof errorField === "object" && errorField ? errorField.message : errorField) ??
+      parsed.message ??
+      raw;
+  } catch {
+    // Not JSON — the raw text is the best available detail.
+  }
+  return { status: "error", message: detail || `The gateway returned ${response.status}.` };
+}
+
 /**
  * Store a provider credential on the signed-in user's own workspace.
  *

@@ -1,23 +1,21 @@
 import "server-only";
 
+import { PROVIDERS, type Provider } from "@/lib/providers";
+
 /**
  * Provider credential storage — the gateway's per-workspace OpenAI/Anthropic/
  * Google key store.
  *
  * Server-only, matching lib/workspace.ts: TOKENIX_ADMIN_TOKEN authorizes the
  * gateway's whole /admin surface and must never reach the browser, so every
- * call here goes through a server action, never a client-side fetch.
+ * call here goes through a server action, never a client-side fetch. The
+ * `server-only` directive is exactly why the plain id/label list lives in
+ * lib/providers.ts instead of here — see that file's header comment.
  */
 
 const GATEWAY_URL = process.env.TOKENIX_GATEWAY_URL ?? "http://localhost:8080";
 
-export type Provider = "openai" | "anthropic" | "google";
-
-export const PROVIDERS: { id: Provider; label: string }[] = [
-  { id: "openai", label: "OpenAI" },
-  { id: "anthropic", label: "Anthropic" },
-  { id: "google", label: "Google" },
-];
+export { PROVIDERS, type Provider };
 
 export class ProviderKeyError extends Error {}
 

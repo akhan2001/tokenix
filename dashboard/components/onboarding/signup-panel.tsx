@@ -21,9 +21,13 @@ import { StepTag } from "./step-tag";
  * <AuthenticateWithRedirectCallback> transfers the attempt into a sign-up.
  * That is why the callback route carries the sign-up destination too.
  *
- * `?welcome=1` is what tells /dashboard this person is new and may be
- * provisioned without being asked. See `ensureWorkspace` for why a forgeable
- * query parameter is the right carrier for that.
+ * `?welcome=1` is what tells /dashboard/connect this person is new and may
+ * be provisioned without being asked — see that page for why a forgeable
+ * query parameter is the right carrier for that. Landing on Connect rather
+ * than the Overview dashboard is deliberate: a brand new workspace has no
+ * spend to show yet, but it does need a key copied, a provider connected,
+ * and one line of code changed before anything else here means anything —
+ * that setup sequence is Connect's job, not Overview's.
  */
 /** Only the two providers enabled on the Clerk instance. */
 type Provider = "oauth_github" | "oauth_google";
@@ -33,7 +37,7 @@ const PROVIDERS: { strategy: Provider; label: string }[] = [
   { strategy: "oauth_google", label: "Continue with Google" },
 ];
 
-const AFTER_SIGN_UP = "/dashboard?welcome=1";
+const AFTER_SIGN_UP = "/dashboard/connect?welcome=1";
 
 export function SignupPanel() {
   const { signIn, errors, fetchStatus } = useSignIn();

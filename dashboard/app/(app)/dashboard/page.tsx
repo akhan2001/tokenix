@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 import { DashCard } from "@/components/dashboard/dash-card";
 import { PeriodTabs } from "@/components/dashboard/period-tabs";
@@ -7,8 +8,8 @@ import { SpendBenchmarkChart } from "@/components/dashboard/spend-benchmark-char
 import { OverviewTable } from "@/components/dashboard/overview-table";
 import { ExportMenu } from "@/components/dashboard/export-menu";
 import { EmptyState } from "@/components/stat-card";
-import { KeyRevealModal } from "@/components/onboarding/key-reveal-modal";
-import { ensureWorkspace } from "@/lib/require-key";
+import { requireClerkUser } from "@/lib/require-key";
+import { findWorkspace } from "@/lib/workspace";
 import { ApiError, fetchModels, fetchSummary, fetchUsageSeries, fmtUsd, fmtPct } from "@/lib/tokenix-api";
 
 export const dynamic = "force-dynamic";
@@ -17,9 +18,6 @@ export const metadata: Metadata = {
   title: "Overview · Tokenix",
   description: "What you spent, what the market rate was, and the gap between them.",
 };
-
-const GATEWAY_URL =
-  process.env.NEXT_PUBLIC_TOKENIX_GATEWAY_URL ?? "https://gateway.tokenixindex.com";
 
 function isPeriod(v: string | undefined): v is Period {
   return v === "week" || v === "month" || v === "quarter" || v === "year";
@@ -52,21 +50,25 @@ function currentMonth(): string {
  *    series, not `summary.this_month_spend_usd` (which is always calendar-
  *    month regardless of which period tab is active) — otherwise picking
  *    "Week" would keep showing the month's number.
+ *
+ * No longer handles `?welcome=1` or minting — that moved to /dashboard/
+ * connect, which is now the sole onboarding surface (key, provider setup,
+ * code snippet and a live test, all in one place, all before anyone lands
+ * here). A signed-in person with no workspace at all is sent there instead.
  */
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ welcome?: string; period?: string }>;
+  searchParams: Promise<{ period?: string }>;
 }) {
-  const { welcome, period: periodParam } = await searchParams;
+  const { period: periodParam } = await searchParams;
   const period: Period = isPeriod(periodParam) ? periodParam : "month";
   const days = daysFor(period);
 
-  // `?welcome=1` means "this person is new, mint for them" — set by the
-  // signup flow. Anyone else without a workspace is asked at /dashboard/connect.
-  const { workspaceId, name, keyPrefix, freshKey } = await ensureWorkspace(welcome === "1");
-
-  const keyModal = freshKey ? <KeyRevealModal apiKey={freshKey} gatewayUrl={GATEWAY_URL} /> : null;
+  const user = await requireClerkUser();
+  const workspace = await findWorkspace(user.id);
+  if (!workspace) redirect("/dashboard/connect");
+  const { workspace_id: workspaceId, name, key_prefix: keyPrefix } = workspace;
 
   let summary, usage, models;
   try {
@@ -77,19 +79,16 @@ export default async function DashboardPage({
     ]);
   } catch (error) {
     return (
-      <>
-        {keyModal}
-        <Shell>
-          <EmptyState
-            title="Could not load your overview"
-            body={
-              error instanceof ApiError
-                ? error.message
-                : "The analytics API did not respond. Try again in a moment."
-            }
-          />
-        </Shell>
-      </>
+      <Shell>
+        <EmptyState
+          title="Could not load your overview"
+          body={
+            error instanceof ApiError
+              ? error.message
+              : "The analytics API did not respond. Try again in a moment."
+          }
+        />
+      </Shell>
     );
   }
 
@@ -111,9 +110,7 @@ export default async function DashboardPage({
   };
 
   return (
-    <>
-      {keyModal}
-      <Shell>
+    <Shell>
         {/* ── Header row ────────────────────────────────────────────── */}
         <div
           style={{
@@ -317,8 +314,7 @@ export default async function DashboardPage({
             </div>
           </DashCard>
         </div>
-      </Shell>
-    </>
+    </Shell>
   );
 }
 

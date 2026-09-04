@@ -5,13 +5,7 @@ import { useFormStatus } from "react-dom";
 
 import { saveProviderKeyAction, type ProviderKeyState } from "@/app/(app)/dashboard/connect-actions";
 import { DashCard } from "@/components/dashboard/dash-card";
-import type { Provider } from "@/lib/provider-keys";
-
-const PROVIDERS: { id: Provider; label: string }[] = [
-  { id: "openai", label: "OpenAI" },
-  { id: "anthropic", label: "Anthropic" },
-  { id: "google", label: "Google" },
-];
+import { PROVIDERS, type Provider } from "@/lib/providers";
 
 /**
  * Per-provider credential cards: OpenAI, Anthropic, Google.
