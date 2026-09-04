@@ -1,20 +1,44 @@
 "use client";
 
-import { useMemo } from "react";
-import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import {
+  Area,
+  CartesianGrid,
+  ComposedChart,
+  Legend,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+
+import type { ScenarioPoint } from "@/lib/forecast-scenarios";
 
 /**
- * Twelve-month cumulative projection — the recharts replacement for
- * components/forecast-chart.tsx. The compounding math is copied verbatim
- * from that component's useMemo block, not re-derived: same monthly base,
- * same growth compounding, same optimized-trajectory discount.
+ * Twelve-month cumulative projection: current trajectory, with optimisation,
+ * and flat growth, plus the gap between current and optimised shaded in as
+ * the savings opportunity.
+ *
+ * Takes a pre-computed `points` array rather than the raw
+ * monthlyBase/growthRate/savingShare inputs it used to — the forecast page
+ * needs the SAME numbers for its text checkpoints (This month / 3 months /
+ * 12 months per scenario), and computing them twice (once here, once in the
+ * page) risked the two silently drifting apart. lib/forecast-scenarios.ts is
+ * now the one place that math happens.
  *
  * A continuous line, not stepped: unlike ACPI's recalculated snapshots, this
  * is a smooth compounding projection — there is no discrete "value that was
  * actually measured" per point the way there is on the spend/benchmark chart.
+ *
+ * The shaded gap is a stacked Area trick: an invisible area up to
+ * `optimized`, then a visible one for `gap = current - optimized` stacked on
+ * top of it — recharts has no native "fill between two arbitrary lines"
+ * primitive. The Line components are drawn separately, on top, for crisp
+ * edges the area fill alone wouldn't give.
  */
 const CURRENT = "#ffa515";
 const OPTIMIZED = "#6fd6cf";
+const FLAT = "#7a8296";
 
 function fmtUsd(n: number): string {
   if (Math.abs(n) >= 1000) return "$" + n.toLocaleString("en-US", { maximumFractionDigits: 0 });
@@ -27,11 +51,7 @@ function fmtCompactUsd(n: number): string {
   return "$" + Math.round(n);
 }
 
-export interface ForecastProjectionChartProps {
-  monthlyBase: number;
-  growthRate: number;
-  savingShare: number;
-}
+type ChartPoint = ScenarioPoint & { label: string; gap: number };
 
 function ProjectionTooltip({
   active,
@@ -43,8 +63,10 @@ function ProjectionTooltip({
   label?: string;
 }) {
   if (!active || !payload?.length) return null;
-  const current = payload.find((p) => p.dataKey === "current")?.value ?? 0;
-  const optimized = payload.find((p) => p.dataKey === "optimized")?.value ?? 0;
+  const get = (key: string) => payload.find((p) => p.dataKey === key)?.value ?? 0;
+  const current = get("current");
+  const optimized = get("optimized");
+  const flat = get("flat");
   return (
     <div
       style={{
@@ -53,44 +75,48 @@ function ProjectionTooltip({
         borderRadius: 8,
         padding: "10px 13px",
         fontSize: 11.5,
-        minWidth: 150,
+        minWidth: 160,
       }}
     >
       <div style={{ color: "var(--text2)", marginBottom: 6 }}>{label}</div>
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 14 }}>
-        <span style={{ color: "var(--text2)" }}>Current</span>
-        <span style={{ color: "var(--text)" }}>{fmtUsd(current)}</span>
-      </div>
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 14, marginTop: 2 }}>
-        <span style={{ color: "var(--text2)" }}>Optimized</span>
-        <span style={{ color: "var(--text)" }}>{fmtUsd(optimized)}</span>
+      {[
+        { label: "Current", value: current, color: CURRENT },
+        { label: "Optimized", value: optimized, color: OPTIMIZED },
+        { label: "Flat growth", value: flat, color: FLAT },
+      ].map((row) => (
+        <div key={row.label} style={{ display: "flex", justifyContent: "space-between", gap: 14, marginTop: 2 }}>
+          <span style={{ color: "var(--text2)" }}>{row.label}</span>
+          <span style={{ color: row.color }}>{fmtUsd(row.value)}</span>
+        </div>
+      ))}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          gap: 14,
+          marginTop: 6,
+          paddingTop: 6,
+          borderTop: "1px solid var(--border)",
+        }}
+      >
+        <span style={{ color: "var(--text2)" }}>Savings so far</span>
+        <span style={{ color: CURRENT }}>{fmtUsd(current - optimized)}</span>
       </div>
     </div>
   );
 }
 
-export function ForecastProjectionChart({
-  monthlyBase,
-  growthRate,
-  savingShare,
-}: ForecastProjectionChartProps) {
-  const months = useMemo(() => {
-    const labels = ["M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12"];
-    let running = monthlyBase;
-    let cumulative = 0;
-    let cumulativeOpt = 0;
-    return labels.map((label, i) => {
-      if (i > 0) running *= 1 + growthRate;
-      cumulative += running;
-      cumulativeOpt += running * (1 - savingShare);
-      return { label, current: cumulative, optimized: cumulativeOpt };
-    });
-  }, [monthlyBase, growthRate, savingShare]);
+export function ForecastProjectionChart({ points }: { points: ScenarioPoint[] }) {
+  const data: ChartPoint[] = points.map((p) => ({
+    ...p,
+    label: `M${p.month}`,
+    gap: Math.max(p.current - p.optimized, 0),
+  }));
 
   return (
     <div style={{ width: "100%", height: 280 }}>
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={months} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+        <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
           <CartesianGrid stroke="var(--border)" vertical={false} />
           <XAxis
             dataKey="label"
@@ -114,12 +140,36 @@ export function ForecastProjectionChart({
             iconType="plainline"
             wrapperStyle={{ fontSize: 12, color: "var(--text2)" }}
           />
+
+          {/* Shaded savings gap: an invisible floor up to `optimized`, then the
+              visible fill for the difference stacked on top of it. */}
+          <Area
+            dataKey="optimized"
+            stackId="gap"
+            stroke="none"
+            fill="transparent"
+            legendType="none"
+            isAnimationActive={false}
+            tooltipType="none"
+          />
+          <Area
+            dataKey="gap"
+            stackId="gap"
+            stroke="none"
+            fill={CURRENT}
+            fillOpacity={0.12}
+            legendType="none"
+            isAnimationActive={false}
+            tooltipType="none"
+          />
+
           <Line
             type="monotone"
-            dataKey="current"
-            name="Current trajectory"
-            stroke={CURRENT}
-            strokeWidth={2}
+            dataKey="flat"
+            name="Flat growth"
+            stroke={FLAT}
+            strokeWidth={1.5}
+            strokeDasharray="2 3"
             dot={false}
             isAnimationActive={false}
           />
@@ -133,7 +183,16 @@ export function ForecastProjectionChart({
             dot={false}
             isAnimationActive={false}
           />
-        </LineChart>
+          <Line
+            type="monotone"
+            dataKey="current"
+            name="Current trajectory"
+            stroke={CURRENT}
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+          />
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   );

@@ -5,6 +5,7 @@ import { MetricRow } from "@/components/dashboard/metric-row";
 import { DashCard } from "@/components/dashboard/dash-card";
 import { ForecastProjectionChart } from "@/components/dashboard/forecast-projection-chart";
 import { EmptyState } from "@/components/stat-card";
+import { computeForecastScenarios, type ForecastScenarios, type ScenarioPoint } from "@/lib/forecast-scenarios";
 import { requireWorkspaceKey } from "@/lib/require-key";
 import { ApiError, fetchForecast, fmtPct, fmtUsd } from "@/lib/tokenix-api";
 
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
 
 const ABOVE = "var(--red)";
 const BELOW = "var(--green)";
+const FLAT = "var(--text2)";
 
 export default async function ForecastPage() {
   const key = await requireWorkspaceKey();
@@ -39,6 +41,14 @@ export default async function ForecastPage() {
   const savingShare = data.projected_rest_of_year_usd
     ? data.potential_saving_usd / data.projected_rest_of_year_usd
     : 0;
+
+  const scenarios = hasProjection
+    ? computeForecastScenarios({
+        monthlyBase: data.projected_this_month_usd,
+        growthRate: data.mom_growth_pct / 100,
+        savingShare,
+      })
+    : null;
 
   return (
     <Shell>
@@ -92,23 +102,58 @@ export default async function ForecastPage() {
         />
       </div>
 
-      <DashCard style={{ marginBottom: 18 }}>
-        <div style={{ fontSize: 14.5, fontWeight: 500, color: "var(--text)", marginBottom: 4 }}>
-          Twelve-month projection
-        </div>
-        {hasProjection ? (
-          <ForecastProjectionChart
-            monthlyBase={data.projected_this_month_usd}
-            growthRate={data.mom_growth_pct / 100}
-            savingShare={savingShare}
-          />
-        ) : (
+      {scenarios ? (
+        <>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: 14,
+              marginBottom: 18,
+            }}
+          >
+            <ScenarioCard
+              title="Current trajectory"
+              subtitle={`At your current growth rate (${fmtPct(data.mom_growth_pct)} MoM)`}
+              color={ABOVE}
+              scenario={scenarios}
+              pick={(p) => p.current}
+            />
+            <ScenarioCard
+              title="With optimization"
+              subtitle="Switching above-market models to ACPI rate"
+              color={BELOW}
+              scenario={scenarios}
+              pick={(p) => p.optimized}
+            />
+            <ScenarioCard
+              title="At flat growth"
+              subtitle="If usage stays constant from here"
+              color={FLAT}
+              scenario={scenarios}
+              pick={(p) => p.flat}
+            />
+          </div>
+
+          <DashCard style={{ marginBottom: 18 }}>
+            <div style={{ fontSize: 14.5, fontWeight: 500, color: "var(--text)", marginBottom: 4 }}>
+              Twelve-month projection
+            </div>
+            <div style={{ fontSize: 12, color: "var(--text2)", marginBottom: 8 }}>
+              Shaded area is the gap between current trajectory and optimized — the savings
+              opportunity, month by month.
+            </div>
+            <ForecastProjectionChart points={scenarios.points} />
+          </DashCard>
+        </>
+      ) : (
+        <DashCard style={{ marginBottom: 18 }}>
           <EmptyState
             title="Nothing to project yet"
             body="A forecast needs at least a few days of priced traffic. Once spend starts accumulating this becomes a twelve-month projection."
           />
-        )}
-      </DashCard>
+        </DashCard>
+      )}
 
       <DashCard padding="22px 24px">
         <div style={{ fontSize: 14.5, fontWeight: 500, color: "var(--text)", marginBottom: 16 }}>
@@ -153,5 +198,41 @@ function Shell({ children }: { children: React.ReactNode }) {
     <section style={{ maxWidth: 1280, margin: "0 auto", width: "100%", padding: "30px 34px 34px" }}>
       {children}
     </section>
+  );
+}
+
+/** One scenario's card: This month / 3 months / 12 months, reading from the SAME computed points the chart draws. */
+function ScenarioCard({
+  title,
+  subtitle,
+  color,
+  scenario,
+  pick,
+}: {
+  title: string;
+  subtitle: string;
+  color: string;
+  scenario: ForecastScenarios;
+  pick: (p: ScenarioPoint) => number;
+}) {
+  return (
+    <DashCard>
+      <div style={{ fontSize: 13.5, fontWeight: 500, color: "var(--text)", marginBottom: 4 }}>{title}</div>
+      <div style={{ fontSize: 11.5, color: "var(--text3)", marginBottom: 14 }}>{subtitle}</div>
+      <div style={{ display: "grid", gap: 8 }}>
+        {([
+          [1, "This month"],
+          [3, "3 months"],
+          [12, "12 months"],
+        ] as const).map(([month, label]) => (
+          <div key={month} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+            <span style={{ fontSize: 11.5, color: "var(--text3)" }}>{label}</span>
+            <span style={{ fontSize: 14, color, fontVariantNumeric: "tabular-nums" }}>
+              {fmtUsd(pick(scenario.atMonth(month)))}
+            </span>
+          </div>
+        ))}
+      </div>
+    </DashCard>
   );
 }
