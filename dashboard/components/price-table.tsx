@@ -7,11 +7,24 @@ type SortKey = keyof Pick<PriceRow, "provider" | "model_name" | "context_length"
 type SortDir = "asc" | "desc";
 type TierKey = "S" | "A" | "B" | "C";
 
+/**
+ * Quality-tier badge colours. Four categorical values, so the set is chosen
+ * for pairwise separation under dichromacy, not for hue variety.
+ *
+ * Validated against the dark surface #07070a. Method: Vienot 1999 dichromat
+ * simulation (sRGB D65), difference reported as CIEDE2000.
+ *   S #ffd08a 14.03:1   A #5eb0ff 8.75:1   B #c9d1e0 13.11:1   C #7a8296 5.23:1
+ *   worst pair (A/C): dE00 20.0 deuteranope / 18.7 protanope
+ * The previous light-surface set (#c8a96e/#6e9fc8/#4caf7d/#8a96a8) fell to 9.4
+ * deuteranope and 4.7 protanope on the worst pair — inside the confusion floor.
+ * The tier letter is still rendered alongside, so colour is never the sole
+ * carrier; the set is built to not need that fallback.
+ */
 const TIER_COLORS: Record<TierKey, { fg: string; bd: string }> = {
-  S: { fg: "#c8a96e", bd: "rgba(200,169,110,0.25)" },
-  A: { fg: "#6e9fc8", bd: "rgba(110,159,200,0.25)" },
-  B: { fg: "#4caf7d", bd: "rgba(76,175,125,0.25)" },
-  C: { fg: "#8a96a8", bd: "rgba(138,150,168,0.2)" },
+  S: { fg: "var(--tier-s)", bd: "rgba(255,208,138,0.3)" },
+  A: { fg: "var(--tier-a)", bd: "rgba(94,176,255,0.3)" },
+  B: { fg: "var(--tier-b)", bd: "rgba(201,209,224,0.3)" },
+  C: { fg: "var(--tier-c)", bd: "rgba(122,130,150,0.3)" },
 };
 
 const TIER_LABELS: Record<TierKey, string> = {
@@ -286,6 +299,15 @@ export function PriceTable({ rows, providers }: { rows: PriceRow[]; providers: s
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(50);
 
+  const hasFilters = search !== "" || providerFilter !== "all" || tierFilter !== "all";
+
+  function clearFilters() {
+    setSearch("");
+    setProviderFilter("all");
+    setTierFilter("all");
+    setPage(1);
+  }
+
   function toggleSort(key: SortKey) {
     setSort((s) =>
       s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }
@@ -374,7 +396,7 @@ export function PriceTable({ rows, providers }: { rows: PriceRow[]; providers: s
               margin: 0,
               fontSize: 22,
               fontWeight: 500,
-              fontFamily: "var(--serif)",
+              fontFamily: "var(--sans)",
               letterSpacing: "-0.012em",
               color: "var(--text)",
             }}
@@ -551,7 +573,43 @@ export function PriceTable({ rows, providers }: { rows: PriceRow[]; providers: s
                   colSpan={7}
                   style={{ padding: 40, textAlign: "center", color: "var(--text3)" }}
                 >
-                  No models match the current filter.
+                  {rows.length === 0 ? (
+                    /* No data at all is a pipeline failure, not a filter miss.
+                       Saying "no match" here blames the user for an outage. */
+                    <>
+                      <div style={{ color: "var(--text2)", marginBottom: 6 }}>
+                        Price data is unavailable.
+                      </div>
+                      <div style={{ fontSize: 11 }}>
+                        The hourly snapshot has not been written yet. It refreshes on the hour.
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div style={{ marginBottom: hasFilters ? 12 : 0 }}>
+                        No models match the current filter.
+                      </div>
+                      {hasFilters && (
+                        <button
+                          type="button"
+                          onClick={clearFilters}
+                          style={{
+                            fontFamily: "var(--mono)",
+                            fontSize: 11,
+                            letterSpacing: "0.1em",
+                            textTransform: "uppercase",
+                            color: "var(--accent)",
+                            background: "none",
+                            border: "1px solid var(--border)",
+                            padding: "7px 12px",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Clear filters
+                        </button>
+                      )}
+                    </>
+                  )}
                 </td>
               </tr>
             )}

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tokenix — Problem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@200;300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #07070a;
+    --panel: #0B0B0E;
+    --ink: #F5F2EC;
+    --ink-dim: #8C887F;
+    --ink-faint: #4E4B45;
+    --line: rgba(255,180,110,0.16);
+    --amber: #FF7A1A;
+    --amber-hot: #FFD9A6;
+
+    --pad-x: clamp(24px, 5vw, 80px);
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background:var(--bg); }
+  body{ color: var(--ink); font-family:'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+
+  .bar{
+    display:flex; justify-content:center;
+    padding: 10px var(--pad-x);
+    border-bottom: 1px solid var(--line);
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11.5px; letter-spacing: 0.03em;
+    color: var(--ink-dim);
+  }
+  .bar span{ color: var(--amber-hot); }
+
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 22px var(--pad-x);
+    border-bottom: 1px solid var(--line);
+  }
+  .logo{ font-family:'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; letter-spacing: 0.08em; }
+  .navlinks{ display:flex; align-items:center; gap:32px; }
+  .navlinks a{
+    color: var(--ink-dim); text-decoration:none;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px; letter-spacing: 0.03em;
+  }
+  .navlinks a:hover{ color: var(--ink); }
+  .cta-pill{
+    background: var(--ink); color: #0A0B0D;
+    font-family:'Inter', sans-serif; font-size: 13.5px; font-weight: 500;
+    padding: 9px 18px; border-radius: 999px;
+    text-decoration:none;
+  }
+
+  .problem{
+    display:grid;
+    grid-template-columns: 220px 1fr;
+    gap: 40px;
+    padding: 64px var(--pad-x) 56px;
+    border-bottom: 1px solid var(--line);
+  }
+  .eyebrow{
+    display:flex; align-items:center; gap:8px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px; letter-spacing: 0.06em; color: var(--ink-dim);
+    height: fit-content;
+  }
+  .eyebrow::before{ content:"■"; font-size:7px; color: var(--amber); }
+
+  .problem-body h2{
+    font-family:'Inter', sans-serif;
+    font-weight: 300;
+    font-size: clamp(28px, 3.1vw, 42px);
+    line-height: 1.28;
+    letter-spacing: -0.005em;
+    margin: 0 0 26px;
+    max-width: 22ch;
+  }
+  .problem-body p{
+    font-family:'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 16px; line-height: 1.65;
+    color: var(--ink-dim);
+    max-width: 58ch;
+    margin: 0 0 30px;
+  }
+  .problem-body p strong{ color: var(--ink); font-weight: 500; }
+
+  .btn{
+    display:inline-block;
+    background: var(--ink); color: #0A0B0D;
+    font-family:'Inter', sans-serif; font-size: 14.5px; font-weight: 500;
+    padding: 12px 22px; border-radius: 999px;
+    text-decoration:none;
+  }
+
+  /* ---- timeline ---- */
+  .timeline{
+    display:grid;
+    grid-template-columns: 1fr 1fr 1.6fr;
+  }
+  .tl-col{
+    border-right: 1px solid var(--line);
+    padding: 22px var(--pad-x) 0;
+  }
+  .tl-col:last-child{ border-right:none; }
+  .tl-era{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.06em;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+  }
+  .tl-col.now .tl-era{ color: var(--amber-hot); font-weight: 500; }
+  .tl-title{
+    font-family:'Inter', sans-serif;
+    font-size: 19px; font-weight: 500;
+    margin-bottom: 20px;
+  }
+  .tl-visual{
+    border-top: 1px solid var(--line);
+    aspect-ratio: 1 / 0.82;
+    position: relative;
+    overflow:hidden;
+    background: #0A0A0C;
+  }
+  .tl-col.now .tl-visual{ aspect-ratio: 1 / 1.05; }
+
+  /* panel 1: ledger */
+  .ledger{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; justify-content:center;
+    gap: 9px; padding: 0 22px;
+    opacity: 0.5;
+  }
+  .ledger-row{
+    display:flex; justify-content:space-between;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10.5px; color: var(--ink-faint);
+    border-bottom: 1px dashed rgba(255,255,255,0.05);
+    padding-bottom: 8px;
+  }
+
+  /* panel 2: rack lines */
+  .rack{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    gap: 14px;
+    opacity: 0.55;
+  }
+  .rack-col{ display:flex; flex-direction:column; gap:5px; }
+  .rack-unit{
+    width: 30px; height: 6px;
+    border: 1px solid var(--ink-faint);
+    border-radius: 1px;
+  }
+  .rack-unit.on{ border-color: var(--amber); background: rgba(255,122,26,0.14); }
+
+  /* panel 3: curtain canvas */
+  #curtain{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+
+  @media (max-width: 900px){
+    .problem{ grid-template-columns: 1fr; }
+    .timeline{ grid-template-columns: 1fr; }
+    .tl-col{ border-right:none; border-bottom: 1px solid var(--line); padding-bottom: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bar"><span>ACPI</span>&nbsp;recalculates hourly across 332 models and 56 providers — the reference rate nobody had before.</div>
+
+<nav>
+  <div class="logo">TOKENIX</div>
+  <div class="navlinks">
+    <a href="#index">Index</a>
+    <a href="#gateway">Gateway</a>
+    <a href="#methodology">Methodology</a>
+    <a href="#contact">Contact Us</a>
+  </div>
+  <a class="cta-pill" href="#gateway">Connect your stack</a>
+</nav>
+
+<section class="problem">
+  <div class="eyebrow">PROBLEM</div>
+  <div class="problem-body">
+    <h2>Compute is the largest new line item on the P&amp;L, and nobody can price it.</h2>
+    <p>AI inference spend is rising faster than any team can track. There's no benchmark to check an invoice against, no reference rate to negotiate a contract from, and no way to forecast next quarter's bill. <strong>Engineers can't tell you if the model is worth the price. Finance can't tell you if the price is fair.</strong></p>
+    <a class="btn" href="#methodology">See how ACPI works</a>
+  </div>
+</section>
+
+<div class="timeline">
+  <div class="tl-col">
+    <div class="tl-era">1990S – 2000S</div>
+    <div class="tl-title">IT Budgets</div>
+    <div class="tl-visual">
+      <div class="ledger" id="ledger"></div>
+    </div>
+  </div>
+
+  <div class="tl-col">
+    <div class="tl-era">2010S – 2020S</div>
+    <div class="tl-title">Cloud Compute</div>
+    <div class="tl-visual">
+      <div class="rack" id="rack"></div>
+    </div>
+  </div>
+
+  <div class="tl-col now">
+    <div class="tl-era">2025 ONWARDS</div>
+    <div class="tl-title">AI Inference</div>
+    <div class="tl-visual">
+      <canvas id="curtain"></canvas>
+    </div>
+  </div>
+</div>
+
+<script>
+// ledger panel — faint recurring line items, unpriced/unbenchmarked feel
+(function(){
+  const el = document.getElementById('ledger');
+  const rows = ['SERVER-COLO', 'LICENSING', 'BANDWIDTH', 'STORAGE', 'SUPPORT'];
+  rows.forEach(r=>{
+    const row = document.createElement('div');
+    row.className = 'ledger-row';
+    row.innerHTML = `<span>${r}</span><span>—</span>`;
+    el.appendChild(row);
+  });
+})();
+
+// rack panel — simple server unit rows, a few lit
+(function(){
+  const el = document.getElementById('rack');
+  for(let c=0;c<4;c++){
+    const col = document.createElement('div');
+    col.className = 'rack-col';
+    for(let u=0;u<6;u++){
+      const unit = document.createElement('div');
+      unit.className = 'rack-unit' + (Math.random() > 0.6 ? ' on' : '');
+      col.appendChild(unit);
+    }
+    el.appendChild(col);
+  }
+})();
+
+// curtain panel — same generative system as the hero, brightest of the three
+(function(){
+  const canvas = document.getElementById('curtain');
+  const ctx = canvas.getContext('2d');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W=0,H=0,dpr=Math.min(window.devicePixelRatio||1,2);
+
+  function resize(){
+    const r = canvas.getBoundingClientRect();
+    W=r.width; H=r.height;
+    canvas.width=Math.floor(W*dpr); canvas.height=Math.floor(H*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const cellW=10, cellH=15;
+  const chars=['.', "'", ':', '¦', '|', '‡', '#'];
+
+  function colorFor(b){
+    b=Math.max(0,Math.min(1,b));
+    const stops=[[0.00,18,9,3],[0.40,150,62,4],[0.70,255,106,20],[1.00,255,217,166]];
+    let a=stops[0], c=stops[stops.length-1];
+    for(let i=0;i<stops.length-1;i++){ if(b>=stops[i][0] && b<=stops[i+1][0]){ a=stops[i]; c=stops[i+1]; break; } }
+    const span=(c[0]-a[0])||1, f=span===0?0:(b-a[0])/span;
+    const r=Math.round(a[1]+(c[1]-a[1])*f), g=Math.round(a[2]+(c[2]-a[2])*f), bl=Math.round(a[3]+(c[3]-a[3])*f);
+    return `rgb(${r},${g},${bl})`;
+  }
+
+  let t0=performance.now();
+  function draw(now){
+    const t = reduceMotion ? 4 : (now-t0)/1000;
+    ctx.clearRect(0,0,W,H);
+    ctx.font = `${cellH-4}px 'JetBrains Mono', monospace`;
+    ctx.textBaseline='top';
+
+    const cols=Math.ceil(W/cellW)+1, rows=Math.ceil(H/cellH)+1;
+    const beam1=((t*110)%(W+H))-H;
+
+    for(let cx=0;cx<cols;cx++){
+      const x=cx*cellW;
+      const fold=0.55 + 0.30*Math.sin(cx*0.32 + t*0.15) + 0.15*Math.sin(cx*0.08 - t*0.06);
+      for(let cy=0;cy<rows;cy++){
+        const y=cy*cellH;
+        const d = x - y*0.7;
+        const bw=40;
+        const db1=d-beam1;
+        const beamB = Math.exp(-(db1*db1)/(2*bw*bw)) * 0.7;
+        const vign = 1 - Math.abs((cy/rows)-0.4)*0.5;
+        let b = (fold*0.55 + beamB) * vign;
+        b = Math.max(0, Math.min(1,b));
+        if(b<0.05) continue;
+        const idx=Math.min(chars.length-1, Math.floor(b*chars.length));
+        ctx.fillStyle = colorFor(b);
+        ctx.fillText(chars[idx], x, y);
+      }
+    }
+    if(!reduceMotion) requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+
+</body>
+</html>

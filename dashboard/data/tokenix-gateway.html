@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tokenix — Gateway</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #07070a;
+    --panel: #0B0B0E;
+    --ink: #F5F2EC;
+    --ink-dim: #8C887F;
+    --ink-faint: #57544D;
+    --line: rgba(255,180,110,0.14);
+    --line-strong: rgba(255,180,110,0.26);
+    --amber: #FF7A1A;
+    --amber-hot: #FFD9A6;
+    --green: #4ADE80;
+    --pad-x: clamp(24px, 5vw, 80px);
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background:var(--bg); }
+  body{ color: var(--ink); font-family:'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+
+  .section{ padding: 72px var(--pad-x) 96px; }
+
+  .intro{ max-width: 640px; margin-bottom: 44px; }
+  .intro h2{
+    font-family:'Inter', sans-serif; font-weight: 600;
+    font-size: clamp(30px, 3.4vw, 42px);
+    letter-spacing: -0.01em;
+    margin: 0 0 20px;
+  }
+  .intro p{ font-size: 15.5px; line-height: 1.7; color: var(--ink-dim); margin: 0 0 14px; }
+  .intro a{
+    display:inline-flex; align-items:center; gap:6px;
+    color: var(--amber-hot); text-decoration:none;
+    font-size: 14.5px; font-weight: 500; margin-top: 10px;
+  }
+  .intro a:hover{ opacity:0.85; }
+
+  /* ---- calculator card ---- */
+  .calc-wrap{ position: relative; }
+  .calc-card{
+    border: 1px solid var(--line-strong);
+    border-radius: 18px;
+    background: var(--panel);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .calc-top{
+    display:grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    padding: 30px clamp(20px,3vw,40px) 10px;
+    align-items: start;
+  }
+
+  @media (max-width: 720px){
+    .calc-top{ grid-template-columns: 1fr; }
+  }
+
+  .slider-block{ min-width: 0; }
+  .tier-pill{
+    display:inline-flex; align-items:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--amber-hot);
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    padding: 5px 13px;
+    margin-bottom: 22px;
+  }
+
+  .waveform{
+    position: relative;
+    height: 40px;
+    margin-bottom: 4px;
+  }
+  .waveform .bars{
+    position:absolute; inset:0;
+    display:flex; align-items:flex-end; gap:3px;
+  }
+  .waveform .bars span{
+    flex:1; min-width:2px; border-radius:1px;
+    background: rgba(255,180,110,0.14);
+    height: 10px;
+    transition: background .1s ease;
+  }
+  .waveform .bars span.filled{ background: var(--amber); }
+
+  .track{
+    position: relative; height: 14px; margin-top: 2px;
+  }
+  .track .rail{
+    position:absolute; top:50%; left:6px; right:6px; height:2px;
+    background: rgba(255,255,255,0.1); transform: translateY(-50%);
+    border-radius: 2px;
+  }
+  .track .handle{
+    position:absolute; top:50%; width:26px; height:26px;
+    border-radius:50%; background: var(--amber);
+    border: 5px solid var(--panel);
+    transform: translate(-50%,-50%);
+    pointer-events:none;
+  }
+  .track input[type=range]{
+    position:absolute; inset:0; width:100%; height:100%;
+    opacity:0; cursor: grab; margin:0;
+  }
+  .track input[type=range]:active{ cursor: grabbing; }
+
+  .axis{ position: relative; height: 20px; margin-top: 6px; }
+  .axis span{
+    position:absolute; top:0;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--ink-faint);
+    white-space: nowrap;
+  }
+  .axis .center-label{
+    left:50%; transform: translateX(-50%);
+    letter-spacing: 0.08em; color: var(--ink-faint);
+  }
+
+  .price-block{
+    display:flex; flex-direction:column; align-items:flex-end;
+    padding-top: 4px;
+  }
+  .price-label{
+    display:flex; align-items:center; gap:6px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--ink-dim);
+    margin-bottom: 4px;
+  }
+  .price-num{
+    font-family:'Inter', sans-serif; font-weight: 300;
+    font-size: clamp(40px, 5vw, 58px);
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+  .price-sub{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13px; color: var(--green);
+    margin-top: 6px;
+  }
+
+  /* ---- comparison list ---- */
+  .compare{
+    padding: 26px clamp(20px,3vw,40px) 34px;
+    background: #08080B;
+    border-top: 1px solid var(--line);
+  }
+  .compare-title{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.05em; color: var(--ink-faint);
+    margin-bottom: 22px;
+  }
+  .cbar{ margin-bottom: 20px; }
+  .cbar:last-child{ margin-bottom:0; }
+  .cbar-head{
+    display:flex; align-items:baseline; justify-content:space-between;
+    gap: 12px; margin-bottom: 9px;
+  }
+  .cbar-name{ display:flex; align-items:baseline; gap:9px; min-width:0; }
+  .cbar-mark{
+    width:18px; height:18px; border-radius:4px;
+    background: rgba(255,180,110,0.08);
+    border: 1px solid var(--line-strong);
+    color: var(--ink-dim);
+    font-family:'JetBrains Mono', monospace; font-size:10px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .cbar-name .n1{ font-size: 14.5px; color: var(--ink); }
+  .cbar-name .n2{ font-size: 12.5px; color: var(--ink-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cbar-mult{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 15px; color: var(--ink);
+    white-space:nowrap; flex-shrink:0;
+  }
+  .cbar-track{
+    height: 5px; border-radius: 3px;
+    background: rgba(255,255,255,0.06);
+    overflow:hidden;
+  }
+  .cbar-fill{
+    height:100%; border-radius:3px;
+    background: rgba(255,180,110,0.4);
+  }
+
+  .fade-overlay{
+    position:absolute; left:0; right:0; bottom:0; height:60%;
+    background: linear-gradient(180deg, transparent, var(--bg) 88%);
+    pointer-events:none;
+    border-radius: 0 0 18px 18px;
+    z-index: 3;
+  }
+</style>
+</head>
+<body>
+
+<section class="section">
+  <div class="intro">
+    <h2>Price it before you spend it.</h2>
+    <p>Route through the gateway and every request is benchmarked against ACPI in real time — no blended contract to renegotiate, no dashboard that only shows the damage after the invoice lands.</p>
+    <p>One line of code. No per-model SKUs, no annual commit to unlock visibility, no waiting on finance to reconcile the bill.</p>
+    <a href="#gateway-docs">Learn more →</a>
+  </div>
+
+  <div class="calc-wrap">
+    <div class="calc-card">
+      <div class="calc-top">
+        <div class="slider-block">
+          <div class="tier-pill" id="tierPill">10M tokens/mo</div>
+
+          <div class="waveform"><div class="bars" id="bars"></div></div>
+
+          <div class="track">
+            <div class="rail"></div>
+            <div class="handle" id="handle"></div>
+            <input type="range" id="slider" min="0" max="1" step="0.001" value="0.5" aria-label="Monthly tokens">
+          </div>
+
+          <div class="axis">
+            <span style="left:0%;">100K</span>
+            <span style="left:25%; transform:translateX(-50%);">1M</span>
+            <span class="center-label">TOKENS / MONTH</span>
+            <span style="left:75%; transform:translateX(-50%);">100M</span>
+            <span style="right:0%;">1B</span>
+          </div>
+        </div>
+
+        <div class="price-block">
+          <div class="price-label">Estimated spend</div>
+          <div class="price-num" id="priceNum">$49.90</div>
+          <div class="price-sub" id="priceSub">↓ 47% vs frontier-only pricing</div>
+        </div>
+      </div>
+
+      <div class="compare">
+        <div class="compare-title">WHAT YOU'D PAY ELSEWHERE · SAME WORKLOAD, UNOPTIMIZED</div>
+        <div id="compareList"></div>
+      </div>
+
+      <div class="fade-overlay"></div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  const BLENDED_RATE = 4.99; // ACPI blended rate, $ per 1M tokens
+
+  const COMPARISONS = [
+    { name:'Frontier-only routing', sub:'e.g. always Claude Opus, no benchmarking', rate:9.40, mark:'F' },
+    { name:'Default vendor pricing', sub:'sticker rate, no ACPI reference', rate:7.20, mark:'D' },
+    { name:'Manual multi-vendor tracking', sub:'spreadsheet-based cost tracking', rate:6.10, mark:'M' },
+  ];
+
+  // ---- token volume slider: log scale, 100K to 1B tokens/month ----
+  const MIN_LOG = Math.log10(100000);
+  const MAX_LOG = Math.log10(1000000000);
+
+  function tokensAt(t){
+    const logV = MIN_LOG + t * (MAX_LOG - MIN_LOG);
+    return Math.pow(10, logV);
+  }
+
+  function formatTokens(n){
+    if(n >= 1e9) return (n/1e9).toFixed(n>=1e9*10?0:1) + 'B';
+    if(n >= 1e6) return (n/1e6).toFixed(n>=1e6*10?0:1) + 'M';
+    if(n >= 1e3) return (n/1e3).toFixed(0) + 'K';
+    return n.toFixed(0);
+  }
+
+  function formatUSD(n){
+    return '$' + n.toLocaleString('en-US', { minimumFractionDigits: n<1000?2:0, maximumFractionDigits: n<1000?2:0 });
+  }
+
+  // waveform bars
+  const barsEl = document.getElementById('bars');
+  const BAR_COUNT = 64;
+  function seededRandom(seed){ let s=seed; return ()=>{ s=(s*9301+49297)%233280; return s/233280; }; }
+  const rnd = seededRandom(7);
+  const barHeights = [];
+  for(let i=0;i<BAR_COUNT;i++){
+    barHeights.push(6 + rnd()*28);
+  }
+  // shape it like an audio waveform: taller near center
+  for(let i=0;i<BAR_COUNT;i++){
+    const centerDist = Math.abs(i - BAR_COUNT/2) / (BAR_COUNT/2);
+    const envelope = 1 - centerDist*0.65;
+    barHeights[i] = Math.max(6, barHeights[i]*envelope);
+  }
+  barHeights.forEach(h=>{
+    const s = document.createElement('span');
+    s.style.height = h.toFixed(1) + 'px';
+    barsEl.appendChild(s);
+  });
+  const barEls = Array.from(barsEl.children);
+
+  const slider = document.getElementById('slider');
+  const handle = document.getElementById('handle');
+  const tierPill = document.getElementById('tierPill');
+  const priceNum = document.getElementById('priceNum');
+  const priceSub = document.getElementById('priceSub');
+
+  function render(){
+    const t = parseFloat(slider.value);
+    const tokens = tokensAt(t);
+    const pct = t*100;
+
+    handle.style.left = pct + '%';
+    barEls.forEach((el,i)=>{
+      el.classList.toggle('filled', (i/BAR_COUNT)*100 <= pct);
+    });
+
+    tierPill.textContent = formatTokens(tokens) + ' tokens/mo';
+
+    const spend = (tokens/1e6) * BLENDED_RATE;
+    priceNum.textContent = formatUSD(spend);
+
+    const frontierSpend = (tokens/1e6) * COMPARISONS[0].rate;
+    const savings = Math.round((1 - spend/frontierSpend) * 100);
+    priceSub.textContent = `↓ ${savings}% vs frontier-only pricing`;
+  }
+
+  slider.addEventListener('input', render);
+  render();
+
+  // ---- comparison bars: static multipliers, independent of volume ----
+  const listEl = document.getElementById('compareList');
+  const maxRate = Math.max(...COMPARISONS.map(c=>c.rate));
+
+  COMPARISONS.forEach(c=>{
+    const mult = c.rate / BLENDED_RATE;
+    const width = (c.rate / maxRate) * 100;
+
+    const row = document.createElement('div');
+    row.className = 'cbar';
+    row.innerHTML = `
+      <div class="cbar-head">
+        <div class="cbar-name">
+          <span class="cbar-mark">${c.mark}</span>
+          <span class="n1">${c.name}</span>
+          <span class="n2">${c.sub}</span>
+        </div>
+        <div class="cbar-mult">${mult.toFixed(1)}x more expensive</div>
+      </div>
+      <div class="cbar-track"><div class="cbar-fill" style="width:${width}%;"></div></div>
+    `;
+    listEl.appendChild(row);
+  });
+})();
+</script>
+
+</body>
+</html>

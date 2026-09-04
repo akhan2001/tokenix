@@ -594,7 +594,7 @@ export function TokenCalculator() {
   // ── States ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div style={{ padding: "80px 48px", textAlign: "center", color: "var(--text3)", fontSize: 12, letterSpacing: "0.06em" }}>
+      <div style={{ padding: "var(--space-section-lg) var(--pad-x)", textAlign: "center", color: "var(--text3)", fontSize: 12, letterSpacing: "0.06em" }}>
         Loading live prices…
       </div>
     );
@@ -602,8 +602,8 @@ export function TokenCalculator() {
 
   if (error || !data) {
     return (
-      <div style={{ padding: "80px 48px", textAlign: "center" }}>
-        <div style={{ fontFamily: "var(--serif)", fontSize: 20, color: "var(--text)", marginBottom: 8 }}>
+      <div style={{ padding: "var(--space-section-lg) var(--pad-x)", textAlign: "center" }}>
+        <div style={{ fontFamily: "var(--sans)", fontSize: 20, color: "var(--text)", marginBottom: 8 }}>
           Prices unavailable
         </div>
         <div style={{ color: "var(--text3)", fontSize: 12 }}>{error}</div>
@@ -612,7 +612,7 @@ export function TokenCalculator() {
   }
 
   return (
-    <div className="calc-wrap" style={{ padding: "44px 48px 64px" }}>
+    <div className="calc-wrap" style={{ padding: "var(--space-section-sm) var(--pad-x) var(--space-section-md)" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: "column", gap: 34 }}>
         {/* ── Scenario presets ───────────────────────────────────────────── */}
         <section>
@@ -647,7 +647,7 @@ export function TokenCalculator() {
                 >
                   <div
                     style={{
-                      fontFamily: "var(--serif)",
+                      fontFamily: "var(--sans)",
                       fontSize: 17,
                       color: active ? "var(--accent)" : "var(--text)",
                       marginBottom: 6,
@@ -860,7 +860,7 @@ export function TokenCalculator() {
               {results.length > 0 ? (
                 <div>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
-                    <span style={{ fontFamily: "var(--serif)", fontSize: 38, color: "var(--text)", lineHeight: 1.1 }}>
+                    <span style={{ fontFamily: "var(--sans)", fontSize: 38, color: "var(--text)", lineHeight: 1.1 }}>
                       {formatCurrency(results[0].monthly)}
                     </span>
                     <span style={{ fontSize: 11, color: "var(--text3)", letterSpacing: "0.06em" }}>
@@ -933,7 +933,7 @@ export function TokenCalculator() {
                     >
                       {label}
                     </span>
-                    <span style={{ fontFamily: "var(--serif)", fontSize: 18, color: "var(--text)" }}>
+                    <span style={{ fontFamily: "var(--sans)", fontSize: 18, color: "var(--text)" }}>
                       {value}
                     </span>
                   </div>
@@ -955,7 +955,7 @@ export function TokenCalculator() {
               <Kicker>Ranked by ACPI value score — price and quality combined</Kicker>
               <div
                 style={{
-                  fontFamily: "var(--serif)",
+                  fontFamily: "var(--sans)",
                   fontSize: 22,
                   color: "var(--text)",
                   letterSpacing: "-0.012em",
@@ -986,7 +986,7 @@ export function TokenCalculator() {
             <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 200 }}>
               <Kicker>ACPI reference</Kicker>
               <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                <span style={{ fontFamily: "var(--serif)", fontSize: 26, color: "var(--accent)" }}>
+                <span style={{ fontFamily: "var(--sans)", fontSize: 26, color: "var(--accent)" }}>
                   ${data.acpi.value.toFixed(4)}
                 </span>
                 <span style={{ fontSize: 10, color: "var(--text3)" }}>/ 1M SCU</span>
