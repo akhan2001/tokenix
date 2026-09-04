@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
+import { useRouter } from "next/navigation";
 
 import {
   createWorkspaceAction,
@@ -11,17 +12,18 @@ import {
 import { WorkspaceKey, primaryButton } from "@/components/workspace-key";
 
 /**
- * First-run choice: claim an existing workspace, or start a new one.
+ * Two jobs, both always offered: claim an existing workspace by its key, or
+ * issue a brand new one.
  *
- * Shown when a signed-in person owns no workspace. That is two different
- * people — someone brand new, and an existing customer whose workspace predates
- * Clerk and so has no account attached. Auto-provisioning served the first and
- * quietly harmed the second, handing them an empty workspace while their real
- * spend history sat behind an unlinked key. So the page asks instead of
- * guessing.
- *
- * Claiming is offered first: getting it wrong is the expensive mistake, and a
- * new user reads one extra line before clicking the other button.
+ * `mode="setup"` (no workspace on the account at all) frames the create
+ * option as "New here?". `mode="relink"` (Connect page, already-provisioned
+ * user) frames the identical action as "Lost your key?" — it used to be
+ * hidden entirely in this mode, which meant someone who lost their only key
+ * had no visible way to recover: the paste-a-key form assumes you have
+ * ANOTHER key, and there is no key-rotation endpoint on the gateway to
+ * reissue the same workspace's key (a known gap — see skills.md's Known
+ * Issues). Minting a new workspace is the only self-serve recovery that
+ * exists today, so it has to be reachable from both entry points.
  */
 function LinkButton() {
   const { pending } = useFormStatus();
@@ -54,12 +56,23 @@ function CreateButton() {
 }
 
 export function WorkspaceSetup({ mode = "setup" }: { mode?: "setup" | "relink" }) {
+  const router = useRouter();
   const [linkState, linkAction] = useActionState<ConnectState, FormData>(linkKeyAction, {});
   const [createState, createAction] = useActionState<ConnectState, FormData>(
     () => createWorkspaceAction(),
     {},
   );
   const [showKey, setShowKey] = useState(false);
+
+  // In relink mode this sits below a server-rendered card showing the OLD
+  // workspace's key prefix (Connect page). Minting a new one makes that
+  // stale the instant it succeeds — refresh so it reflects the new
+  // workspace. This only re-runs the server component's data fetch; it does
+  // not reset this component's own state, so the one-time key below keeps
+  // displaying through the refresh.
+  useEffect(() => {
+    if (createState.apiKey) router.refresh();
+  }, [createState.apiKey, router]);
 
   // A freshly minted key exists only in this response — show it and stop.
   if (createState.apiKey) {
@@ -108,23 +121,22 @@ export function WorkspaceSetup({ mode = "setup" }: { mode?: "setup" | "relink" }
         </div>
       </form>
 
-      {mode === "setup" && (
-        <div style={{ borderTop: "1px solid var(--border)", paddingTop: 22 }}>
-          <div style={labelStyle}>New here?</div>
-          <p style={helpStyle}>
-            We will issue a workspace and its key. The key is shown once and cannot be recovered
-            afterwards.
-          </p>
-          <form action={createAction}>
-            <CreateButton />
-          </form>
-          {createState.error && (
-            <div role="alert" style={{ fontSize: 12, color: "var(--red)", lineHeight: 1.7, marginTop: 10 }}>
-              {createState.error}
-            </div>
-          )}
-        </div>
-      )}
+      <div style={{ borderTop: "1px solid var(--border)", paddingTop: 22 }}>
+        <div style={labelStyle}>{mode === "relink" ? "Lost your key?" : "New here?"}</div>
+        <p style={helpStyle}>
+          {mode === "relink"
+            ? "Issue a brand new workspace and key — it starts empty, separate from the one above. There is no way to recover or reissue the same key, so this is the only way back in if you no longer have it."
+            : "We will issue a workspace and its key. The key is shown once and cannot be recovered afterwards."}
+        </p>
+        <form action={createAction}>
+          <CreateButton />
+        </form>
+        {createState.error && (
+          <div role="alert" style={{ fontSize: 12, color: "var(--red)", lineHeight: 1.7, marginTop: 10 }}>
+            {createState.error}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -191,11 +191,11 @@ export default async function ConnectPage() {
 
           <DashCard padding="22px 24px">
             <div style={{ fontSize: 14.5, fontWeight: 500, color: "var(--text)", marginBottom: 6 }}>
-              Connect a different workspace
+              Connect a different workspace, or lost your key?
             </div>
             <p style={{ fontSize: 12, color: "var(--text3)", lineHeight: 1.7, margin: "0 0 18px", maxWidth: "56ch" }}>
-              Anyone auto-provisioned before this setup choice existed already has a workspace, so
-              they would never see the claim form — which is precisely who needs it.
+              Paste another workspace&rsquo;s key to switch to it, or issue a brand new workspace
+              below if the key above is the only one you had and it&rsquo;s gone.
             </p>
             <div style={{ maxWidth: 460 }}>
               <WorkspaceSetup mode="relink" />
