@@ -82,6 +82,26 @@ export interface Forecast {
   low_confidence: boolean;
 }
 
+export type Budget =
+  | { configured: false }
+  | {
+      configured: true;
+      monthly_limit_usd: number;
+      alert_pct: number;
+      alert_email: string;
+      current_spend_usd: number;
+      pct_used: number;
+      projected_eom_usd: number;
+      will_exceed: boolean;
+      days_remaining: number;
+    };
+
+export interface BudgetInput {
+  monthly_limit_usd: number;
+  alert_pct: number;
+  alert_email: string;
+}
+
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -147,6 +167,45 @@ export const fetchBenchmark = (key: string, days: number) =>
   get<Benchmark>(`/api/v1/benchmark?days=${days}`, key);
 
 export const fetchForecast = (key: string) => get<Forecast>("/api/v1/forecast", key);
+
+async function post<T>(path: string, key: string, body: unknown): Promise<T> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}${path}`, {
+      method: "POST",
+      headers: { ...authHeaders(key), "content-type": "application/json" },
+      body: JSON.stringify(body),
+      cache: "no-store",
+    });
+  } catch {
+    throw new ApiError(
+      `Could not reach the Tokenix analytics API at ${API_BASE}. Is it running?`,
+      503,
+    );
+  }
+
+  if (response.status === 401) {
+    throw new ApiError("That workspace key was rejected.", 401);
+  }
+  if (!response.ok) {
+    // The API returns Pydantic's {"detail": ...} on validation errors — surface
+    // that instead of a bare status code where it's available.
+    let detail = `Analytics API returned ${response.status}.`;
+    try {
+      const body = (await response.json()) as { detail?: unknown };
+      if (body.detail) detail = typeof body.detail === "string" ? body.detail : JSON.stringify(body.detail);
+    } catch {
+      // Not JSON — the generic status message stands.
+    }
+    throw new ApiError(detail, response.status);
+  }
+  return (await response.json()) as T;
+}
+
+export const fetchBudget = (key: string) => get<Budget>("/api/v1/budget", key);
+
+export const saveBudget = (key: string, body: BudgetInput) =>
+  post<{ success: true }>("/api/v1/budget", key, body);
 
 /**
  * Fetch one export file, returning the raw upstream `Response`.

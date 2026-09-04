@@ -35,10 +35,18 @@ import type { ScenarioPoint } from "@/lib/forecast-scenarios";
  * top of it — recharts has no native "fill between two arbitrary lines"
  * primitive. The Line components are drawn separately, on top, for crisp
  * edges the area fill alone wouldn't give.
+ *
+ * `monthlyBudget`, when set, adds a fourth line: cumulative spend if every
+ * month landed exactly on the budget limit (`limit * month`). Not a flat
+ * horizontal line — this chart's axis is cumulative spend across the year,
+ * so a flat line at the monthly figure would only be meaningful at month 1.
+ * The pace line is the honest read of "where budget-compliant spend would
+ * sit by this point," directly comparable to the other cumulative lines.
  */
 const CURRENT = "#ffa515";
 const OPTIMIZED = "#6fd6cf";
 const FLAT = "#7a8296";
+const BUDGET = "#e5484d";
 
 function fmtUsd(n: number): string {
   if (Math.abs(n) >= 1000) return "$" + n.toLocaleString("en-US", { maximumFractionDigits: 0 });
@@ -51,7 +59,7 @@ function fmtCompactUsd(n: number): string {
   return "$" + Math.round(n);
 }
 
-type ChartPoint = ScenarioPoint & { label: string; gap: number };
+type ChartPoint = ScenarioPoint & { label: string; gap: number; budgetPace?: number };
 
 function ProjectionTooltip({
   active,
@@ -63,10 +71,11 @@ function ProjectionTooltip({
   label?: string;
 }) {
   if (!active || !payload?.length) return null;
-  const get = (key: string) => payload.find((p) => p.dataKey === key)?.value ?? 0;
-  const current = get("current");
-  const optimized = get("optimized");
-  const flat = get("flat");
+  const get = (key: string) => payload.find((p) => p.dataKey === key)?.value;
+  const current = get("current") ?? 0;
+  const optimized = get("optimized") ?? 0;
+  const flat = get("flat") ?? 0;
+  const budgetPace = get("budgetPace");
   return (
     <div
       style={{
@@ -83,6 +92,7 @@ function ProjectionTooltip({
         { label: "Current", value: current, color: CURRENT },
         { label: "Optimized", value: optimized, color: OPTIMIZED },
         { label: "Flat growth", value: flat, color: FLAT },
+        ...(budgetPace !== undefined ? [{ label: "Budget", value: budgetPace, color: BUDGET }] : []),
       ].map((row) => (
         <div key={row.label} style={{ display: "flex", justifyContent: "space-between", gap: 14, marginTop: 2 }}>
           <span style={{ color: "var(--text2)" }}>{row.label}</span>
@@ -106,11 +116,19 @@ function ProjectionTooltip({
   );
 }
 
-export function ForecastProjectionChart({ points }: { points: ScenarioPoint[] }) {
+export function ForecastProjectionChart({
+  points,
+  monthlyBudget,
+}: {
+  points: ScenarioPoint[];
+  /** Monthly limit in USD, if the workspace has one set on /dashboard/budgets. */
+  monthlyBudget?: number;
+}) {
   const data: ChartPoint[] = points.map((p) => ({
     ...p,
     label: `M${p.month}`,
     gap: Math.max(p.current - p.optimized, 0),
+    budgetPace: monthlyBudget ? monthlyBudget * p.month : undefined,
   }));
 
   return (
@@ -192,6 +210,18 @@ export function ForecastProjectionChart({ points }: { points: ScenarioPoint[] })
             dot={false}
             isAnimationActive={false}
           />
+          {monthlyBudget && (
+            <Line
+              type="linear"
+              dataKey="budgetPace"
+              name="Budget"
+              stroke={BUDGET}
+              strokeWidth={1.5}
+              strokeDasharray="1 4"
+              dot={false}
+              isAnimationActive={false}
+            />
+          )}
         </ComposedChart>
       </ResponsiveContainer>
     </div>

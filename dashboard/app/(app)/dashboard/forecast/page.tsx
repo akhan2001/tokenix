@@ -7,7 +7,7 @@ import { ForecastProjectionChart } from "@/components/dashboard/forecast-project
 import { EmptyState } from "@/components/stat-card";
 import { computeForecastScenarios, type ForecastScenarios, type ScenarioPoint } from "@/lib/forecast-scenarios";
 import { requireWorkspaceKey } from "@/lib/require-key";
-import { ApiError, fetchForecast, fmtPct, fmtUsd } from "@/lib/tokenix-api";
+import { ApiError, fetchBudget, fetchForecast, fmtPct, fmtUsd } from "@/lib/tokenix-api";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +36,11 @@ export default async function ForecastPage() {
       </Shell>
     );
   }
+
+  // Best-effort: a missing/unreachable budget just means no budget line on
+  // the chart, not a broken forecast page.
+  const budget = await fetchBudget(key).catch(() => null);
+  const monthlyBudget = budget?.configured ? budget.monthly_limit_usd : undefined;
 
   const hasProjection = data.projected_this_month_usd > 0;
   const savingShare = data.projected_rest_of_year_usd
@@ -142,8 +147,17 @@ export default async function ForecastPage() {
             <div style={{ fontSize: 12, color: "var(--text2)", marginBottom: 8 }}>
               Shaded area is the gap between current trajectory and optimized — the savings
               opportunity, month by month.
+              {monthlyBudget === undefined && (
+                <>
+                  {" "}
+                  <a href="/dashboard/budgets" style={{ color: "var(--accent)" }}>
+                    Set a budget
+                  </a>{" "}
+                  to plot it against these scenarios.
+                </>
+              )}
             </div>
-            <ForecastProjectionChart points={scenarios.points} />
+            <ForecastProjectionChart points={scenarios.points} monthlyBudget={monthlyBudget} />
           </DashCard>
         </>
       ) : (
