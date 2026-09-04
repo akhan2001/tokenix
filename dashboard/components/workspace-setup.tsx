@@ -1,8 +1,7 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { useRouter } from "next/navigation";
 
 import {
   createWorkspaceAction,
@@ -56,23 +55,12 @@ function CreateButton() {
 }
 
 export function WorkspaceSetup({ mode = "setup" }: { mode?: "setup" | "relink" }) {
-  const router = useRouter();
   const [linkState, linkAction] = useActionState<ConnectState, FormData>(linkKeyAction, {});
   const [createState, createAction] = useActionState<ConnectState, FormData>(
     () => createWorkspaceAction(),
     {},
   );
   const [showKey, setShowKey] = useState(false);
-
-  // In relink mode this sits below a server-rendered card showing the OLD
-  // workspace's key prefix (Connect page). Minting a new one makes that
-  // stale the instant it succeeds — refresh so it reflects the new
-  // workspace. This only re-runs the server component's data fetch; it does
-  // not reset this component's own state, so the one-time key below keeps
-  // displaying through the refresh.
-  useEffect(() => {
-    if (createState.apiKey) router.refresh();
-  }, [createState.apiKey, router]);
 
   // A freshly minted key exists only in this response — show it and stop.
   if (createState.apiKey) {

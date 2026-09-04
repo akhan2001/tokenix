@@ -3,12 +3,56 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
-import { ProvisionError, linkExistingKey, provisionWorkspace } from "@/lib/workspace";
+import { ProvisionError, findWorkspace, linkExistingKey, provisionWorkspace } from "@/lib/workspace";
+import { ProviderKeyError, saveProviderKey, type Provider } from "@/lib/provider-keys";
 
 export interface ConnectState {
   error?: string;
   /** Set only by the mint path — shown once, then gone. */
   apiKey?: string;
+}
+
+export interface ProviderKeyState {
+  error?: string;
+  success?: boolean;
+}
+
+/**
+ * Store a provider credential on the signed-in user's own workspace.
+ *
+ * The workspace id is resolved here from the authenticated session via
+ * `findWorkspace(userId)` — never accepted as a form field — so a request
+ * can only ever write to the workspace the caller actually owns.
+ */
+export async function saveProviderKeyAction(
+  _prev: ProviderKeyState,
+  formData: FormData,
+): Promise<ProviderKeyState> {
+  const { userId } = await auth();
+  if (!userId) redirect("/sign-in");
+
+  const provider = String(formData.get("provider") ?? "");
+  if (provider !== "openai" && provider !== "anthropic" && provider !== "google") {
+    return { error: "Unknown provider." };
+  }
+
+  const apiKey = String(formData.get("api_key") ?? "").trim();
+  if (!apiKey) return { error: "Enter an API key." };
+
+  const workspace = await findWorkspace(userId);
+  if (!workspace) return { error: "No workspace found for your account." };
+
+  try {
+    await saveProviderKey(workspace.workspace_id, provider as Provider, apiKey);
+  } catch (error) {
+    return {
+      error:
+        error instanceof ProviderKeyError
+          ? error.message
+          : "Could not save that credential right now. Try again in a moment.",
+    };
+  }
+  return { success: true };
 }
 
 /** Claim an existing workspace with its `txk-` key. */

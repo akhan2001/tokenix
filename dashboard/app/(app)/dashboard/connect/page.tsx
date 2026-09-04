@@ -8,6 +8,7 @@ import { WorkspaceKey } from "@/components/workspace-key";
 import { WorkspaceSetup } from "@/components/workspace-setup";
 import { requireClerkUser } from "@/lib/require-key";
 import { ProvisionError, findWorkspace } from "@/lib/workspace";
+import { listConnectedProviders, type Provider } from "@/lib/provider-keys";
 
 export const dynamic = "force-dynamic";
 
@@ -89,6 +90,7 @@ export default async function ConnectPage() {
   // workspace while their real history sat behind an unlinked key. The page
   // asks instead, and provisioning became an explicit action.
   let keyPrefix: string | null = null;
+  let connectedProviders: Provider[] | null = null;
   let needsSetup = false;
   let problem: string | null = null;
 
@@ -96,6 +98,7 @@ export default async function ConnectPage() {
     const existing = await findWorkspace(user.id);
     if (existing) {
       keyPrefix = existing.key_prefix;
+      connectedProviders = await listConnectedProviders(existing.workspace_id);
     } else {
       needsSetup = true;
     }
@@ -135,7 +138,7 @@ export default async function ConnectPage() {
           </DashCard>
 
           <div style={{ marginBottom: 24 }}>
-            <ProviderConnections />
+            <ProviderConnections connected={connectedProviders} />
           </div>
 
           <div
