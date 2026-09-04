@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import { DashPageHeader } from "@/components/dashboard/dash-page-header";
 import { DashCard } from "@/components/dashboard/dash-card";
 import { ProviderConnections } from "@/components/dashboard/provider-connections";
-import { TestRequestButton } from "@/components/dashboard/test-request-button";
 import { ConnectionCheck } from "@/components/dashboard/connection-check";
-import { CodeBlock, type Snippet } from "@/components/code-block";
+import { FreshSetup } from "@/components/dashboard/fresh-setup";
+import { GenerateSnippet } from "@/components/dashboard/generate-snippet";
 import { WorkspaceKey } from "@/components/workspace-key";
 import { WorkspaceSetup } from "@/components/workspace-setup";
 import { requireClerkUser } from "@/lib/require-key";
@@ -18,49 +18,6 @@ export const metadata: Metadata = {
   title: "Connect · Tokenix",
   description: "Route your AI traffic through Tokenix by changing one line.",
 };
-
-const GATEWAY_URL =
-  process.env.NEXT_PUBLIC_TOKENIX_GATEWAY_URL ?? "https://gateway.tokenixindex.com";
-
-function buildSnippets(key: string): Snippet[] {
-  const base = `${GATEWAY_URL}/openai/v1`;
-  return [
-    {
-      id: "python",
-      label: "Python",
-      lang: "python",
-      code: ["from openai import OpenAI", "", "client = OpenAI(", `    api_key="${key}",`, `    base_url="${base}",`, ")"].join("\n"),
-    },
-    {
-      id: "typescript",
-      label: "TypeScript",
-      lang: "typescript",
-      code: [
-        'import OpenAI from "openai";',
-        "",
-        "const client = new OpenAI({",
-        `  apiKey: "${key}",`,
-        `  baseURL: "${base}",`,
-        "});",
-      ].join("\n"),
-    },
-    {
-      id: "curl",
-      label: "cURL",
-      lang: "bash",
-      // Joined rather than written as one template literal: a trailing
-      // backslash before a newline is a line continuation in JS, so the
-      // shell's own continuations get eaten and the command collapses onto
-      // one line.
-      code: [
-        `curl ${base}/chat/completions \\`,
-        `  -H "Authorization: Bearer ${key}" \\`,
-        '  -H "Content-Type: application/json" \\',
-        `  -d '{"model":"gpt-4o-mini","messages":[{"role":"user","content":"hi"}]}'`,
-      ].join("\n"),
-    },
-  ];
-}
 
 /**
  * The sole onboarding surface: key, provider credentials, code snippet, and
@@ -174,66 +131,6 @@ export default async function ConnectPage({
   );
 }
 
-/** Screens 1–4, all at once, all real — the moment the plaintext key exists. */
-function FreshSetup({ apiKey }: { apiKey: string }) {
-  return (
-    <div style={{ display: "grid", gap: 18 }}>
-      <StepCard n={1} title="Your key">
-        <WorkspaceKey apiKey={apiKey} keyPrefix={null} />
-      </StepCard>
-
-      <StepCard n={2} title="Connect a provider">
-        <ProviderConnections connected={[]} />
-      </StepCard>
-
-      <StepCard n={3} title="Change the base URL">
-        <p style={{ fontSize: 12.5, color: "var(--text2)", lineHeight: 1.7, margin: "0 0 16px", maxWidth: "60ch" }}>
-          Your key is already in the snippet below — nothing to find-and-replace. Point your
-          existing SDK at the gateway and every request gets priced against ACPI as it passes
-          through.
-        </p>
-        <CodeBlock snippets={buildSnippets(apiKey)} label="Snippet language" />
-      </StepCard>
-
-      <StepCard n={4} title="Send a test request">
-        <p style={{ fontSize: 12.5, color: "var(--text2)", lineHeight: 1.7, margin: "0 0 16px", maxWidth: "60ch" }}>
-          A real, tiny request through your new key — a few tokens against whichever provider
-          you just connected. If it works, everything above is wired up correctly.
-        </p>
-        <TestRequestButton apiKey={apiKey} />
-      </StepCard>
-    </div>
-  );
-}
-
-function StepCard({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
-  return (
-    <DashCard padding="24px 26px">
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-        <span
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 22,
-            height: 22,
-            borderRadius: "50%",
-            background: "var(--s2)",
-            border: "1px solid var(--border)",
-            color: "var(--accent)",
-            fontSize: 11.5,
-            flexShrink: 0,
-          }}
-        >
-          {n}
-        </span>
-        <div style={{ fontSize: 14.5, fontWeight: 500, color: "var(--text)" }}>{title}</div>
-      </div>
-      {children}
-    </DashCard>
-  );
-}
-
 /** Every visit after the one that minted the key — provider management stays live, everything else falls back honestly. */
 function SteadyState({
   keyPrefix,
@@ -279,17 +176,9 @@ function SteadyState({
         ))}
       </div>
 
-      <DashCard padding="22px 24px" style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 14.5, fontWeight: 500, color: "var(--text)", marginBottom: 6 }}>
-          Change the base URL
-        </div>
-        <p style={{ fontSize: 12, color: "var(--text3)", lineHeight: 1.7, margin: "0 0 16px", maxWidth: "60ch" }}>
-          The key below is a placeholder — your real one is shown only once, at the top of this
-          page or the moment it was issued. Paste yours in over{" "}
-          <code style={{ fontFamily: "var(--mono)" }}>txk-your-tokenix-key</code>.
-        </p>
-        <CodeBlock snippets={buildSnippets("txk-your-tokenix-key")} label="Snippet language" />
-      </DashCard>
+      <div style={{ marginBottom: 24 }}>
+        <GenerateSnippet />
+      </div>
 
       <DashCard padding="22px 24px" style={{ marginBottom: 24 }}>
         <div style={{ fontSize: 13.5, fontWeight: 500, color: "var(--text2)", marginBottom: 6 }}>
