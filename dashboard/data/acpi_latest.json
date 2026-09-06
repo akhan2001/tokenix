@@ -1,6 +1,6 @@
 {
   "acpi": 4.8875,
-  "computed_at": "2026-09-06T05:22:23Z",
+  "computed_at": "2026-09-06T10:01:38Z",
   "model_count": 335,
   "provider_count": 55,
   "weighting": "bucket-5050",
@@ -21,7 +21,7 @@
   "screener": {
     "scored_model_count": 27,
     "mean_benchmark_score": 0.103631,
-    "mean_p1": -24.050819
+    "mean_p1": -24.013321
   },
   "deduped_variants_removed": 83
 }
