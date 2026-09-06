@@ -77,7 +77,12 @@
       "Bash(git rebase *)",
       "PowerShell(gh repo view akhan2001/ai-gateway --json name,description,isPrivate,primaryLanguage,updatedAt,pushedAt,defaultBranchRef,url 2>&1 | Out-String)",
       "Bash(git commit *)",
-      "Bash(mkdir *)"
+      "Bash(mkdir *)",
+      "PowerShell(head *)",
+      "PowerShell(tokenix *)",
+      "PowerShell(Invoke-RestMethod -Uri \"https://ai-gateway-production-a74e.up.railway.app/\" -Method GET 2>&1)",
+      "PowerShell(Invoke-RestMethod -Uri \"https://ai-gateway-production-a74e.up.railway.app/openapi.json\" -Method GET 2>&1)",
+      "PowerShell($spec = Invoke-RestMethod -Uri \"https://ai-gateway-production-a74e.up.railway.app/openapi.json\"; $spec.paths.PSObject.Properties.Name)"
     ]
   }
 }
